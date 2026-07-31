@@ -19,8 +19,10 @@ from app.domain.maintenance import (
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
 from app.application.service_history import (
+    CorrectionCommand,
     ServiceCorrectionForbidden,
     ServiceHistoryState,
+    handle_correction,
     void_service_record_for_owner,
 )
 from app.simulation.ownership_profiles import (
@@ -173,6 +175,20 @@ def _start_owner(context: object) -> None:
             actor="mechanic-1",
             payload={"message": str(error)},
         )
+    _, correction_response = handle_correction(
+        history,
+        CorrectionCommand("mechanic-1", service_event.service_id, "Correction"),
+    )
+    context.emit(
+        "application_response",
+        correction_response.code,
+        source="service-history-command",
+        actor="mechanic-1",
+        payload={
+            "accepted": correction_response.accepted,
+            "message": correction_response.message,
+        },
+    )
     profile_item = MaintenanceItem(
         "Engine oil",
         interval_km=4000,
