@@ -20,7 +20,13 @@ from app.domain.obligations import (
     next_obligation_actions,
     next_owner_actions,
 )
-from app.application.service_history import ServiceHistoryState, void_service_record_for_owner
+from app.application.service_history import (
+    ServiceCorrectionAlreadyVoided,
+    ServiceCorrectionForbidden,
+    ServiceCorrectionNotFound,
+    ServiceHistoryState,
+    void_service_record_for_owner,
+)
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -285,6 +291,27 @@ class MaintenanceStatusTests(unittest.TestCase):
         state, _ = void_service_record_for_owner(state, "owner-1", "service-a", "Correction")
         with self.assertRaises(ValueError):
             void_service_record_for_owner(state, "owner-1", "service-a", "Correction again")
+
+    def test_correction_errors_expose_stable_codes_and_safe_messages(self):
+        state = ServiceHistoryState("moto-1", "owner-1")
+        with self.assertRaises(ServiceCorrectionNotFound) as missing:
+            void_service_record_for_owner(state, "owner-1", "missing", "Correction")
+        self.assertEqual(missing.exception.code, "service_record_not_found")
+        self.assertEqual(str(missing.exception), "This service record is no longer available.")
+
+        item = MaintenanceItem("Chain inspection")
+        _, record = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 31), 18420, service_id="service-a"
+        )
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        with self.assertRaises(ServiceCorrectionForbidden) as forbidden:
+            void_service_record_for_owner(state, "mechanic-1", "service-a", "Correction")
+        self.assertEqual(forbidden.exception.code, "service_correction_forbidden")
+
+        state, _ = void_service_record_for_owner(state, "owner-1", "service-a", "Correction")
+        with self.assertRaises(ServiceCorrectionAlreadyVoided) as repeated:
+            void_service_record_for_owner(state, "owner-1", "service-a", "Correction again")
+        self.assertEqual(repeated.exception.code, "service_record_already_voided")
 
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
