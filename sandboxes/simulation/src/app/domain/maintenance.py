@@ -47,6 +47,15 @@ class ServiceCompleted:
     odometer_km: int
 
 
+@dataclass(frozen=True)
+class ServiceRecorded:
+    serviced_at: date
+    odometer_km: int
+    completed_titles: tuple[str, ...]
+    provider_name: str | None = None
+    notes: str | None = None
+
+
 def complete_service(
     item: MaintenanceItem, serviced_at: date, odometer_km: int
 ) -> tuple[MaintenanceItem, ServiceCompleted]:
@@ -64,6 +73,41 @@ def complete_service(
         enabled=item.enabled,
     )
     return updated, ServiceCompleted(item.title, serviced_at, odometer_km)
+
+
+def record_service(
+    items: list[MaintenanceItem],
+    completed_titles: list[str],
+    serviced_at: date,
+    odometer_km: int,
+    *,
+    provider_name: str | None = None,
+    notes: str | None = None,
+) -> tuple[list[MaintenanceItem], ServiceRecorded]:
+    """Apply one auditable service visit to a selected subset of items."""
+    if odometer_km < 0:
+        raise ValueError("service odometer cannot be negative")
+    if len(set(completed_titles)) != len(completed_titles):
+        raise ValueError("service items cannot be duplicated")
+    by_title = {item.title: item for item in items}
+    missing = [title for title in completed_titles if title not in by_title]
+    if missing:
+        raise ValueError(f"unknown maintenance items: {', '.join(missing)}")
+    selected = set(completed_titles)
+    updated = [
+        complete_service(item, serviced_at, odometer_km)[0]
+        if item.title in selected
+        else item
+        for item in items
+    ]
+    event = ServiceRecorded(
+        serviced_at=serviced_at,
+        odometer_km=odometer_km,
+        completed_titles=tuple(completed_titles),
+        provider_name=provider_name,
+        notes=notes,
+    )
+    return updated, event
 
 
 def assess(
