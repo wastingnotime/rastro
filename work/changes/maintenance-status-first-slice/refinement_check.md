@@ -13,6 +13,8 @@
   reminder noise while retaining item-level detail.
 - Date-based document obligations now join the combined owner attention
   projection without being folded into mechanical maintenance rules.
+- One-year profile evidence confirms active riders remain fresh while a
+  long-unused motorcycle becomes unknown after 90 days.
 
 ## Current conclusion
 
@@ -24,3 +26,5 @@ does not reset unrelated maintenance items.
 ## Questions carried forward
 
 - Evaluate reminder noise over longer commuter and weekend-rider scenarios.
+- Decide whether persistent overdue states need cadence, suppression, or
+  service-completion prompts in the owner experience.

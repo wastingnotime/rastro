@@ -44,6 +44,10 @@ Document obligations use the same status vocabulary but remain a separate
 date-based model. The combined owner projection merges their actionable
 assessments with maintenance assessments at the highest urgency.
 
+One-year profile refinement compares daily commuter, weekend rider, and
+long-unused ownership patterns. Active profiles retain fresh mileage status;
+the long-unused profile becomes `unknown` after the 90-day freshness window.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -55,6 +59,7 @@ assessments with maintenance assessments at the highest urgency.
 - equally urgent maintenance items are grouped into one attention observation;
 - completed or disabled document obligations do not create owner attention;
 - document and maintenance actions can appear together in owner attention;
+- one-year ownership profiles produce deterministic freshness evidence;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

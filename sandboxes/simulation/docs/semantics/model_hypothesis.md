@@ -31,6 +31,10 @@ next action.
    noise while preserving each item title.
 7. Mechanical maintenance and document obligations should share owner
    attention without sharing their underlying domain rules.
+8. Active commuter and weekend-rider profiles should retain reliable
+   mileage-driven status when they record odometer readings regularly.
+9. A long-unused motorcycle should transition to `unknown`, not remain `ok`,
+   after the freshness window.
 
 ## Open questions
 
@@ -42,3 +46,4 @@ next action.
 - service completion and interval baseline reset;
 - stale odometer and correction history;
 - reminder-noise evaluation across grouped due items.
+- service cadence and overdue persistence across ownership profiles.
