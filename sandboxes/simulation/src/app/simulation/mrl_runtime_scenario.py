@@ -20,6 +20,7 @@ from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
     simulate_profile,
+    simulate_profile_reminders,
     weekend_rider,
 )
 from app.simulation.reminders import ReminderPolicy, ReminderTracker
@@ -141,6 +142,22 @@ def _start_owner(context: object) -> None:
                 "status_counts": result.status_counts,
             },
         )
+        for cadence in (7, 14, 30):
+            reminder_result = simulate_profile_reminders(
+                profile,
+                start_date=date(2026, 1, 1),
+                days=365,
+                starting_odometer_km=18000,
+                item=profile_item,
+                cadence_days=cadence,
+            )
+            context.emit(
+                "reminder_profile_evidence",
+                f"{result.profile}_{cadence}d",
+                source="reminder-policy",
+                actor="owner",
+                payload={"reminder_count": reminder_result.reminder_count},
+            )
 
 
 class OwnerBehavior:
