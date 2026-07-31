@@ -9,6 +9,8 @@
   completed item's baseline.
 - Odometer freshness is now modeled explicitly; readings older than 90 days
   produce `unknown` for mileage-driven status.
+- Equally urgent items are grouped in deterministic title order to reduce
+  reminder noise while retaining item-level detail.
 
 ## Current conclusion
 
@@ -19,4 +21,4 @@ does not reset unrelated maintenance items.
 
 ## Questions carried forward
 
-- Decide how multiple simultaneous due items are grouped for the owner.
+- Evaluate reminder noise over longer commuter and weekend-rider scenarios.
