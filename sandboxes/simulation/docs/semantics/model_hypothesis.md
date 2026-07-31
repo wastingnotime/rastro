@@ -22,6 +22,8 @@ next action.
   repeats after a configured cadence, and reminds immediately on escalation.
 - `ServiceRecorded`: auditable service visit event containing the selected
   maintenance items and new service baseline.
+- `ServiceRecordVoided`: append-only correction event that removes a record
+  from the active projection without deleting history.
 
 ## Hypotheses to test
 
@@ -43,6 +45,8 @@ next action.
     escalation.
 11. Across the current one-year profiles, 14 days is a reasonable exploratory
     midpoint between 7-day noise and 30-day suppression.
+12. Voiding an incorrect later service record should restore the prior active
+    baseline deterministically.
 
 ## Open questions
 
@@ -55,4 +59,5 @@ next action.
 - reminder-noise evaluation across grouped due items.
 - service cadence and overdue persistence across ownership profiles.
 - reminder cadence tuning with real owner return behavior.
-- service-record deletion and correction history.
+- service-record correction history is now modeled; test permission and user
+  messaging around corrections next.

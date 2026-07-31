@@ -60,6 +60,10 @@ Service records now support partial completion. A single `ServiceRecorded`
 event updates only the selected item baselines, preserving the remaining
 items' history and status.
 
+Corrections are append-only: `ServiceRecordVoided` marks an incorrect record
+inactive, and the projection selects the latest remaining active record for
+each maintenance item. The original record and void reason remain auditable.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -74,6 +78,7 @@ items' history and status.
 - one-year ownership profiles produce deterministic freshness evidence;
 - reminder cadence suppresses same-status daily repeats and preserves escalation;
 - partial service records reset only selected maintenance items;
+- voiding an incorrect later record restores the prior active baseline;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

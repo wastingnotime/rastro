@@ -19,6 +19,8 @@
   immediate first reminders and escalation behavior.
 - Partial service records now update selected item baselines and retain
   provider/note evidence without changing unselected items.
+- Service correction projection now restores the prior active baseline after a
+  later record is voided, without deleting history.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -37,4 +39,5 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
-- Model service-record corrections or deletion without corrupting status.
+- Test correction permissions and user-facing explanations in the application
+  adapter.
