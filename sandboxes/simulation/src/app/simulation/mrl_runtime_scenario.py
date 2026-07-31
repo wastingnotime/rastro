@@ -13,6 +13,7 @@ from app.domain.maintenance import (
     assess,
     complete_service,
     next_action,
+    next_actions,
 )
 
 
@@ -45,6 +46,22 @@ def _start_owner(context: object) -> None:
         source="maintenance-status",
         actor="owner",
         payload={"status": action.status.value if action else None},
+    )
+    grouped_items = items + [
+        MaintenanceItem(
+            "Brake inspection",
+            interval_days=30,
+            warning_days=7,
+            last_service_date=date(2026, 7, 8),
+        )
+    ]
+    grouped = next_actions(grouped_items, motorcycle)
+    context.emit(
+        "next_actions_grouped",
+        "maintenance_attention",
+        source="maintenance-status",
+        actor="owner",
+        payload={"items": [assessment.title for assessment in grouped]},
     )
     serviced_chain, event = complete_service(items[1], date(2026, 7, 31), 18420)
     context.emit(
