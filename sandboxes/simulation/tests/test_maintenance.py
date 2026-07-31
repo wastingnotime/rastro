@@ -36,6 +36,8 @@ from app.application.attention_view import (
     toggle_group,
 )
 from app.application.attention_sync import (
+    AttentionSyncState,
+    handle_preference_sync,
     merge_preference_snapshots,
     preferences_from_snapshot,
     snapshot_preferences,
@@ -287,6 +289,36 @@ class MaintenanceStatusTests(unittest.TestCase):
         second = snapshot_preferences(AttentionViewPreferences("moto-1"), owner_id="owner-2", revision=2, device_id="web")
         with self.assertRaises(ValueError):
             merge_preference_snapshots(first, second)
+
+    def test_owner_can_sync_preferences_and_higher_revision_wins(self):
+        stored = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due"})),
+            owner_id="owner-1",
+            revision=2,
+            device_id="phone",
+        )
+        incoming = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due", "approaching_due"})),
+            owner_id="owner-1",
+            revision=3,
+            device_id="web",
+        )
+        state, response = handle_preference_sync(
+            AttentionSyncState("owner-1", (stored,)), "owner-1", incoming
+        )
+        self.assertTrue(response.accepted)
+        self.assertEqual(response.code, "preference_sync_accepted")
+        self.assertEqual(state.snapshots, (incoming,))
+
+    def test_non_owner_sync_is_rejected_without_state_mutation(self):
+        incoming = snapshot_preferences(
+            AttentionViewPreferences("moto-1"), owner_id="owner-1", revision=1, device_id="phone"
+        )
+        state = AttentionSyncState("owner-1")
+        updated, response = handle_preference_sync(state, "owner-2", incoming)
+        self.assertFalse(response.accepted)
+        self.assertEqual(response.code, "preference_sync_forbidden")
+        self.assertEqual(updated, state)
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
