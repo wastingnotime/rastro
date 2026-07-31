@@ -30,6 +30,7 @@ from app.application.service_history import (
     handle_correction,
     void_service_record_for_owner,
 )
+from app.application.attention_view import build_attention_view
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -189,6 +190,20 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual([item.title for item in groups[0].items], ["Engine oil"])
         self.assertEqual([item.title for item in groups[1].items], ["Chain inspection"])
         self.assertEqual([item.title for item in groups[2].items], ["Brake inspection"])
+
+    def test_attention_view_expands_primary_and_collapses_lower_priority_groups(self):
+        groups = grouped_actions(
+            [
+                MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=14000),
+                MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15420),
+            ],
+            MotorcycleState(date(2026, 7, 31), 18420),
+        )
+        view = build_attention_view(groups)
+        self.assertEqual([group.expanded for group in view], [True, False])
+
+        all_expanded = build_attention_view(groups, expand_all=True)
+        self.assertTrue(all(group.expanded for group in all_expanded))
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
