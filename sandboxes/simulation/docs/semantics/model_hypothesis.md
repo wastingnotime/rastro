@@ -24,6 +24,8 @@ next action.
   maintenance items and new service baseline.
 - `ServiceRecordVoided`: append-only correction event that removes a record
   from the active projection without deleting history.
+- `ServiceHistoryState`: owner-bound application state for service records and
+  correction events.
 
 ## Hypotheses to test
 
@@ -47,6 +49,7 @@ next action.
     midpoint between 7-day noise and 30-day suppression.
 12. Voiding an incorrect later service record should restore the prior active
     baseline deterministically.
+13. Only the motorcycle owner may void a service record.
 
 ## Open questions
 
@@ -59,5 +62,5 @@ next action.
 - reminder-noise evaluation across grouped due items.
 - service cadence and overdue persistence across ownership profiles.
 - reminder cadence tuning with real owner return behavior.
-- service-record correction history is now modeled; test permission and user
-  messaging around corrections next.
+- service-record correction history is now modeled; test user messaging around
+  correction errors next.

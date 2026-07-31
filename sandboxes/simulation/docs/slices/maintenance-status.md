@@ -64,6 +64,10 @@ Corrections are append-only: `ServiceRecordVoided` marks an incorrect record
 inactive, and the projection selects the latest remaining active record for
 each maintenance item. The original record and void reason remain auditable.
 
+The application boundary binds correction commands to `owner_id`. Unauthorized
+actors, unknown records, and repeated voids receive explicit errors before a
+domain event is appended.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -79,6 +83,7 @@ each maintenance item. The original record and void reason remain auditable.
 - reminder cadence suppresses same-status daily repeats and preserves escalation;
 - partial service records reset only selected maintenance items;
 - voiding an incorrect later record restores the prior active baseline;
+- only the motorcycle owner can void a service record;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

@@ -21,6 +21,8 @@
   provider/note evidence without changing unselected items.
 - Service correction projection now restores the prior active baseline after a
   later record is voided, without deleting history.
+- The service-history application boundary now denies non-owner corrections and
+  reports explicit errors for unknown or already-voided records.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -39,5 +41,5 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
-- Test correction permissions and user-facing explanations in the application
+- Test user-facing explanations for correction errors in the application
   adapter.
