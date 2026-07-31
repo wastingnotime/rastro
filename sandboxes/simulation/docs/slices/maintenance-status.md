@@ -36,6 +36,10 @@ The mileage freshness policy is explicit: an odometer reading older than 90
 days is stale by default and produces `unknown` for mileage-driven status. The
 threshold is configurable for scenario exploration.
 
+Grouped attention is now explicit: all items tied at the highest urgency are
+returned in stable title order. Less urgent items remain available to the
+status view but do not add another immediate reminder group.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -44,6 +48,7 @@ threshold is configurable for scenario exploration.
 - service completion emits an auditable event and recalculates the completed
   item from its new baseline;
 - stale odometer readings produce `unknown` for mileage-driven items;
+- equally urgent maintenance items are grouped into one attention observation;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
