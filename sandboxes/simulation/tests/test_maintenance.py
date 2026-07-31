@@ -152,6 +152,23 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual([action.title for action in actions], ["Brake inspection", "Chain inspection"])
         self.assertTrue(all(action.status == MaintenanceStatus.APPROACHING_DUE for action in actions))
 
+    def test_same_day_due_items_are_grouped_together(self):
+        items = [
+            MaintenanceItem(
+                "Brake inspection",
+                interval_days=30,
+                last_service_date=date(2026, 7, 1),
+            ),
+            MaintenanceItem(
+                "Licensing renewal",
+                interval_days=30,
+                last_service_date=date(2026, 7, 1),
+            ),
+        ]
+        actions = next_actions(items, MotorcycleState(date(2026, 7, 31), None))
+        self.assertEqual([action.title for action in actions], ["Brake inspection", "Licensing renewal"])
+        self.assertTrue(all(action.status == MaintenanceStatus.DUE for action in actions))
+
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
             MaintenanceItem(
