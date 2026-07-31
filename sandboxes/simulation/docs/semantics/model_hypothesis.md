@@ -24,6 +24,8 @@ next action.
   to expand, scoped to one motorcycle.
 - `AttentionPreferenceSnapshot`: revisioned, device-tagged preference state
   used for deterministic cross-device synchronization and bound to an owner.
+- `AttentionSyncState` / `AttentionSyncResponse`: owner-authorized storage
+  boundary and framework-neutral synchronization result.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -69,6 +71,7 @@ next action.
     stable device-ID tie-breaker.
 17. Preference snapshots from different owners must never merge, even when
     motorcycle scope IDs collide.
+18. Only the authenticated owner may write synchronized preference state.
 
 ## Open questions
 

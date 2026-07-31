@@ -96,6 +96,11 @@ Cross-device synchronization uses revisioned snapshots. Snapshots must share a
 motorcycle and owner scope; the highest revision wins, and equal revisions use
 device ID as a deterministic tie-breaker.
 
+`AttentionSyncState` and `AttentionSyncResponse` define the owner-authorized
+storage boundary without selecting a database or authentication framework.
+Accepted writes return `preference_sync_accepted`; unauthorized writes are
+rejected without mutating stored snapshots.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -121,6 +126,7 @@ device ID as a deterministic tie-breaker.
 - preference state does not leak between motorcycles;
 - same-motorcycle preference snapshots merge deterministically across devices;
 - cross-owner preference snapshots are rejected;
+- only the authenticated owner can write preference snapshots;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

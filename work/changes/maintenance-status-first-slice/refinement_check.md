@@ -41,6 +41,8 @@
   cross-device synchronization.
 - Preference snapshots are owner-bound and cannot merge across accounts with
   colliding motorcycle scope IDs.
+- The sync command now enforces owner authorization and returns an explicit
+  accepted/rejected response without database coupling.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -69,3 +71,4 @@ does not reset unrelated maintenance items.
 - motorcycle.
 - Choose authenticated account storage during technology-project
   synchronization.
+- Carry the owner-authorized sync contract into the eventual API/web adapter.
