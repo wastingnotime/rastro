@@ -10,6 +10,11 @@ from app.domain.maintenance import (
     next_action,
     next_actions,
 )
+from app.domain.obligations import (
+    DocumentObligation,
+    assess_obligation,
+    next_obligation_actions,
+)
 
 
 class MaintenanceStatusTests(unittest.TestCase):
@@ -168,6 +173,26 @@ class MaintenanceStatusTests(unittest.TestCase):
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
             complete_service(MaintenanceItem(title="chain"), date(2026, 7, 31), -1)
+
+    def test_document_obligation_approaches_due_by_date(self):
+        result = assess_obligation(
+            DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30),
+            date(2026, 7, 31),
+        )
+        self.assertEqual(result.status, MaintenanceStatus.APPROACHING_DUE)
+        self.assertEqual(result.remaining_days, 24)
+
+    def test_completed_document_obligation_is_not_actionable(self):
+        obligation = DocumentObligation(
+            "Insurance renewal",
+            date(2026, 7, 1),
+            completed_at=date(2026, 6, 30),
+        )
+        self.assertEqual(
+            assess_obligation(obligation, date(2026, 7, 31)).status,
+            MaintenanceStatus.UNKNOWN,
+        )
+        self.assertEqual(next_obligation_actions([obligation], date(2026, 7, 31)), [])
 
 
 if __name__ == "__main__":
