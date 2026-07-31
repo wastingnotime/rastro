@@ -297,6 +297,15 @@ def _non_owner_correction_is_denied(context: object) -> bool:
     return False
 
 
+def _same_day_due_items_are_grouped(context: object) -> bool:
+    items = [
+        MaintenanceItem("Brake inspection", interval_days=30, last_service_date=date(2026, 7, 1)),
+        MaintenanceItem("Licensing renewal", interval_days=30, last_service_date=date(2026, 7, 1)),
+    ]
+    actions = next_actions(items, MotorcycleState(date(2026, 7, 31), None))
+    return [action.title for action in actions] == ["Brake inspection", "Licensing renewal"]
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -311,6 +320,7 @@ def create_simulation() -> Scenario:
             Invariant("long_unused_profile_becomes_unknown", _long_unused_profile_becomes_unknown),
             Invariant("voided_correction_restores_active_baseline", _voided_correction_restores_active_baseline),
             Invariant("non_owner_correction_is_denied", _non_owner_correction_is_denied),
+            Invariant("same_day_due_items_are_grouped", _same_day_due_items_are_grouped),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
