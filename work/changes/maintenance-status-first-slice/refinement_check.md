@@ -15,6 +15,8 @@
   projection without being folded into mechanical maintenance rules.
 - One-year profile evidence confirms active riders remain fresh while a
   long-unused motorcycle becomes unknown after 90 days.
+- Reminder cadence evidence suppresses next-day repeats while preserving
+  immediate first reminders and escalation behavior.
 
 ## Current conclusion
 
@@ -28,3 +30,4 @@ does not reset unrelated maintenance items.
 - Evaluate reminder noise over longer commuter and weekend-rider scenarios.
 - Decide whether persistent overdue states need cadence, suppression, or
   service-completion prompts in the owner experience.
+- Tune the 14-day default against observed owner return behavior.

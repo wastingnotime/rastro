@@ -48,6 +48,10 @@ One-year profile refinement compares daily commuter, weekend rider, and
 long-unused ownership patterns. Active profiles retain fresh mileage status;
 the long-unused profile becomes `unknown` after the 90-day freshness window.
 
+Reminder cadence is now explicit: actionable items remind immediately when
+first observed, repeat after 14 days by default, and remind immediately when
+their status escalates. `ok` and `unknown` states do not produce reminders.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -60,6 +64,7 @@ the long-unused profile becomes `unknown` after the 90-day freshness window.
 - completed or disabled document obligations do not create owner attention;
 - document and maintenance actions can appear together in owner attention;
 - one-year ownership profiles produce deterministic freshness evidence;
+- reminder cadence suppresses same-status daily repeats and preserves escalation;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

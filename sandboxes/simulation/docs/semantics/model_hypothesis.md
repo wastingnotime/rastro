@@ -18,6 +18,8 @@ next action.
   sorted deterministically for grouped owner attention.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
+- `ReminderTracker`: stateful policy that suppresses same-status repeats,
+  repeats after a configured cadence, and reminds immediately on escalation.
 
 ## Hypotheses to test
 
@@ -35,6 +37,8 @@ next action.
    mileage-driven status when they record odometer readings regularly.
 9. A long-unused motorcycle should transition to `unknown`, not remain `ok`,
    after the freshness window.
+10. A 14-day default reminder cadence reduces daily noise without hiding
+    escalation.
 
 ## Open questions
 
@@ -47,3 +51,4 @@ next action.
 - stale odometer and correction history;
 - reminder-noise evaluation across grouped due items.
 - service cadence and overdue persistence across ownership profiles.
+- reminder cadence tuning with real owner return behavior.
