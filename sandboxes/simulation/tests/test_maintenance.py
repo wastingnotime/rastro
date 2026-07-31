@@ -20,6 +20,7 @@ from app.domain.obligations import (
     next_obligation_actions,
     next_owner_actions,
 )
+from app.application.service_history import ServiceHistoryState, void_service_record_for_owner
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -249,6 +250,41 @@ class MaintenanceStatusTests(unittest.TestCase):
             void_service_record("", "reason")
         with self.assertRaises(ValueError):
             void_service_record("service-a", "")
+
+    def test_owner_can_void_service_record_and_event_is_preserved(self):
+        item = MaintenanceItem("Chain inspection")
+        _, record = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 31), 18420, service_id="service-a"
+        )
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        updated, event = void_service_record_for_owner(
+            state, "owner-1", "service-a", "Incorrect odometer"
+        )
+        self.assertEqual(event.service_id, "service-a")
+        self.assertEqual(updated.records, (record,))
+        self.assertEqual(updated.voided_records, (event,))
+
+    def test_non_owner_cannot_void_service_record(self):
+        item = MaintenanceItem("Chain inspection")
+        _, record = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 31), 18420, service_id="service-a"
+        )
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        with self.assertRaises(PermissionError):
+            void_service_record_for_owner(state, "mechanic-1", "service-a", "Correction")
+
+    def test_unknown_or_already_voided_record_has_explicit_error(self):
+        state = ServiceHistoryState("moto-1", "owner-1")
+        with self.assertRaises(LookupError):
+            void_service_record_for_owner(state, "owner-1", "missing", "Correction")
+        item = MaintenanceItem("Chain inspection")
+        _, record = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 31), 18420, service_id="service-a"
+        )
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        state, _ = void_service_record_for_owner(state, "owner-1", "service-a", "Correction")
+        with self.assertRaises(ValueError):
+            void_service_record_for_owner(state, "owner-1", "service-a", "Correction again")
 
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
