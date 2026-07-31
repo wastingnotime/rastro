@@ -20,6 +20,8 @@ next action.
   views preserve lower-priority context without changing the primary action.
 - `AttentionGroupView`: adapter-facing presentation with item titles and an
   explicit expanded/collapsed state.
+- `AttentionViewPreferences`: persisted set of urgency groups the owner chose
+  to expand.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -66,6 +68,7 @@ next action.
 
 - Should lower-priority groups collapse by default in the owner interface?
 - Should users' expand/collapse choices persist between visits?
+- Should preferences be scoped per motorcycle or per owner account?
 
 ## Candidate next slices
 

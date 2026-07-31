@@ -87,6 +87,10 @@ The presentation contract expands the first group and collapses lower-priority
 groups by default. An explicit `expand_all` option supports inspection without
 changing the underlying attention ordering.
 
+`AttentionViewPreferences` can persist selected urgency expansions between
+visits. The preference changes presentation only; it never changes status,
+priority, or reminder behavior.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -108,6 +112,7 @@ changing the underlying attention ordering.
 - same-day due items are grouped into one owner action;
 - mixed urgency groups preserve priority and lower-priority context;
 - primary attention expands while lower-priority groups collapse by default;
+- selected lower-priority expansions can persist between visits;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

@@ -33,6 +33,8 @@
   without changing the primary action helper.
 - The attention presentation expands the primary group and collapses lower
   groups by default; the runtime trace now demonstrates both states.
+- Attention expansion preferences now reopen a selected lower-priority group
+  without changing domain ordering or urgency.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -57,3 +59,5 @@ does not reset unrelated maintenance items.
 - Validate whether lower-priority groups should collapse by default in pilot
   usability sessions.
 - Decide whether expand/collapse choices should persist between visits.
+- Decide whether preferences belong to the owner account or individual
+  motorcycle.
