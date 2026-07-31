@@ -83,6 +83,10 @@ Mixed urgency is represented as ordered `AttentionGroup` values: overdue,
 then due, then approaching due. `next_actions()` continues to expose only the
 first group for the primary action, while the grouped view preserves context.
 
+The presentation contract expands the first group and collapses lower-priority
+groups by default. An explicit `expand_all` option supports inspection without
+changing the underlying attention ordering.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -103,6 +107,7 @@ first group for the primary action, while the grouped view preserves context.
 - rejected correction commands do not mutate service-history state;
 - same-day due items are grouped into one owner action;
 - mixed urgency groups preserve priority and lower-priority context;
+- primary attention expands while lower-priority groups collapse by default;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
