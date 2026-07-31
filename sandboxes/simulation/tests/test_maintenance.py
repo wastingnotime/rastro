@@ -59,6 +59,33 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertEqual(result.status, MaintenanceStatus.UNKNOWN)
 
+    def test_stale_odometer_makes_mileage_status_unknown(self):
+        result = assess(
+            MaintenanceItem(
+                interval_km=4000,
+                title="oil",
+                last_service_odometer_km=15000,
+            ),
+            MotorcycleState(date(2026, 7, 31), 18000, date(2026, 5, 1)),
+        )
+        self.assertEqual(result.status, MaintenanceStatus.UNKNOWN)
+
+    def test_stale_odometer_threshold_is_configurable(self):
+        state = MotorcycleState(date(2026, 7, 31), 18000, date(2026, 7, 1))
+        item = MaintenanceItem(
+            interval_km=4000,
+            title="oil",
+            last_service_odometer_km=15000,
+        )
+        self.assertEqual(
+            assess(item, state, odometer_stale_after_days=30).status,
+            MaintenanceStatus.OK,
+        )
+        self.assertEqual(
+            assess(item, state, odometer_stale_after_days=29).status,
+            MaintenanceStatus.UNKNOWN,
+        )
+
     def test_disabled_item_has_no_next_action(self):
         item = MaintenanceItem(interval_km=100, last_service_odometer_km=0, title="old", enabled=False)
         self.assertIsNone(next_action([item], MotorcycleState(date(2026, 7, 31), 1000)))
