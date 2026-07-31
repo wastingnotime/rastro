@@ -128,7 +128,8 @@ def _start_owner(context: object) -> None:
             ],
             motorcycle,
         ),
-        preferences=toggle_group(AttentionViewPreferences(), "approaching_due"),
+        preferences=toggle_group(AttentionViewPreferences("moto-1"), "approaching_due"),
+        scope_id="moto-1",
     )
     context.emit(
         "attention_view_persisted",
