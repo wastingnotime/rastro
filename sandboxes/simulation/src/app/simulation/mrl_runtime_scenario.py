@@ -15,6 +15,7 @@ from app.domain.maintenance import (
     next_action,
     next_actions,
 )
+from app.domain.obligations import DocumentObligation, next_owner_actions
 
 
 def _start_owner(context: object) -> None:
@@ -63,6 +64,17 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"items": [assessment.title for assessment in grouped]},
     )
+    obligations = [
+        DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
+    ]
+    owner_actions = next_owner_actions(items, obligations, motorcycle)
+    context.emit(
+        "owner_attention_grouped",
+        "owner_attention",
+        source="maintenance-status",
+        actor="owner",
+        payload={"items": [assessment.title for assessment in owner_actions]},
+    )
     serviced_chain, event = complete_service(items[1], date(2026, 7, 31), 18420)
     context.emit(
         "domain_event",
@@ -106,6 +118,15 @@ def _stale_mileage_is_unknown(context: object) -> bool:
     return assess(item, motorcycle).status == MaintenanceStatus.UNKNOWN
 
 
+def _completed_obligation_is_not_actionable(context: object) -> bool:
+    obligation = DocumentObligation(
+        "Completed insurance",
+        date(2026, 7, 1),
+        completed_at=date(2026, 6, 30),
+    )
+    return not next_owner_actions([], [obligation], MotorcycleState(date(2026, 7, 31), None))
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -116,6 +137,7 @@ def create_simulation() -> Scenario:
         invariants=[
             Invariant("unknown_data_is_not_healthy", _unknown_is_not_healthy),
             Invariant("stale_mileage_is_unknown", _stale_mileage_is_unknown),
+            Invariant("completed_obligation_is_not_actionable", _completed_obligation_is_not_actionable),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
