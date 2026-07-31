@@ -89,7 +89,8 @@ changing the underlying attention ordering.
 
 `AttentionViewPreferences` can persist selected urgency expansions between
 visits. The preference changes presentation only; it never changes status,
-priority, or reminder behavior.
+priority, or reminder behavior. Preferences are scoped per motorcycle to avoid
+cross-vehicle layout leakage.
 
 ## Done criteria
 
@@ -113,6 +114,7 @@ priority, or reminder behavior.
 - mixed urgency groups preserve priority and lower-priority context;
 - primary attention expands while lower-priority groups collapse by default;
 - selected lower-priority expansions can persist between visits;
+- preference state does not leak between motorcycles;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

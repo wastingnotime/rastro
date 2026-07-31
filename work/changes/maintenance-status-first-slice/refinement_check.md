@@ -35,6 +35,8 @@
   groups by default; the runtime trace now demonstrates both states.
 - Attention expansion preferences now reopen a selected lower-priority group
   without changing domain ordering or urgency.
+- Attention preferences are scoped per motorcycle and remain isolated between
+  vehicles.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -60,4 +62,4 @@ does not reset unrelated maintenance items.
   usability sessions.
 - Decide whether expand/collapse choices should persist between visits.
 - Decide whether preferences belong to the owner account or individual
-  motorcycle.
+- motorcycle.
