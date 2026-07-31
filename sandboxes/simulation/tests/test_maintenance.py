@@ -8,6 +8,7 @@ from app.domain.maintenance import (
     MotorcycleState,
     assess,
     complete_service,
+    record_service,
     next_action,
     next_actions,
 )
@@ -179,6 +180,47 @@ class MaintenanceStatusTests(unittest.TestCase):
             MaintenanceStatus.OK,
         )
         self.assertEqual(original.last_service_odometer_km, 15000)
+
+    def test_service_record_updates_only_selected_items_and_is_auditable(self):
+        items = [
+            MaintenanceItem(
+                "Engine oil",
+                interval_km=4000,
+                last_service_odometer_km=14000,
+            ),
+            MaintenanceItem(
+                "Chain inspection",
+                interval_km=3000,
+                last_service_odometer_km=15900,
+            ),
+        ]
+        updated, event = record_service(
+            items,
+            ["Chain inspection"],
+            date(2026, 7, 31),
+            18420,
+            provider_name="Local mechanic",
+            notes="Chain adjusted",
+        )
+        self.assertEqual(event.completed_titles, ("Chain inspection",))
+        self.assertEqual(event.provider_name, "Local mechanic")
+        self.assertEqual(updated[0].last_service_odometer_km, 14000)
+        self.assertEqual(updated[1].last_service_odometer_km, 18420)
+        self.assertEqual(
+            assess(updated[0], MotorcycleState(date(2026, 7, 31), 18420)).status,
+            MaintenanceStatus.OVERDUE,
+        )
+        self.assertEqual(
+            assess(updated[1], MotorcycleState(date(2026, 7, 31), 18420)).status,
+            MaintenanceStatus.OK,
+        )
+
+    def test_service_record_rejects_duplicate_or_unknown_items(self):
+        item = MaintenanceItem("Engine oil")
+        with self.assertRaises(ValueError):
+            record_service([item], ["Engine oil", "Engine oil"], date(2026, 7, 31), 18000)
+        with self.assertRaises(ValueError):
+            record_service([item], ["Chain inspection"], date(2026, 7, 31), 18000)
 
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
