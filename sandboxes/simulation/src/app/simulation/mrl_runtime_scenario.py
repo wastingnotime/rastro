@@ -13,7 +13,9 @@ from app.domain.maintenance import (
     assess,
     next_action,
     next_actions,
+    project_service_history,
     record_service,
+    void_service_record,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
 from app.simulation.ownership_profiles import (
@@ -124,6 +126,37 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"status": after_service.status.value, "remaining_km": after_service.remaining_km},
     )
+    _, corrected_record = record_service(
+        items,
+        ["Chain inspection"],
+        date(2026, 8, 1),
+        99999,
+        service_id="service-correction",
+    )
+    void_event = void_service_record("service-correction", "Incorrect odometer")
+    corrected_items = project_service_history(
+        items,
+        [service_event, corrected_record],
+        [void_event],
+    )
+    context.emit(
+        "domain_event",
+        "service_record_voided",
+        source="maintenance-status",
+        actor="owner",
+        payload={"service_id": void_event.service_id, "reason": void_event.reason},
+    )
+    corrected_assessment = assess(corrected_items[1], motorcycle)
+    context.emit(
+        "maintenance_status",
+        "Chain inspection after correction",
+        source="maintenance-status",
+        actor="owner",
+        payload={
+            "status": corrected_assessment.status.value,
+            "remaining_km": corrected_assessment.remaining_km,
+        },
+    )
     profile_item = MaintenanceItem(
         "Engine oil",
         interval_km=4000,
@@ -209,6 +242,20 @@ def _long_unused_profile_becomes_unknown(context: object) -> bool:
     return result.unknown_days == 274
 
 
+def _voided_correction_restores_active_baseline(context: object) -> bool:
+    item = MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15000)
+    _, first = record_service(
+        [item], ["Chain inspection"], date(2026, 7, 1), 18000, service_id="service-a"
+    )
+    _, correction = record_service(
+        [item], ["Chain inspection"], date(2026, 7, 15), 19000, service_id="service-b"
+    )
+    projected = project_service_history(
+        [item], [first, correction], [void_service_record("service-b", "Incorrect odometer")]
+    )
+    return projected[0].last_service_odometer_km == 18000
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -221,6 +268,7 @@ def create_simulation() -> Scenario:
             Invariant("stale_mileage_is_unknown", _stale_mileage_is_unknown),
             Invariant("completed_obligation_is_not_actionable", _completed_obligation_is_not_actionable),
             Invariant("long_unused_profile_becomes_unknown", _long_unused_profile_becomes_unknown),
+            Invariant("voided_correction_restores_active_baseline", _voided_correction_restores_active_baseline),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
