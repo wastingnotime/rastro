@@ -84,7 +84,17 @@ def _start_owner(context: object) -> None:
         payload={"items": [assessment.title for assessment in grouped]},
     )
     attention_view = build_attention_view(
-        grouped_actions(grouped_items, motorcycle)
+        grouped_actions(
+            grouped_items
+            + [
+                MaintenanceItem(
+                    "Tire inspection",
+                    interval_km=1000,
+                    last_service_odometer_km=17000,
+                )
+            ],
+            motorcycle,
+        )
     )
     context.emit(
         "attention_view",
