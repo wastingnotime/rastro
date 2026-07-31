@@ -18,6 +18,7 @@ from app.domain.maintenance import (
     void_service_record,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
+from app.application.service_history import ServiceHistoryState, void_service_record_for_owner
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -256,6 +257,15 @@ def _voided_correction_restores_active_baseline(context: object) -> bool:
     return projected[0].last_service_odometer_km == 18000
 
 
+def _non_owner_correction_is_denied(context: object) -> bool:
+    state = ServiceHistoryState("moto-1", "owner-1")
+    try:
+        void_service_record_for_owner(state, "mechanic-1", "service-a", "Correction")
+    except PermissionError:
+        return True
+    return False
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -269,6 +279,7 @@ def create_simulation() -> Scenario:
             Invariant("completed_obligation_is_not_actionable", _completed_obligation_is_not_actionable),
             Invariant("long_unused_profile_becomes_unknown", _long_unused_profile_becomes_unknown),
             Invariant("voided_correction_restores_active_baseline", _voided_correction_restores_active_baseline),
+            Invariant("non_owner_correction_is_denied", _non_owner_correction_is_denied),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
