@@ -31,7 +31,12 @@ from app.application.attention_view import (
     build_attention_view,
     toggle_group,
 )
-from app.application.attention_sync import merge_preference_snapshots, snapshot_preferences
+from app.application.attention_sync import (
+    AttentionSyncState,
+    handle_preference_sync,
+    merge_preference_snapshots,
+    snapshot_preferences,
+)
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -162,6 +167,18 @@ def _start_owner(context: object) -> None:
             "revision": merged_snapshot.revision,
             "expanded_statuses": sorted(merged_snapshot.expanded_statuses),
         },
+    )
+    _, sync_response = handle_preference_sync(
+        AttentionSyncState("owner-1", (local_snapshot,)),
+        "owner-1",
+        remote_snapshot,
+    )
+    context.emit(
+        "attention_preference_sync_response",
+        sync_response.code,
+        source="attention-sync",
+        actor="owner-1",
+        payload={"accepted": sync_response.accepted, "message": sync_response.message},
     )
     obligations = [
         DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
