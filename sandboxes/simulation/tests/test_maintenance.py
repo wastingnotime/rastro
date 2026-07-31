@@ -35,6 +35,11 @@ from app.application.attention_view import (
     build_attention_view,
     toggle_group,
 )
+from app.application.attention_sync import (
+    merge_preference_snapshots,
+    preferences_from_snapshot,
+    snapshot_preferences,
+)
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -243,6 +248,37 @@ class MaintenanceStatusTests(unittest.TestCase):
             [group.expanded for group in build_attention_view(groups, preferences=preferences, scope_id="moto-2")],
             [True, False],
         )
+
+    def test_attention_preferences_sync_uses_revision_and_device_tie_breaker(self):
+        local = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due"})),
+            revision=2,
+            device_id="phone",
+        )
+        remote = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due", "approaching_due"})),
+            revision=3,
+            device_id="web",
+        )
+        merged = merge_preference_snapshots(local, remote)
+        self.assertEqual(merged.device_id, "web")
+        self.assertEqual(
+            preferences_from_snapshot(merged).expanded_statuses,
+            frozenset({"due", "approaching_due"}),
+        )
+
+    def test_attention_preference_sync_tie_breaks_deterministically(self):
+        first = snapshot_preferences(AttentionViewPreferences("moto-1"), revision=4, device_id="phone")
+        second = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due"})), revision=4, device_id="web"
+        )
+        self.assertEqual(merge_preference_snapshots(first, second).device_id, "web")
+
+    def test_attention_preference_sync_rejects_different_motorcycles(self):
+        first = snapshot_preferences(AttentionViewPreferences("moto-1"), revision=1, device_id="phone")
+        second = snapshot_preferences(AttentionViewPreferences("moto-2"), revision=1, device_id="phone")
+        with self.assertRaises(ValueError):
+            merge_preference_snapshots(first, second)
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
