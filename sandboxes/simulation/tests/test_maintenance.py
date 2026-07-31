@@ -21,10 +21,12 @@ from app.domain.obligations import (
     next_owner_actions,
 )
 from app.application.service_history import (
+    CorrectionCommand,
     ServiceCorrectionAlreadyVoided,
     ServiceCorrectionForbidden,
     ServiceCorrectionNotFound,
     ServiceHistoryState,
+    handle_correction,
     void_service_record_for_owner,
 )
 from app.simulation.ownership_profiles import (
@@ -312,6 +314,33 @@ class MaintenanceStatusTests(unittest.TestCase):
         with self.assertRaises(ServiceCorrectionAlreadyVoided) as repeated:
             void_service_record_for_owner(state, "owner-1", "service-a", "Correction again")
         self.assertEqual(repeated.exception.code, "service_record_already_voided")
+
+    def test_correction_command_returns_framework_neutral_success_response(self):
+        item = MaintenanceItem("Chain inspection")
+        _, record = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 31), 18420, service_id="service-a"
+        )
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        updated, response = handle_correction(
+            state,
+            CorrectionCommand("owner-1", "service-a", "Incorrect odometer"),
+        )
+        self.assertTrue(response.accepted)
+        self.assertEqual(response.code, "service_record_voided")
+        self.assertEqual(response.service_id, "service-a")
+        self.assertEqual(response.message, "Service record correction recorded.")
+        self.assertEqual(len(updated.voided_records), 1)
+
+    def test_correction_command_returns_error_without_mutating_state(self):
+        state = ServiceHistoryState("moto-1", "owner-1")
+        updated, response = handle_correction(
+            state,
+            CorrectionCommand("mechanic-1", "missing", "Correction"),
+        )
+        self.assertFalse(response.accepted)
+        self.assertEqual(response.code, "service_correction_forbidden")
+        self.assertIsNone(response.service_id)
+        self.assertEqual(updated, state)
 
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
