@@ -14,7 +14,7 @@ class AttentionGroupView:
 
 @dataclass(frozen=True)
 class AttentionViewPreferences:
-    scope_id: str
+    scope_id: str = ""
     expanded_statuses: frozenset[str] = frozenset()
 
 
