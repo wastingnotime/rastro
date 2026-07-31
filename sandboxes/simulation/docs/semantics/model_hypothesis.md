@@ -26,6 +26,8 @@ next action.
   from the active projection without deleting history.
 - `ServiceHistoryState`: owner-bound application state for service records and
   correction events.
+- `ServiceCorrectionError`: stable adapter-facing code and safe user message
+  for forbidden, missing, or repeated corrections.
 
 ## Hypotheses to test
 
@@ -50,6 +52,8 @@ next action.
 12. Voiding an incorrect later service record should restore the prior active
     baseline deterministically.
 13. Only the motorcycle owner may void a service record.
+14. Correction failures should expose stable codes and safe messages without
+    leaking internal ownership or storage details.
 
 ## Open questions
 
@@ -62,5 +66,5 @@ next action.
 - reminder-noise evaluation across grouped due items.
 - service cadence and overdue persistence across ownership profiles.
 - reminder cadence tuning with real owner return behavior.
-- service-record correction history is now modeled; test user messaging around
-  correction errors next.
+- service-record correction history and user-facing error contracts are now
+  modeled.

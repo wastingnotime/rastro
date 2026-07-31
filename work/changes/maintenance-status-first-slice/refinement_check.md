@@ -23,6 +23,8 @@
   later record is voided, without deleting history.
 - The service-history application boundary now denies non-owner corrections and
   reports explicit errors for unknown or already-voided records.
+- Correction failures now have stable codes and safe user-facing messages,
+  with runtime evidence for the forbidden case.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -41,5 +43,5 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
-- Test user-facing explanations for correction errors in the application
-  adapter.
+- Revisit correction copy with pilot users and localize only after the contract
+  is validated.

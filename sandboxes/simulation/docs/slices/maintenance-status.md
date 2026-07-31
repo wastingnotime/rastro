@@ -68,6 +68,10 @@ The application boundary binds correction commands to `owner_id`. Unauthorized
 actors, unknown records, and repeated voids receive explicit errors before a
 domain event is appended.
 
+Correction errors expose stable codes and safe messages for application
+adapters. The runtime scenario emits the forbidden correction contract for a
+non-owner actor.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -84,6 +88,7 @@ domain event is appended.
 - partial service records reset only selected maintenance items;
 - voiding an incorrect later record restores the prior active baseline;
 - only the motorcycle owner can void a service record;
+- correction failures expose stable adapter-facing codes and messages;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
