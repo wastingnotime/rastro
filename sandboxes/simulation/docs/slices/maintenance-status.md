@@ -52,6 +52,10 @@ Reminder cadence is now explicit: actionable items remind immediately when
 first observed, repeat after 14 days by default, and remind immediately when
 their status escalates. `ok` and `unknown` states do not produce reminders.
 
+The current profile comparison keeps 14 days as an exploratory midpoint: it
+produces 19 commuter reminders and 17 weekend-rider reminders in one year,
+compared with 37/31 at 7 days and 9/9 at 30 days.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases

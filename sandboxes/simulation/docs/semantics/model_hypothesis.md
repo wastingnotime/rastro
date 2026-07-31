@@ -39,6 +39,8 @@ next action.
    after the freshness window.
 10. A 14-day default reminder cadence reduces daily noise without hiding
     escalation.
+11. Across the current one-year profiles, 14 days is a reasonable exploratory
+    midpoint between 7-day noise and 30-day suppression.
 
 ## Open questions
 

@@ -17,6 +17,8 @@
   long-unused motorcycle becomes unknown after 90 days.
 - Reminder cadence evidence suppresses next-day repeats while preserving
   immediate first reminders and escalation behavior.
+- One-year cadence comparison shows 14 days as a practical exploratory
+  midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
 ## Current conclusion
 
@@ -31,3 +33,5 @@ does not reset unrelated maintenance items.
 - Decide whether persistent overdue states need cadence, suppression, or
   service-completion prompts in the owner experience.
 - Tune the 14-day default against observed owner return behavior.
+- Validate cadence with real pilot return behavior before treating 14 days as a
+  product default.
