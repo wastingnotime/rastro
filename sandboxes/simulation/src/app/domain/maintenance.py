@@ -54,6 +54,13 @@ class ServiceRecorded:
     completed_titles: tuple[str, ...]
     provider_name: str | None = None
     notes: str | None = None
+    service_id: str = "service-record"
+
+
+@dataclass(frozen=True)
+class ServiceRecordVoided:
+    service_id: str
+    reason: str
 
 
 def complete_service(
@@ -83,6 +90,7 @@ def record_service(
     *,
     provider_name: str | None = None,
     notes: str | None = None,
+    service_id: str = "service-record",
 ) -> tuple[list[MaintenanceItem], ServiceRecorded]:
     """Apply one auditable service visit to a selected subset of items."""
     if odometer_km < 0:
@@ -106,8 +114,34 @@ def record_service(
         completed_titles=tuple(completed_titles),
         provider_name=provider_name,
         notes=notes,
+        service_id=service_id,
     )
     return updated, event
+
+
+def void_service_record(service_id: str, reason: str) -> ServiceRecordVoided:
+    if not service_id.strip():
+        raise ValueError("service id is required")
+    if not reason.strip():
+        raise ValueError("void reason is required")
+    return ServiceRecordVoided(service_id, reason)
+
+
+def project_service_history(
+    items: list[MaintenanceItem],
+    records: list[ServiceRecorded],
+    voided_records: list[ServiceRecordVoided] | None = None,
+) -> list[MaintenanceItem]:
+    """Rebuild baselines from active records without deleting audit events."""
+    voided_ids = {event.service_id for event in (voided_records or [])}
+    active_records = [record for record in records if record.service_id not in voided_ids]
+    projected = list(items)
+    for index, item in enumerate(items):
+        matching = [record for record in active_records if item.title in record.completed_titles]
+        if matching:
+            record = max(matching, key=lambda value: (value.serviced_at, value.service_id))
+            projected[index] = complete_service(item, record.serviced_at, record.odometer_km)[0]
+    return projected
 
 
 def assess(
