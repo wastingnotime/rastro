@@ -13,6 +13,29 @@ class ServiceHistoryState:
     voided_records: tuple[ServiceRecordVoided, ...] = ()
 
 
+class ServiceCorrectionError(Exception):
+    code = "service_correction_failed"
+    user_message = "The service history could not be corrected."
+
+    def __init__(self) -> None:
+        super().__init__(self.user_message)
+
+
+class ServiceCorrectionForbidden(ServiceCorrectionError, PermissionError):
+    code = "service_correction_forbidden"
+    user_message = "Only the motorcycle owner can correct service history."
+
+
+class ServiceCorrectionNotFound(ServiceCorrectionError, LookupError):
+    code = "service_record_not_found"
+    user_message = "This service record is no longer available."
+
+
+class ServiceCorrectionAlreadyVoided(ServiceCorrectionError, ValueError):
+    code = "service_record_already_voided"
+    user_message = "This service record has already been corrected."
+
+
 def void_service_record_for_owner(
     state: ServiceHistoryState,
     actor_id: str,
@@ -21,11 +44,11 @@ def void_service_record_for_owner(
 ) -> tuple[ServiceHistoryState, ServiceRecordVoided]:
     """Authorize a correction while preserving the append-only domain event."""
     if actor_id != state.owner_id:
-        raise PermissionError("only the motorcycle owner can correct service history")
+        raise ServiceCorrectionForbidden()
     if not any(record.service_id == service_id for record in state.records):
-        raise LookupError("service record was not found for this motorcycle")
+        raise ServiceCorrectionNotFound()
     if any(event.service_id == service_id for event in state.voided_records):
-        raise ValueError("service record is already voided")
+        raise ServiceCorrectionAlreadyVoided()
     event = void_service_record(service_id, reason)
     updated = ServiceHistoryState(
         motorcycle_id=state.motorcycle_id,
