@@ -18,7 +18,11 @@ from app.domain.maintenance import (
     void_service_record,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
-from app.application.service_history import ServiceHistoryState, void_service_record_for_owner
+from app.application.service_history import (
+    ServiceCorrectionForbidden,
+    ServiceHistoryState,
+    void_service_record_for_owner,
+)
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -158,6 +162,17 @@ def _start_owner(context: object) -> None:
             "remaining_km": corrected_assessment.remaining_km,
         },
     )
+    history = ServiceHistoryState("moto-1", "owner-1", records=(service_event,))
+    try:
+        void_service_record_for_owner(history, "mechanic-1", service_event.service_id, "Correction")
+    except ServiceCorrectionForbidden as error:
+        context.emit(
+            "application_error",
+            error.code,
+            source="service-history-command",
+            actor="mechanic-1",
+            payload={"message": str(error)},
+        )
     profile_item = MaintenanceItem(
         "Engine oil",
         interval_km=4000,
