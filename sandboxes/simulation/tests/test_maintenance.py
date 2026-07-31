@@ -252,11 +252,13 @@ class MaintenanceStatusTests(unittest.TestCase):
     def test_attention_preferences_sync_uses_revision_and_device_tie_breaker(self):
         local = snapshot_preferences(
             AttentionViewPreferences("moto-1", frozenset({"due"})),
+            owner_id="owner-1",
             revision=2,
             device_id="phone",
         )
         remote = snapshot_preferences(
             AttentionViewPreferences("moto-1", frozenset({"due", "approaching_due"})),
+            owner_id="owner-1",
             revision=3,
             device_id="web",
         )
@@ -268,15 +270,21 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
 
     def test_attention_preference_sync_tie_breaks_deterministically(self):
-        first = snapshot_preferences(AttentionViewPreferences("moto-1"), revision=4, device_id="phone")
+        first = snapshot_preferences(AttentionViewPreferences("moto-1"), owner_id="owner-1", revision=4, device_id="phone")
         second = snapshot_preferences(
-            AttentionViewPreferences("moto-1", frozenset({"due"})), revision=4, device_id="web"
+            AttentionViewPreferences("moto-1", frozenset({"due"})), owner_id="owner-1", revision=4, device_id="web"
         )
         self.assertEqual(merge_preference_snapshots(first, second).device_id, "web")
 
     def test_attention_preference_sync_rejects_different_motorcycles(self):
-        first = snapshot_preferences(AttentionViewPreferences("moto-1"), revision=1, device_id="phone")
-        second = snapshot_preferences(AttentionViewPreferences("moto-2"), revision=1, device_id="phone")
+        first = snapshot_preferences(AttentionViewPreferences("moto-1"), owner_id="owner-1", revision=1, device_id="phone")
+        second = snapshot_preferences(AttentionViewPreferences("moto-2"), owner_id="owner-1", revision=1, device_id="phone")
+        with self.assertRaises(ValueError):
+            merge_preference_snapshots(first, second)
+
+    def test_attention_preference_sync_rejects_different_owners(self):
+        first = snapshot_preferences(AttentionViewPreferences("moto-1"), owner_id="owner-1", revision=1, device_id="phone")
+        second = snapshot_preferences(AttentionViewPreferences("moto-1"), owner_id="owner-2", revision=2, device_id="web")
         with self.assertRaises(ValueError):
             merge_preference_snapshots(first, second)
 
