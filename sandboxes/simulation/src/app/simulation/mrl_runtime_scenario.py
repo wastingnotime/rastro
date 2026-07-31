@@ -11,9 +11,9 @@ from app.domain.maintenance import (
     MotorcycleState,
     MaintenanceStatus,
     assess,
-    complete_service,
     next_action,
     next_actions,
+    record_service,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
 from app.simulation.ownership_profiles import (
@@ -96,19 +96,27 @@ def _start_owner(context: object) -> None:
             "next_day_reminders": suppressed_reminders,
         },
     )
-    serviced_chain, event = complete_service(items[1], date(2026, 7, 31), 18420)
+    serviced_items, service_event = record_service(
+        items,
+        ["Chain inspection"],
+        date(2026, 7, 31),
+        18420,
+        provider_name="Local mechanic",
+        notes="Chain adjusted",
+    )
     context.emit(
         "domain_event",
-        "service_completed",
+        "service_recorded",
         source="maintenance-status",
         actor="owner",
         payload={
-            "maintenance_item": event.maintenance_title,
-            "serviced_at": event.serviced_at.isoformat(),
-            "odometer_km": event.odometer_km,
+            "completed_items": list(service_event.completed_titles),
+            "serviced_at": service_event.serviced_at.isoformat(),
+            "odometer_km": service_event.odometer_km,
+            "provider_name": service_event.provider_name,
         },
     )
-    after_service = assess(serviced_chain, motorcycle)
+    after_service = assess(serviced_items[1], motorcycle)
     context.emit(
         "maintenance_status",
         after_service.title,
