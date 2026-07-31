@@ -22,6 +22,7 @@ from app.simulation.ownership_profiles import (
     simulate_profile,
     weekend_rider,
 )
+from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
 def _start_owner(context: object) -> None:
@@ -80,6 +81,19 @@ def _start_owner(context: object) -> None:
         source="maintenance-status",
         actor="owner",
         payload={"items": [assessment.title for assessment in owner_actions]},
+    )
+    reminder_tracker = ReminderTracker(ReminderPolicy(repeat_every_days=14))
+    first_reminders = reminder_tracker.evaluate(date(2026, 7, 31), owner_actions)
+    suppressed_reminders = reminder_tracker.evaluate(date(2026, 8, 1), owner_actions)
+    context.emit(
+        "reminder_evaluation",
+        "owner_attention_reminders",
+        source="reminder-policy",
+        actor="owner",
+        payload={
+            "first_reminders": first_reminders,
+            "next_day_reminders": suppressed_reminders,
+        },
     )
     serviced_chain, event = complete_service(items[1], date(2026, 7, 31), 18420)
     context.emit(
