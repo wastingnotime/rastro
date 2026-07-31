@@ -17,6 +17,7 @@ class MaintenanceStatus(str, Enum):
 class MotorcycleState:
     current_date: date
     odometer_km: int | None
+    odometer_recorded_at: date | None = None
 
 
 @dataclass(frozen=True)
@@ -65,7 +66,12 @@ def complete_service(
     return updated, ServiceCompleted(item.title, serviced_at, odometer_km)
 
 
-def assess(item: MaintenanceItem, motorcycle: MotorcycleState) -> MaintenanceAssessment:
+def assess(
+    item: MaintenanceItem,
+    motorcycle: MotorcycleState,
+    *,
+    odometer_stale_after_days: int = 90,
+) -> MaintenanceAssessment:
     if not item.enabled:
         return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
 
@@ -73,6 +79,12 @@ def assess(item: MaintenanceItem, motorcycle: MotorcycleState) -> MaintenanceAss
     if item.interval_km is not None:
         if motorcycle.odometer_km is None or item.last_service_odometer_km is None:
             return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+        if motorcycle.odometer_recorded_at is not None:
+            odometer_age = (
+                motorcycle.current_date - motorcycle.odometer_recorded_at
+            ).days
+            if odometer_age > odometer_stale_after_days:
+                return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
         mileage_remaining = (
             item.last_service_odometer_km + item.interval_km - motorcycle.odometer_km
         )
@@ -114,9 +126,16 @@ _URGENCY = {
 
 
 def next_action(
-    items: list[MaintenanceItem], motorcycle: MotorcycleState
+    items: list[MaintenanceItem],
+    motorcycle: MotorcycleState,
+    *,
+    odometer_stale_after_days: int = 90,
 ) -> MaintenanceAssessment | None:
-    assessments = [assess(item, motorcycle) for item in items if item.enabled]
+    assessments = [
+        assess(item, motorcycle, odometer_stale_after_days=odometer_stale_after_days)
+        for item in items
+        if item.enabled
+    ]
     actionable = [
         assessment
         for assessment in assessments
