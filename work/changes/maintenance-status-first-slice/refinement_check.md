@@ -7,6 +7,8 @@
 - The runtime adapter emits semantic status and next-action observations.
 - Service completion now emits an explicit domain event and resets only the
   completed item's baseline.
+- Odometer freshness is now modeled explicitly; readings older than 90 days
+  produce `unknown` for mileage-driven status.
 
 ## Current conclusion
 
@@ -17,6 +19,4 @@ does not reset unrelated maintenance items.
 
 ## Questions carried forward
 
-- Model stale odometer readings rather than assuming the latest reading is
-  current.
 - Decide how multiple simultaneous due items are grouped for the owner.

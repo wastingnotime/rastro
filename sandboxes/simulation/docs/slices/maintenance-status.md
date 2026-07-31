@@ -32,6 +32,10 @@ Service completion is represented as an explicit `ServiceCompleted` domain
 event. Applying it to one maintenance item resets that item's date and mileage
 baseline while leaving the other items unchanged.
 
+The mileage freshness policy is explicit: an odometer reading older than 90
+days is stale by default and produces `unknown` for mileage-driven status. The
+threshold is configurable for scenario exploration.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -39,6 +43,7 @@ baseline while leaving the other items unchanged.
 - runtime adapter emits status and next-action observations;
 - service completion emits an auditable event and recalculates the completed
   item from its new baseline;
+- stale odometer readings produce `unknown` for mileage-driven items;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
