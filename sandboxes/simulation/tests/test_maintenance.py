@@ -8,6 +8,7 @@ from app.domain.maintenance import (
     assess,
     complete_service,
     next_action,
+    next_actions,
 )
 
 
@@ -98,6 +99,51 @@ class MaintenanceStatusTests(unittest.TestCase):
         action = next_action(items, MotorcycleState(date(2026, 7, 31), 18420))
         self.assertEqual(action.title, "chain")
         self.assertEqual(action.status, MaintenanceStatus.OVERDUE)
+
+    def test_next_actions_groups_items_at_highest_urgency(self):
+        items = [
+            MaintenanceItem(
+                interval_km=3000,
+                warning_km=500,
+                last_service_odometer_km=15900,
+                title="Chain inspection",
+            ),
+            MaintenanceItem(
+                interval_days=30,
+                warning_days=7,
+                last_service_date=date(2026, 7, 8),
+                title="Brake inspection",
+            ),
+            MaintenanceItem(
+                interval_km=4000,
+                warning_km=500,
+                last_service_odometer_km=16000,
+                title="Engine oil",
+            ),
+        ]
+        actions = next_actions(items, MotorcycleState(date(2026, 7, 31), 18420))
+        self.assertEqual([action.title for action in actions], ["Brake inspection", "Chain inspection"])
+        self.assertTrue(all(action.status == MaintenanceStatus.APPROACHING_DUE for action in actions))
+
+    def test_next_action_keeps_first_grouped_action_compatibility(self):
+        items = [
+            MaintenanceItem(
+                interval_days=30,
+                warning_days=7,
+                last_service_date=date(2026, 7, 8),
+                title="Brake inspection",
+            ),
+            MaintenanceItem(
+                interval_km=3000,
+                warning_km=500,
+                last_service_odometer_km=15900,
+                title="Chain inspection",
+            ),
+        ]
+        self.assertEqual(
+            next_action(items, MotorcycleState(date(2026, 7, 31), 18420)).title,
+            "Brake inspection",
+        )
 
     def test_service_completion_resets_only_completed_item_baseline(self):
         original = MaintenanceItem(
