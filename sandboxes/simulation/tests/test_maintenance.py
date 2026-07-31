@@ -16,6 +16,12 @@ from app.domain.obligations import (
     next_obligation_actions,
     next_owner_actions,
 )
+from app.simulation.ownership_profiles import (
+    daily_commuter,
+    long_unused,
+    simulate_profile,
+    weekend_rider,
+)
 
 
 class MaintenanceStatusTests(unittest.TestCase):
@@ -213,6 +219,51 @@ class MaintenanceStatusTests(unittest.TestCase):
             MotorcycleState(date(2026, 7, 31), 18420),
         )
         self.assertEqual([action.title for action in actions], ["Chain inspection", "Licensing renewal"])
+
+    def test_daily_commuter_keeps_odometer_fresh(self):
+        result = simulate_profile(
+            daily_commuter(),
+            start_date=date(2026, 1, 1),
+            days=365,
+            starting_odometer_km=18000,
+            item=MaintenanceItem(
+                "Engine oil",
+                interval_km=4000,
+                warning_km=500,
+                last_service_odometer_km=18000,
+            ),
+        )
+        self.assertEqual(result.unknown_days, 0)
+        self.assertGreater(result.attention_days, 0)
+
+    def test_weekend_rider_keeps_odometer_fresh(self):
+        result = simulate_profile(
+            weekend_rider(),
+            start_date=date(2026, 1, 1),
+            days=365,
+            starting_odometer_km=18000,
+            item=MaintenanceItem(
+                "Engine oil",
+                interval_km=4000,
+                warning_km=500,
+                last_service_odometer_km=18000,
+            ),
+        )
+        self.assertEqual(result.unknown_days, 0)
+
+    def test_long_unused_motorcycle_becomes_unknown_after_freshness_window(self):
+        result = simulate_profile(
+            long_unused(),
+            start_date=date(2026, 1, 1),
+            days=365,
+            starting_odometer_km=18000,
+            item=MaintenanceItem(
+                "Engine oil",
+                interval_km=4000,
+                last_service_odometer_km=18000,
+            ),
+        )
+        self.assertEqual(result.unknown_days, 274)
 
 
 if __name__ == "__main__":
