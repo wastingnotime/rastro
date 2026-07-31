@@ -9,6 +9,8 @@ from app.domain.maintenance import (
     assess,
     complete_service,
     record_service,
+    project_service_history,
+    void_service_record,
     next_action,
     next_actions,
 )
@@ -221,6 +223,32 @@ class MaintenanceStatusTests(unittest.TestCase):
             record_service([item], ["Engine oil", "Engine oil"], date(2026, 7, 31), 18000)
         with self.assertRaises(ValueError):
             record_service([item], ["Chain inspection"], date(2026, 7, 31), 18000)
+
+    def test_voided_later_service_projects_the_prior_active_baseline(self):
+        item = MaintenanceItem(
+            "Chain inspection",
+            interval_km=3000,
+            last_service_odometer_km=15000,
+        )
+        _, first = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 1), 18000, service_id="service-a"
+        )
+        _, correction = record_service(
+            [item], ["Chain inspection"], date(2026, 7, 15), 19000, service_id="service-b"
+        )
+        voided = void_service_record("service-b", "Incorrect odometer")
+        projected = project_service_history([item], [first, correction], [voided])
+        self.assertEqual(projected[0].last_service_odometer_km, 18000)
+        self.assertEqual(
+            assess(projected[0], MotorcycleState(date(2026, 7, 31), 18420)).remaining_km,
+            2580,
+        )
+
+    def test_void_record_requires_id_and_reason(self):
+        with self.assertRaises(ValueError):
+            void_service_record("", "reason")
+        with self.assertRaises(ValueError):
+            void_service_record("service-a", "")
 
     def test_service_completion_rejects_negative_odometer(self):
         with self.assertRaises(ValueError):
