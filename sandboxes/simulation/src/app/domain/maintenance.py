@@ -131,6 +131,21 @@ def next_action(
     *,
     odometer_stale_after_days: int = 90,
 ) -> MaintenanceAssessment | None:
+    actions = next_actions(
+        items,
+        motorcycle,
+        odometer_stale_after_days=odometer_stale_after_days,
+    )
+    return actions[0] if actions else None
+
+
+def next_actions(
+    items: list[MaintenanceItem],
+    motorcycle: MotorcycleState,
+    *,
+    odometer_stale_after_days: int = 90,
+) -> list[MaintenanceAssessment]:
+    """Return all actions tied at the highest urgency, in stable title order."""
     assessments = [
         assess(item, motorcycle, odometer_stale_after_days=odometer_stale_after_days)
         for item in items
@@ -147,5 +162,13 @@ def next_action(
         }
     ]
     if not actionable:
-        return None
-    return min(actionable, key=lambda assessment: (_URGENCY[assessment.status], assessment.title))
+        return []
+    highest_urgency = min(_URGENCY[assessment.status] for assessment in actionable)
+    return sorted(
+        [
+            assessment
+            for assessment in actionable
+            if _URGENCY[assessment.status] == highest_urgency
+        ],
+        key=lambda assessment: assessment.title,
+    )
