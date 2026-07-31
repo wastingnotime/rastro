@@ -26,6 +26,7 @@ from app.application.service_history import (
     handle_correction,
     void_service_record_for_owner,
 )
+from app.application.attention_view import build_attention_view
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -81,6 +82,25 @@ def _start_owner(context: object) -> None:
         source="maintenance-status",
         actor="owner",
         payload={"items": [assessment.title for assessment in grouped]},
+    )
+    attention_view = build_attention_view(
+        grouped_actions(grouped_items, motorcycle)
+    )
+    context.emit(
+        "attention_view",
+        "owner_attention_view",
+        source="attention-presenter",
+        actor="owner",
+        payload={
+            "groups": [
+                {
+                    "status": group.status,
+                    "items": list(group.item_titles),
+                    "expanded": group.expanded,
+                }
+                for group in attention_view
+            ]
+        },
     )
     obligations = [
         DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
