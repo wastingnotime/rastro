@@ -79,6 +79,10 @@ original state.
 Same-day due items are confirmed to share one grouped owner action, sorted by
 title and retaining item-level detail.
 
+Mixed urgency is represented as ordered `AttentionGroup` values: overdue,
+then due, then approaching due. `next_actions()` continues to expose only the
+first group for the primary action, while the grouped view preserves context.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -98,6 +102,7 @@ title and retaining item-level detail.
 - correction failures expose stable adapter-facing codes and messages;
 - rejected correction commands do not mutate service-history state;
 - same-day due items are grouped into one owner action;
+- mixed urgency groups preserve priority and lower-priority context;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

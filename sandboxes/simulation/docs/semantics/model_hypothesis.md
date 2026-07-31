@@ -16,6 +16,8 @@ next action.
 - `MaintenanceAssessment`: status plus remaining mileage and days.
 - `next_actions`: all maintenance items tied at the highest actionable urgency,
   sorted deterministically for grouped owner attention.
+- `AttentionGroup`: one urgency tier and its sorted item assessments; grouped
+  views preserve lower-priority context without changing the primary action.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -60,7 +62,7 @@ next action.
 
 ## Open questions
 
-- How should grouped actions be presented when their urgency differs?
+- Should lower-priority groups collapse by default in the owner interface?
 
 ## Candidate next slices
 

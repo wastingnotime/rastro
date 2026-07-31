@@ -29,6 +29,8 @@
   leaves state unchanged when a command is rejected.
 - Same-day due items are now explicitly grouped and covered by a runtime
   invariant.
+- Mixed urgency groups now preserve priority order and lower-priority context
+  without changing the primary action helper.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -50,3 +52,5 @@ does not reset unrelated maintenance items.
 - Revisit correction copy with pilot users and localize only after the contract
   is validated.
 - Decide how mixed-urgency groups should be presented in the owner interface.
+- Validate whether lower-priority groups should collapse by default in pilot
+  usability sessions.
