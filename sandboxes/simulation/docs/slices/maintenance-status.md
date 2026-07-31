@@ -72,6 +72,10 @@ Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.
 
+`CorrectionCommand` and `CorrectionResponse` provide a framework-neutral
+adapter boundary. Rejected commands return `accepted: false` and preserve the
+original state.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -89,6 +93,7 @@ non-owner actor.
 - voiding an incorrect later record restores the prior active baseline;
 - only the motorcycle owner can void a service record;
 - correction failures expose stable adapter-facing codes and messages;
+- rejected correction commands do not mutate service-history state;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

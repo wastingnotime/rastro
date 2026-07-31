@@ -28,6 +28,8 @@ next action.
   correction events.
 - `ServiceCorrectionError`: stable adapter-facing code and safe user message
   for forbidden, missing, or repeated corrections.
+- `CorrectionCommand` / `CorrectionResponse`: framework-neutral command and
+  response contract for future API or web adapters.
 
 ## Hypotheses to test
 
@@ -54,6 +56,7 @@ next action.
 13. Only the motorcycle owner may void a service record.
 14. Correction failures should expose stable codes and safe messages without
     leaking internal ownership or storage details.
+15. Rejected correction commands must not mutate service-history state.
 
 ## Open questions
 

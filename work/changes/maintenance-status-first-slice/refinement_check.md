@@ -25,6 +25,8 @@
   reports explicit errors for unknown or already-voided records.
 - Correction failures now have stable codes and safe user-facing messages,
   with runtime evidence for the forbidden case.
+- The application adapter now returns a stable correction response envelope and
+  leaves state unchanged when a command is rejected.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
