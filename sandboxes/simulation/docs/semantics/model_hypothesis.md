@@ -22,6 +22,8 @@ next action.
   explicit expanded/collapsed state.
 - `AttentionViewPreferences`: persisted set of urgency groups the owner chose
   to expand, scoped to one motorcycle.
+- `AttentionPreferenceSnapshot`: revisioned, device-tagged preference state
+  used for deterministic cross-device synchronization.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -63,12 +65,15 @@ next action.
 14. Correction failures should expose stable codes and safe messages without
     leaking internal ownership or storage details.
 15. Rejected correction commands must not mutate service-history state.
+16. Same-motorcycle preference snapshots sync by highest revision, with a
+    stable device-ID tie-breaker.
 
 ## Open questions
 
 - Should lower-priority groups collapse by default in the owner interface?
 - Should users' expand/collapse choices persist between visits?
-- Should motorcycle-scoped preferences synchronize across the owner's devices?
+- Should synchronized preferences use account storage or remain device-local
+  until the product has authenticated sync?
 
 ## Candidate next slices
 

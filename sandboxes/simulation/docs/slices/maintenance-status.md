@@ -92,6 +92,10 @@ visits. The preference changes presentation only; it never changes status,
 priority, or reminder behavior. Preferences are scoped per motorcycle to avoid
 cross-vehicle layout leakage.
 
+Cross-device synchronization uses revisioned snapshots. Snapshots must share a
+motorcycle scope; the highest revision wins, and equal revisions use device ID
+as a deterministic tie-breaker.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -115,6 +119,7 @@ cross-vehicle layout leakage.
 - primary attention expands while lower-priority groups collapse by default;
 - selected lower-priority expansions can persist between visits;
 - preference state does not leak between motorcycles;
+- same-motorcycle preference snapshots merge deterministically across devices;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

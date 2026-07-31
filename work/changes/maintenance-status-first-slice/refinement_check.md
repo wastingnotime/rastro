@@ -37,6 +37,8 @@
   without changing domain ordering or urgency.
 - Attention preferences are scoped per motorcycle and remain isolated between
   vehicles.
+- Revisioned preference snapshots now provide deterministic same-motorcycle
+  cross-device synchronization.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -63,3 +65,5 @@ does not reset unrelated maintenance items.
 - Decide whether expand/collapse choices should persist between visits.
 - Decide whether preferences belong to the owner account or individual
 - motorcycle.
+- Decide whether synchronized preferences require authenticated account storage
+  or remain device-local in the first pilot.
