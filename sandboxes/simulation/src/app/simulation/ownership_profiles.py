@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from typing import Callable
 
 from app.domain.maintenance import MaintenanceItem, MaintenanceStatus, MotorcycleState, assess
+from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,15 @@ class ProfileResult:
     status_counts: dict[str, int]
     unknown_days: int
     attention_days: int
+
+
+@dataclass(frozen=True)
+class ReminderProfileResult:
+    profile: str
+    cadence_days: int
+    days: int
+    reminder_count: int
+    unknown_days: int
 
 
 def simulate_profile(
@@ -60,6 +70,43 @@ def simulate_profile(
                 MaintenanceStatus.OVERDUE,
             )
         ),
+    )
+
+
+def simulate_profile_reminders(
+    profile: OwnershipProfile,
+    *,
+    start_date: date,
+    days: int,
+    starting_odometer_km: int,
+    item: MaintenanceItem,
+    cadence_days: int,
+    odometer_stale_after_days: int = 90,
+) -> ReminderProfileResult:
+    current_odometer = starting_odometer_km
+    last_recorded_at = start_date
+    tracker = ReminderTracker(ReminderPolicy(cadence_days))
+    reminder_count = 0
+    unknown_days = 0
+    for offset in range(days):
+        current_date = start_date + timedelta(days=offset)
+        current_odometer += profile.kilometers_on(current_date)
+        if profile.records_odometer_on(current_date):
+            last_recorded_at = current_date
+        result = assess(
+            item,
+            MotorcycleState(current_date, current_odometer, last_recorded_at),
+            odometer_stale_after_days=odometer_stale_after_days,
+        )
+        if result.status == MaintenanceStatus.UNKNOWN:
+            unknown_days += 1
+        reminder_count += len(tracker.evaluate(current_date, [result]))
+    return ReminderProfileResult(
+        profile=profile.name,
+        cadence_days=cadence_days,
+        days=days,
+        reminder_count=reminder_count,
+        unknown_days=unknown_days,
     )
 
 
