@@ -14,6 +14,20 @@ class AttentionPreferenceSnapshot:
     device_id: str
 
 
+@dataclass(frozen=True)
+class AttentionSyncState:
+    owner_id: str
+    snapshots: tuple[AttentionPreferenceSnapshot, ...] = ()
+
+
+@dataclass(frozen=True)
+class AttentionSyncResponse:
+    accepted: bool
+    code: str
+    message: str
+    snapshot: AttentionPreferenceSnapshot | None = None
+
+
 def snapshot_preferences(
     preferences: AttentionViewPreferences,
     *,
@@ -55,3 +69,34 @@ def preferences_from_snapshot(
     snapshot: AttentionPreferenceSnapshot,
 ) -> AttentionViewPreferences:
     return AttentionViewPreferences(snapshot.scope_id, snapshot.expanded_statuses)
+
+
+def handle_preference_sync(
+    state: AttentionSyncState,
+    actor_id: str,
+    incoming: AttentionPreferenceSnapshot,
+) -> tuple[AttentionSyncState, AttentionSyncResponse]:
+    """Authorize and merge one device snapshot into owner-scoped state."""
+    if actor_id != state.owner_id or incoming.owner_id != state.owner_id:
+        return state, AttentionSyncResponse(
+            False,
+            "preference_sync_forbidden",
+            "Only the preference owner can synchronize attention settings.",
+        )
+    existing = next(
+        (snapshot for snapshot in state.snapshots if snapshot.scope_id == incoming.scope_id),
+        None,
+    )
+    winner = merge_preference_snapshots(existing, incoming) if existing else incoming
+    snapshots = tuple(
+        snapshot
+        for snapshot in state.snapshots
+        if snapshot.scope_id != incoming.scope_id
+    ) + (winner,)
+    updated = AttentionSyncState(state.owner_id, snapshots)
+    return updated, AttentionSyncResponse(
+        True,
+        "preference_sync_accepted",
+        "Attention preferences synchronized.",
+        snapshot=winner,
+    )
