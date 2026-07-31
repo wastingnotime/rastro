@@ -40,6 +40,10 @@ Grouped attention is now explicit: all items tied at the highest urgency are
 returned in stable title order. Less urgent items remain available to the
 status view but do not add another immediate reminder group.
 
+Document obligations use the same status vocabulary but remain a separate
+date-based model. The combined owner projection merges their actionable
+assessments with maintenance assessments at the highest urgency.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -49,6 +53,8 @@ status view but do not add another immediate reminder group.
   item from its new baseline;
 - stale odometer readings produce `unknown` for mileage-driven items;
 - equally urgent maintenance items are grouped into one attention observation;
+- completed or disabled document obligations do not create owner attention;
+- document and maintenance actions can appear together in owner attention;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

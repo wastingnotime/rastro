@@ -11,6 +11,8 @@
   produce `unknown` for mileage-driven status.
 - Equally urgent items are grouped in deterministic title order to reduce
   reminder noise while retaining item-level detail.
+- Date-based document obligations now join the combined owner attention
+  projection without being folded into mechanical maintenance rules.
 
 ## Current conclusion
 

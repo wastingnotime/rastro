@@ -16,6 +16,8 @@ next action.
 - `MaintenanceAssessment`: status plus remaining mileage and days.
 - `next_actions`: all maintenance items tied at the highest actionable urgency,
   sorted deterministically for grouped owner attention.
+- `DocumentObligation`: a date-based licensing, insurance, inspection, or
+  warranty obligation with completion state.
 
 ## Hypotheses to test
 
@@ -27,6 +29,8 @@ next action.
    `unknown` by default, with the threshold configurable for exploration.
 6. Simultaneous items at the same urgency should be grouped to reduce reminder
    noise while preserving each item title.
+7. Mechanical maintenance and document obligations should share owner
+   attention without sharing their underlying domain rules.
 
 ## Open questions
 
@@ -37,5 +41,4 @@ next action.
 
 - service completion and interval baseline reset;
 - stale odometer and correction history;
-- document obligations and combined owner status;
 - reminder-noise evaluation across grouped due items.
