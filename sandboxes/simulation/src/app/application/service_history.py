@@ -36,6 +36,21 @@ class ServiceCorrectionAlreadyVoided(ServiceCorrectionError, ValueError):
     user_message = "This service record has already been corrected."
 
 
+@dataclass(frozen=True)
+class CorrectionCommand:
+    actor_id: str
+    service_id: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class CorrectionResponse:
+    accepted: bool
+    code: str
+    message: str
+    service_id: str | None = None
+
+
 def void_service_record_for_owner(
     state: ServiceHistoryState,
     actor_id: str,
@@ -57,3 +72,21 @@ def void_service_record_for_owner(
         voided_records=state.voided_records + (event,),
     )
     return updated, event
+
+
+def handle_correction(
+    state: ServiceHistoryState, command: CorrectionCommand
+) -> tuple[ServiceHistoryState, CorrectionResponse]:
+    """Translate the service-history command into an adapter-safe response."""
+    try:
+        updated, event = void_service_record_for_owner(
+            state, command.actor_id, command.service_id, command.reason
+        )
+    except ServiceCorrectionError as error:
+        return state, CorrectionResponse(False, error.code, str(error))
+    return updated, CorrectionResponse(
+        True,
+        "service_record_voided",
+        "Service record correction recorded.",
+        service_id=event.service_id,
+    )
