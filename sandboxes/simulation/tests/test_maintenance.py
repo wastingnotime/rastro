@@ -226,6 +226,24 @@ class MaintenanceStatusTests(unittest.TestCase):
             [True, False],
         )
 
+    def test_attention_preferences_do_not_leak_between_motorcycles(self):
+        groups = grouped_actions(
+            [
+                MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=14000),
+                MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15420),
+            ],
+            MotorcycleState(date(2026, 7, 31), 18420),
+        )
+        preferences = toggle_group(AttentionViewPreferences("moto-1"), "due")
+        self.assertEqual(
+            [group.expanded for group in build_attention_view(groups, preferences=preferences, scope_id="moto-1")],
+            [True, True],
+        )
+        self.assertEqual(
+            [group.expanded for group in build_attention_view(groups, preferences=preferences, scope_id="moto-2")],
+            [True, False],
+        )
+
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
             MaintenanceItem(
