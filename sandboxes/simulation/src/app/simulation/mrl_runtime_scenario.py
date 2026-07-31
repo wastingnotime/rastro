@@ -16,6 +16,12 @@ from app.domain.maintenance import (
     next_actions,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
+from app.simulation.ownership_profiles import (
+    daily_commuter,
+    long_unused,
+    simulate_profile,
+    weekend_rider,
+)
 
 
 def _start_owner(context: object) -> None:
@@ -95,6 +101,32 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"status": after_service.status.value, "remaining_km": after_service.remaining_km},
     )
+    profile_item = MaintenanceItem(
+        "Engine oil",
+        interval_km=4000,
+        warning_km=500,
+        last_service_odometer_km=18000,
+    )
+    for profile in (daily_commuter(), weekend_rider(), long_unused()):
+        result = simulate_profile(
+            profile,
+            start_date=date(2026, 1, 1),
+            days=365,
+            starting_odometer_km=18000,
+            item=profile_item,
+        )
+        context.emit(
+            "profile_evidence",
+            result.profile,
+            source="ownership-profiles",
+            actor="owner",
+            payload={
+                "days": result.days,
+                "unknown_days": result.unknown_days,
+                "attention_days": result.attention_days,
+                "status_counts": result.status_counts,
+            },
+        )
 
 
 class OwnerBehavior:
@@ -127,6 +159,17 @@ def _completed_obligation_is_not_actionable(context: object) -> bool:
     return not next_owner_actions([], [obligation], MotorcycleState(date(2026, 7, 31), None))
 
 
+def _long_unused_profile_becomes_unknown(context: object) -> bool:
+    result = simulate_profile(
+        long_unused(),
+        start_date=date(2026, 1, 1),
+        days=365,
+        starting_odometer_km=18000,
+        item=MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=18000),
+    )
+    return result.unknown_days == 274
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -138,6 +181,7 @@ def create_simulation() -> Scenario:
             Invariant("unknown_data_is_not_healthy", _unknown_is_not_healthy),
             Invariant("stale_mileage_is_unknown", _stale_mileage_is_unknown),
             Invariant("completed_obligation_is_not_actionable", _completed_obligation_is_not_actionable),
+            Invariant("long_unused_profile_becomes_unknown", _long_unused_profile_becomes_unknown),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
