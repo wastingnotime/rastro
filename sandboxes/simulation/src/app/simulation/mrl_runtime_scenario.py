@@ -31,6 +31,7 @@ from app.application.attention_view import (
     build_attention_view,
     toggle_group,
 )
+from app.application.attention_sync import merge_preference_snapshots, snapshot_preferences
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -137,6 +138,28 @@ def _start_owner(context: object) -> None:
         source="attention-presenter",
         actor="owner",
         payload={"expanded": [group.status for group in persisted_view if group.expanded]},
+    )
+    local_snapshot = snapshot_preferences(
+        AttentionViewPreferences("moto-1", frozenset({"approaching_due"})),
+        revision=2,
+        device_id="phone",
+    )
+    remote_snapshot = snapshot_preferences(
+        AttentionViewPreferences("moto-1", frozenset({"due", "approaching_due"})),
+        revision=3,
+        device_id="web",
+    )
+    merged_snapshot = merge_preference_snapshots(local_snapshot, remote_snapshot)
+    context.emit(
+        "attention_preference_sync",
+        "moto-1",
+        source="attention-sync",
+        actor="owner",
+        payload={
+            "device_id": merged_snapshot.device_id,
+            "revision": merged_snapshot.revision,
+            "expanded_statuses": sorted(merged_snapshot.expanded_statuses),
+        },
     )
     obligations = [
         DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
