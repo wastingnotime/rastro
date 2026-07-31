@@ -8,6 +8,7 @@ from app.domain.maintenance import (
     MotorcycleState,
     assess,
     complete_service,
+    grouped_actions,
     record_service,
     project_service_history,
     void_service_record,
@@ -168,6 +169,26 @@ class MaintenanceStatusTests(unittest.TestCase):
         actions = next_actions(items, MotorcycleState(date(2026, 7, 31), None))
         self.assertEqual([action.title for action in actions], ["Brake inspection", "Licensing renewal"])
         self.assertTrue(all(action.status == MaintenanceStatus.DUE for action in actions))
+
+    def test_mixed_urgency_groups_preserve_priority_and_context(self):
+        items = [
+            MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=14000),
+            MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15420),
+            MaintenanceItem(
+                "Brake inspection",
+                interval_days=30,
+                warning_days=7,
+                last_service_date=date(2026, 7, 4),
+            ),
+        ]
+        groups = grouped_actions(items, MotorcycleState(date(2026, 7, 31), 18420))
+        self.assertEqual(
+            [group.status for group in groups],
+            [MaintenanceStatus.OVERDUE, MaintenanceStatus.DUE, MaintenanceStatus.APPROACHING_DUE],
+        )
+        self.assertEqual([item.title for item in groups[0].items], ["Engine oil"])
+        self.assertEqual([item.title for item in groups[1].items], ["Chain inspection"])
+        self.assertEqual([item.title for item in groups[2].items], ["Brake inspection"])
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
