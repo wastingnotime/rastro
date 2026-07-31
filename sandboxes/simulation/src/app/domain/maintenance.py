@@ -41,6 +41,12 @@ class MaintenanceAssessment:
 
 
 @dataclass(frozen=True)
+class AttentionGroup:
+    status: MaintenanceStatus
+    items: tuple[MaintenanceAssessment, ...]
+
+
+@dataclass(frozen=True)
 class ServiceCompleted:
     maintenance_title: str
     serviced_at: date
@@ -223,7 +229,22 @@ def next_actions(
     *,
     odometer_stale_after_days: int = 90,
 ) -> list[MaintenanceAssessment]:
-    """Return all actions tied at the highest urgency, in stable title order."""
+    """Return the highest-urgency group for the primary owner action."""
+    groups = grouped_actions(
+        items,
+        motorcycle,
+        odometer_stale_after_days=odometer_stale_after_days,
+    )
+    return list(groups[0].items) if groups else []
+
+
+def grouped_actions(
+    items: list[MaintenanceItem],
+    motorcycle: MotorcycleState,
+    *,
+    odometer_stale_after_days: int = 90,
+) -> list[AttentionGroup]:
+    """Return every actionable urgency group, highest urgency first."""
     assessments = [
         assess(item, motorcycle, odometer_stale_after_days=odometer_stale_after_days)
         for item in items
@@ -241,12 +262,13 @@ def next_actions(
     ]
     if not actionable:
         return []
-    highest_urgency = min(_URGENCY[assessment.status] for assessment in actionable)
-    return sorted(
-        [
-            assessment
-            for assessment in actionable
-            if _URGENCY[assessment.status] == highest_urgency
-        ],
-        key=lambda assessment: assessment.title,
-    )
+    by_status: dict[MaintenanceStatus, list[MaintenanceAssessment]] = {}
+    for assessment in actionable:
+        by_status.setdefault(assessment.status, []).append(assessment)
+    return [
+        AttentionGroup(
+            status,
+            tuple(sorted(by_status[status], key=lambda assessment: assessment.title)),
+        )
+        for status in sorted(by_status, key=lambda value: _URGENCY[value])
+    ]
