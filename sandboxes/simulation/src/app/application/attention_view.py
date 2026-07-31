@@ -14,6 +14,7 @@ class AttentionGroupView:
 
 @dataclass(frozen=True)
 class AttentionViewPreferences:
+    scope_id: str
     expanded_statuses: frozenset[str] = frozenset()
 
 
@@ -22,9 +23,14 @@ def build_attention_view(
     *,
     expand_all: bool = False,
     preferences: AttentionViewPreferences | None = None,
+    scope_id: str | None = None,
 ) -> list[AttentionGroupView]:
     """Apply persisted expansion choices without changing attention priority."""
-    expanded_statuses = preferences.expanded_statuses if preferences else frozenset()
+    expanded_statuses = (
+        preferences.expanded_statuses
+        if preferences is not None and (scope_id is None or preferences.scope_id == scope_id)
+        else frozenset()
+    )
     return [
         AttentionGroupView(
             status=group.status.value,
@@ -43,4 +49,4 @@ def toggle_group(
         expanded.remove(status)
     else:
         expanded.add(status)
-    return AttentionViewPreferences(frozenset(expanded))
+    return AttentionViewPreferences(preferences.scope_id, frozenset(expanded))
