@@ -79,6 +79,16 @@ def _unknown_is_not_healthy(context: object) -> bool:
     return result.status == MaintenanceStatus.UNKNOWN
 
 
+def _stale_mileage_is_unknown(context: object) -> bool:
+    item = MaintenanceItem(
+        "Stale reading item",
+        interval_km=4000,
+        last_service_odometer_km=15000,
+    )
+    motorcycle = MotorcycleState(date(2026, 7, 31), 18000, date(2026, 5, 1))
+    return assess(item, motorcycle).status == MaintenanceStatus.UNKNOWN
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -86,7 +96,10 @@ def create_simulation() -> Scenario:
         initial_time=datetime(2026, 7, 31, tzinfo=timezone.utc),
         run_id="maintenance-status-first-slice",
         actors=[Actor(name="owner", behavior=OwnerBehavior())],
-        invariants=[Invariant("unknown_data_is_not_healthy", _unknown_is_not_healthy)],
+        invariants=[
+            Invariant("unknown_data_is_not_healthy", _unknown_is_not_healthy),
+            Invariant("stale_mileage_is_unknown", _stale_mileage_is_unknown),
+        ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
             ObservatoryNode("status", "Maintenance status", "domain", "domain"),
