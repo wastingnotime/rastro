@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from app.domain.maintenance import (
+    MaintenanceAssessment,
     MaintenanceItem,
     MaintenanceStatus,
     MotorcycleState,
@@ -22,6 +23,7 @@ from app.simulation.ownership_profiles import (
     simulate_profile,
     weekend_rider,
 )
+from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
 class MaintenanceStatusTests(unittest.TestCase):
@@ -264,6 +266,31 @@ class MaintenanceStatusTests(unittest.TestCase):
             ),
         )
         self.assertEqual(result.unknown_days, 274)
+
+    def test_reminder_cadence_suppresses_daily_repeat(self):
+        tracker = ReminderTracker(ReminderPolicy(repeat_every_days=14))
+        assessment = MaintenanceAssessment("Chain inspection", MaintenanceStatus.OVERDUE)
+        self.assertEqual(tracker.evaluate(date(2026, 1, 1), [assessment]), ["Chain inspection"])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 2), [assessment]), [])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 14), [assessment]), [])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 15), [assessment]), ["Chain inspection"])
+
+    def test_reminder_escalates_immediately(self):
+        tracker = ReminderTracker()
+        approaching = MaintenanceAssessment("Chain inspection", MaintenanceStatus.APPROACHING_DUE)
+        overdue = MaintenanceAssessment("Chain inspection", MaintenanceStatus.OVERDUE)
+        self.assertEqual(tracker.evaluate(date(2026, 1, 1), [approaching]), ["Chain inspection"])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 2), [overdue]), ["Chain inspection"])
+
+    def test_ok_and_unknown_do_not_remind_and_clear_cadence(self):
+        tracker = ReminderTracker()
+        overdue = MaintenanceAssessment("Chain inspection", MaintenanceStatus.OVERDUE)
+        ok = MaintenanceAssessment("Chain inspection", MaintenanceStatus.OK)
+        unknown = MaintenanceAssessment("Chain inspection", MaintenanceStatus.UNKNOWN)
+        self.assertEqual(tracker.evaluate(date(2026, 1, 1), [overdue]), ["Chain inspection"])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 2), [ok]), [])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 3), [unknown]), [])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 4), [overdue]), ["Chain inspection"])
 
 
 if __name__ == "__main__":
