@@ -14,6 +14,7 @@ from app.domain.obligations import (
     DocumentObligation,
     assess_obligation,
     next_obligation_actions,
+    next_owner_actions,
 )
 
 
@@ -193,6 +194,25 @@ class MaintenanceStatusTests(unittest.TestCase):
             MaintenanceStatus.UNKNOWN,
         )
         self.assertEqual(next_obligation_actions([obligation], date(2026, 7, 31)), [])
+
+    def test_owner_attention_combines_maintenance_and_obligations(self):
+        maintenance = [
+            MaintenanceItem(
+                "Chain inspection",
+                interval_km=3000,
+                warning_km=500,
+                last_service_odometer_km=15900,
+            )
+        ]
+        obligations = [
+            DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
+        ]
+        actions = next_owner_actions(
+            maintenance,
+            obligations,
+            MotorcycleState(date(2026, 7, 31), 18420),
+        )
+        self.assertEqual([action.title for action in actions], ["Chain inspection", "Licensing renewal"])
 
 
 if __name__ == "__main__":

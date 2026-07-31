@@ -3,7 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from app.domain.maintenance import MaintenanceAssessment, MaintenanceStatus
+from app.domain.maintenance import (
+    MaintenanceAssessment,
+    MaintenanceItem,
+    MaintenanceStatus,
+    MotorcycleState,
+    next_actions,
+)
 
 
 @dataclass(frozen=True)
@@ -61,5 +67,27 @@ def next_obligation_actions(
     highest = min(urgency[item.status] for item in actionable)
     return sorted(
         [item for item in actionable if urgency[item.status] == highest],
+        key=lambda item: item.title,
+    )
+
+
+def next_owner_actions(
+    maintenance_items: list[MaintenanceItem],
+    obligations: list[DocumentObligation],
+    motorcycle: MotorcycleState,
+) -> list[MaintenanceAssessment]:
+    """Combine mechanical and legal attention without changing either model."""
+    actions = next_actions(maintenance_items, motorcycle)
+    actions.extend(next_obligation_actions(obligations, motorcycle.current_date))
+    if not actions:
+        return []
+    urgency = {
+        MaintenanceStatus.OVERDUE: 0,
+        MaintenanceStatus.DUE: 1,
+        MaintenanceStatus.APPROACHING_DUE: 2,
+    }
+    highest = min(urgency[item.status] for item in actions)
+    return sorted(
+        [item for item in actions if urgency[item.status] == highest],
         key=lambda item: item.title,
     )
