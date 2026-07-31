@@ -60,7 +60,7 @@ next action.
 
 ## Open questions
 
-- Should same-day due items be grouped into one owner action?
+- How should grouped actions be presented when their urgency differs?
 
 ## Candidate next slices
 

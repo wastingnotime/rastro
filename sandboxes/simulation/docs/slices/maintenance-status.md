@@ -76,6 +76,9 @@ non-owner actor.
 adapter boundary. Rejected commands return `accepted: false` and preserve the
 original state.
 
+Same-day due items are confirmed to share one grouped owner action, sorted by
+title and retaining item-level detail.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -94,6 +97,7 @@ original state.
 - only the motorcycle owner can void a service record;
 - correction failures expose stable adapter-facing codes and messages;
 - rejected correction commands do not mutate service-history state;
+- same-day due items are grouped into one owner action;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
