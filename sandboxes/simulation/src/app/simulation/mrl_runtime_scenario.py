@@ -13,6 +13,7 @@ from app.domain.maintenance import (
     assess,
     next_action,
     next_actions,
+    grouped_actions,
     project_service_history,
     record_service,
     void_service_record,
@@ -306,6 +307,21 @@ def _same_day_due_items_are_grouped(context: object) -> bool:
     return [action.title for action in actions] == ["Brake inspection", "Licensing renewal"]
 
 
+def _mixed_urgency_groups_keep_priority_context(context: object) -> bool:
+    items = [
+        MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=14000),
+        MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15420),
+        MaintenanceItem(
+            "Brake inspection",
+            interval_days=30,
+            warning_days=7,
+            last_service_date=date(2026, 7, 4),
+        ),
+    ]
+    groups = grouped_actions(items, MotorcycleState(date(2026, 7, 31), 18420))
+    return [group.status.value for group in groups] == ["overdue", "due", "approaching_due"]
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -321,6 +337,7 @@ def create_simulation() -> Scenario:
             Invariant("voided_correction_restores_active_baseline", _voided_correction_restores_active_baseline),
             Invariant("non_owner_correction_is_denied", _non_owner_correction_is_denied),
             Invariant("same_day_due_items_are_grouped", _same_day_due_items_are_grouped),
+            Invariant("mixed_urgency_groups_keep_priority_context", _mixed_urgency_groups_keep_priority_context),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
