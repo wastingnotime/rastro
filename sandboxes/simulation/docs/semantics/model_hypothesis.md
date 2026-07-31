@@ -23,7 +23,7 @@ next action.
 - `AttentionViewPreferences`: persisted set of urgency groups the owner chose
   to expand, scoped to one motorcycle.
 - `AttentionPreferenceSnapshot`: revisioned, device-tagged preference state
-  used for deterministic cross-device synchronization.
+  used for deterministic cross-device synchronization and bound to an owner.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -67,13 +67,15 @@ next action.
 15. Rejected correction commands must not mutate service-history state.
 16. Same-motorcycle preference snapshots sync by highest revision, with a
     stable device-ID tie-breaker.
+17. Preference snapshots from different owners must never merge, even when
+    motorcycle scope IDs collide.
 
 ## Open questions
 
 - Should lower-priority groups collapse by default in the owner interface?
 - Should users' expand/collapse choices persist between visits?
-- Should synchronized preferences use account storage or remain device-local
-  until the product has authenticated sync?
+- What authenticated account storage is appropriate for synchronized
+  preferences remains a technology-project decision.
 
 ## Candidate next slices
 

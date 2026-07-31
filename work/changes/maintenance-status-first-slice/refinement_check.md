@@ -39,6 +39,8 @@
   vehicles.
 - Revisioned preference snapshots now provide deterministic same-motorcycle
   cross-device synchronization.
+- Preference snapshots are owner-bound and cannot merge across accounts with
+  colliding motorcycle scope IDs.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -65,5 +67,5 @@ does not reset unrelated maintenance items.
 - Decide whether expand/collapse choices should persist between visits.
 - Decide whether preferences belong to the owner account or individual
 - motorcycle.
-- Decide whether synchronized preferences require authenticated account storage
-  or remain device-local in the first pilot.
+- Choose authenticated account storage during technology-project
+  synchronization.

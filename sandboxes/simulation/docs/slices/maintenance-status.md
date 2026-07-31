@@ -93,8 +93,8 @@ priority, or reminder behavior. Preferences are scoped per motorcycle to avoid
 cross-vehicle layout leakage.
 
 Cross-device synchronization uses revisioned snapshots. Snapshots must share a
-motorcycle scope; the highest revision wins, and equal revisions use device ID
-as a deterministic tie-breaker.
+motorcycle and owner scope; the highest revision wins, and equal revisions use
+device ID as a deterministic tie-breaker.
 
 ## Done criteria
 
@@ -120,6 +120,7 @@ as a deterministic tie-breaker.
 - selected lower-priority expansions can persist between visits;
 - preference state does not leak between motorcycles;
 - same-motorcycle preference snapshots merge deterministically across devices;
+- cross-owner preference snapshots are rejected;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope
