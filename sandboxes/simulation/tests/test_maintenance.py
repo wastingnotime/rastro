@@ -21,6 +21,7 @@ from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
     simulate_profile,
+    simulate_profile_reminders,
     weekend_rider,
 )
 from app.simulation.reminders import ReminderPolicy, ReminderTracker
@@ -291,6 +292,43 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(tracker.evaluate(date(2026, 1, 2), [ok]), [])
         self.assertEqual(tracker.evaluate(date(2026, 1, 3), [unknown]), [])
         self.assertEqual(tracker.evaluate(date(2026, 1, 4), [overdue]), ["Chain inspection"])
+
+    def test_longer_cadence_reduces_commuter_reminder_volume(self):
+        item = MaintenanceItem(
+            "Engine oil",
+            interval_km=4000,
+            warning_km=500,
+            last_service_odometer_km=18000,
+        )
+        results = [
+            simulate_profile_reminders(
+                daily_commuter(),
+                start_date=date(2026, 1, 1),
+                days=365,
+                starting_odometer_km=18000,
+                item=item,
+                cadence_days=cadence,
+            )
+            for cadence in (7, 14, 30)
+        ]
+        self.assertGreater(results[0].reminder_count, results[1].reminder_count)
+        self.assertGreater(results[1].reminder_count, results[2].reminder_count)
+
+    def test_unused_profile_stops_reminding_when_status_becomes_unknown(self):
+        result = simulate_profile_reminders(
+            long_unused(),
+            start_date=date(2026, 1, 1),
+            days=365,
+            starting_odometer_km=18000,
+            item=MaintenanceItem(
+                "Engine oil",
+                interval_km=4000,
+                last_service_odometer_km=18000,
+            ),
+            cadence_days=14,
+        )
+        self.assertEqual(result.unknown_days, 274)
+        self.assertEqual(result.reminder_count, 0)
 
 
 if __name__ == "__main__":
