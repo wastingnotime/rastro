@@ -141,11 +141,13 @@ def _start_owner(context: object) -> None:
     )
     local_snapshot = snapshot_preferences(
         AttentionViewPreferences("moto-1", frozenset({"approaching_due"})),
+        owner_id="owner-1",
         revision=2,
         device_id="phone",
     )
     remote_snapshot = snapshot_preferences(
         AttentionViewPreferences("moto-1", frozenset({"due", "approaching_due"})),
+        owner_id="owner-1",
         revision=3,
         device_id="web",
     )
