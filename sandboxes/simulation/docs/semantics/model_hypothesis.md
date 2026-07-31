@@ -14,6 +14,8 @@ next action.
 - `MaintenanceItem`: interval configuration and the last completed baseline.
 - `MaintenanceStatus`: `ok`, `approaching_due`, `due`, `overdue`, or `unknown`.
 - `MaintenanceAssessment`: status plus remaining mileage and days.
+- `next_actions`: all maintenance items tied at the highest actionable urgency,
+  sorted deterministically for grouped owner attention.
 
 ## Hypotheses to test
 
@@ -23,6 +25,8 @@ next action.
 4. The next action should be the most urgent actionable maintenance item.
 5. A mileage status based on an odometer reading older than 90 days should be
    `unknown` by default, with the threshold configurable for exploration.
+6. Simultaneous items at the same urgency should be grouped to reduce reminder
+   noise while preserving each item title.
 
 ## Open questions
 
@@ -34,4 +38,4 @@ next action.
 - service completion and interval baseline reset;
 - stale odometer and correction history;
 - document obligations and combined owner status;
-- multiple due items and reminder-noise evaluation.
+- reminder-noise evaluation across grouped due items.
