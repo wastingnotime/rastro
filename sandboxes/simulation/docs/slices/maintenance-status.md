@@ -56,6 +56,10 @@ The current profile comparison keeps 14 days as an exploratory midpoint: it
 produces 19 commuter reminders and 17 weekend-rider reminders in one year,
 compared with 37/31 at 7 days and 9/9 at 30 days.
 
+Service records now support partial completion. A single `ServiceRecorded`
+event updates only the selected item baselines, preserving the remaining
+items' history and status.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -69,6 +73,7 @@ compared with 37/31 at 7 days and 9/9 at 30 days.
 - document and maintenance actions can appear together in owner attention;
 - one-year ownership profiles produce deterministic freshness evidence;
 - reminder cadence suppresses same-status daily repeats and preserves escalation;
+- partial service records reset only selected maintenance items;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

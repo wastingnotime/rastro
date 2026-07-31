@@ -17,6 +17,8 @@
   long-unused motorcycle becomes unknown after 90 days.
 - Reminder cadence evidence suppresses next-day repeats while preserving
   immediate first reminders and escalation behavior.
+- Partial service records now update selected item baselines and retain
+  provider/note evidence without changing unselected items.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -35,3 +37,4 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
+- Model service-record corrections or deletion without corrupting status.

@@ -20,6 +20,8 @@ next action.
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
   repeats after a configured cadence, and reminds immediately on escalation.
+- `ServiceRecorded`: auditable service visit event containing the selected
+  maintenance items and new service baseline.
 
 ## Hypotheses to test
 
@@ -45,7 +47,6 @@ next action.
 ## Open questions
 
 - Should same-day due items be grouped into one owner action?
-- How should partial service completion affect action grouping?
 
 ## Candidate next slices
 
@@ -54,3 +55,4 @@ next action.
 - reminder-noise evaluation across grouped due items.
 - service cadence and overdue persistence across ownership profiles.
 - reminder cadence tuning with real owner return behavior.
+- service-record deletion and correction history.
