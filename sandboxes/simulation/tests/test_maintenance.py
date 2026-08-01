@@ -35,6 +35,7 @@ from app.application.attention_view import (
     build_attention_view,
     toggle_group,
 )
+from app.application.owner_dashboard import build_owner_status
 from app.application.attention_sync import (
     AttentionSyncState,
     handle_preference_sync,
@@ -355,6 +356,47 @@ class MaintenanceStatusTests(unittest.TestCase):
                 revision=1,
                 device_id="phone",
             )
+
+    def test_owner_status_combines_maintenance_and_document_attention(self):
+        view = build_owner_status(
+            "moto-1",
+            MotorcycleState(date(2026, 7, 31), 18420),
+            [
+                MaintenanceItem(
+                    "Chain inspection",
+                    interval_km=3000,
+                    warning_km=500,
+                    last_service_odometer_km=15900,
+                )
+            ],
+            [DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)],
+        )
+        self.assertEqual([item.source for item in view.attention], ["maintenance", "document"])
+        self.assertEqual(view.next_action_titles, ("Chain inspection", "Licensing renewal"))
+
+    def test_owner_status_prioritizes_overdue_and_keeps_unknown_visible(self):
+        view = build_owner_status(
+            "moto-1",
+            MotorcycleState(date(2026, 7, 31), 18420, date(2026, 1, 1)),
+            [
+                MaintenanceItem(
+                    "Tire inspection",
+                    interval_days=30,
+                    last_service_date=date(2026, 6, 1),
+                ),
+                MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15900),
+            ],
+            [],
+        )
+        self.assertEqual(view.attention[0].status, MaintenanceStatus.OVERDUE)
+        self.assertEqual(view.attention[1].status, MaintenanceStatus.UNKNOWN)
+        self.assertEqual(view.next_action_titles, ("Tire inspection",))
+
+    def test_owner_status_preserves_odometer_metadata(self):
+        recorded = date(2026, 7, 30)
+        view = build_owner_status("moto-1", MotorcycleState(date(2026, 7, 31), 18420, recorded), [], [])
+        self.assertEqual(view.odometer_km, 18420)
+        self.assertEqual(view.odometer_recorded_at, recorded)
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
