@@ -91,7 +91,7 @@ def main() -> None:
             if not page.locator("#observatory-canvas").is_visible():
                 raise AssertionError("observatory canvas is not visible")
             page.wait_for_function(
-                "window.__mrlObservatoryDebug && window.__mrlObservatoryDebug.activeBeamCount() > 0",
+                "window.__mrlObservatoryDebug && window.__mrlObservatoryDebug.activeBeamNames().includes('CustomizeWarningThresholds')",
                 timeout=10000,
             )
             browser.close()
