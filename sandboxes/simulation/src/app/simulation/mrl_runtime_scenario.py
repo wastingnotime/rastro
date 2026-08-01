@@ -38,6 +38,7 @@ from app.application.attention_sync import (
     snapshot_preferences,
 )
 from app.application.owner_dashboard import build_owner_status
+from app.application.owner_status_payload import owner_status_payload
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -224,6 +225,13 @@ def _start_owner(context: object) -> None:
             ],
             "next_action_titles": list(dashboard.next_action_titles),
         },
+    )
+    context.emit(
+        "owner_status_payload",
+        dashboard.motorcycle_id,
+        source="owner-status-adapter",
+        actor="owner",
+        payload=owner_status_payload(dashboard),
     )
     reminder_tracker = ReminderTracker(ReminderPolicy(repeat_every_days=14))
     first_reminders = reminder_tracker.evaluate(date(2026, 7, 31), owner_actions)
