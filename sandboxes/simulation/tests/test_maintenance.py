@@ -79,6 +79,7 @@ from app.application.use_cases import (
 )
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
+    OwnershipProfile,
     daily_commuter,
     long_unused,
     simulate_profile,
@@ -1193,6 +1194,28 @@ class MaintenanceStatusTests(unittest.TestCase):
         overdue = MaintenanceAssessment("Chain inspection", MaintenanceStatus.OVERDUE)
         self.assertEqual(tracker.evaluate(date(2026, 1, 1), [approaching]), ["Chain inspection"])
         self.assertEqual(tracker.evaluate(date(2026, 1, 2), [overdue]), ["Chain inspection"])
+
+    def test_reminder_escalates_immediately_from_approaching_to_due(self):
+        tracker = ReminderTracker()
+        approaching = MaintenanceAssessment("Chain inspection", MaintenanceStatus.APPROACHING_DUE)
+        due = MaintenanceAssessment("Chain inspection", MaintenanceStatus.DUE)
+        self.assertEqual(tracker.evaluate(date(2026, 1, 1), [approaching]), ["Chain inspection"])
+        self.assertEqual(tracker.evaluate(date(2026, 1, 2), [due]), ["Chain inspection"])
+
+    def test_reminder_and_profile_inputs_reject_invalid_boundaries(self):
+        with self.assertRaises(ValueError):
+            ReminderPolicy(repeat_every_days=0)
+        with self.assertRaises(ValueError):
+            OwnershipProfile("", lambda current_date: 0, lambda current_date: True)
+        item = MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=18000)
+        with self.assertRaises(ValueError):
+            simulate_profile(
+                daily_commuter(),
+                start_date=date(2026, 1, 1),
+                days=-1,
+                starting_odometer_km=18000,
+                item=item,
+            )
 
     def test_ok_and_unknown_do_not_remind_and_clear_cadence(self):
         tracker = ReminderTracker()

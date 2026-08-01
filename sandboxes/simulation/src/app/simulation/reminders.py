@@ -10,13 +10,15 @@ from app.domain.maintenance import MaintenanceAssessment, MaintenanceStatus
 class ReminderPolicy:
     repeat_every_days: int = 14
 
+    def __post_init__(self) -> None:
+        if self.repeat_every_days < 1:
+            raise ValueError("reminder cadence must be at least one day")
+
 
 class ReminderTracker:
     """Stateful simulation policy for reducing repeated owner reminders."""
 
     def __init__(self, policy: ReminderPolicy = ReminderPolicy()) -> None:
-        if policy.repeat_every_days < 1:
-            raise ValueError("reminder cadence must be at least one day")
         self.policy = policy
         self._last_status: dict[str, MaintenanceStatus] = {}
         self._last_reminded: dict[str, date] = {}

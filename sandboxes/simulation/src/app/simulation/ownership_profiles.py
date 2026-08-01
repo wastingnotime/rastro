@@ -15,6 +15,10 @@ class OwnershipProfile:
     kilometers_on: Callable[[date], int]
     records_odometer_on: Callable[[date], bool]
 
+    def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("ownership profile name is required")
+
 
 @dataclass(frozen=True)
 class ProfileResult:
@@ -43,6 +47,8 @@ def simulate_profile(
     item: MaintenanceItem,
     odometer_stale_after_days: int = 90,
 ) -> ProfileResult:
+    if days < 0:
+        raise ValueError("simulation days cannot be negative")
     current_odometer = starting_odometer_km
     last_recorded_at = start_date
     counts: Counter[str] = Counter()
@@ -83,6 +89,8 @@ def simulate_profile_reminders(
     cadence_days: int,
     odometer_stale_after_days: int = 90,
 ) -> ReminderProfileResult:
+    if days < 0:
+        raise ValueError("simulation days cannot be negative")
     current_odometer = starting_odometer_km
     last_recorded_at = start_date
     tracker = ReminderTracker(ReminderPolicy(cadence_days))
