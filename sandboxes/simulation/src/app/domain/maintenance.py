@@ -41,6 +41,20 @@ class MaintenanceItem:
     manufacturer_warning_km: int | None = None
     manufacturer_warning_days: int | None = None
 
+    def __post_init__(self) -> None:
+        if not self.title.strip():
+            raise ValueError("maintenance title is required")
+        for label, value in (
+            ("maintenance interval mileage", self.interval_km),
+            ("maintenance interval days", self.interval_days),
+            ("warning mileage", self.warning_km),
+            ("warning days", self.warning_days),
+            ("manufacturer warning mileage", self.manufacturer_warning_km),
+            ("manufacturer warning days", self.manufacturer_warning_days),
+        ):
+            if value is not None and value < 0:
+                raise ValueError(f"{label} cannot be negative")
+
     @property
     def warning_source(self) -> ThresholdSource:
         if self.warning_km_source == self.warning_days_source:

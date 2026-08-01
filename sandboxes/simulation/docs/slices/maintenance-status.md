@@ -130,6 +130,10 @@ separate provenance; the aggregate is `mixed` when only one dimension is
 customized. `WarningThresholdsCustomized` records the before/after values when
 an owner preference is applied.
 
+`MaintenanceItem` validates its policy at construction: titles must be
+present, and intervals, warning values, and persisted manufacturer baselines
+cannot be negative.
+
 `restore_manufacturer_warning_thresholds` provides the reverse transition when
 the canonical manufacturer values are known, resetting both warning
 provenance dimensions to `manufacturer`. `WarningThresholdsRestored` records

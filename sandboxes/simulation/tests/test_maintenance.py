@@ -120,6 +120,16 @@ class MaintenanceStatusTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             customize_warning_thresholds(item, warning_days=-1)
 
+    def test_maintenance_item_rejects_invalid_policy_values(self):
+        with self.assertRaises(ValueError):
+            MaintenanceItem("Engine oil", interval_km=-1)
+        with self.assertRaises(ValueError):
+            MaintenanceItem("Engine oil", warning_days=-1)
+        with self.assertRaises(ValueError):
+            MaintenanceItem("Engine oil", manufacturer_warning_km=-1)
+        with self.assertRaises(ValueError):
+            MaintenanceItem("")
+
     def test_warning_override_event_preserves_before_and_after_thresholds(self):
         item = MaintenanceItem("Engine oil", interval_km=4000, warning_km=500)
         updated, event = customize_warning_thresholds_with_event(
