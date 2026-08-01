@@ -94,6 +94,10 @@ Stable IDs are included in catalog, execution, and summary observations for
 machine-readable correlation. Catalog indexing rejects duplicate display names
 and duplicate stable IDs before the runtime can publish them.
 
+The service-history query is exercised before and after a voided record: the
+active view excludes the voided event while the append-only audit event remains
+present in state.
+
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
 are separate phases because the runtime evaluates invariants after actor

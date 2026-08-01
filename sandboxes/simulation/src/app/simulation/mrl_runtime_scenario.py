@@ -422,6 +422,25 @@ def _start_owner(context: object) -> None:
             "remaining_km": corrected_assessment.remaining_km,
         },
     )
+    corrected_history = ServiceHistoryState(
+        "moto-1",
+        "owner-1",
+        records=(service_event, corrected_record),
+        voided_records=(void_event,),
+    )
+    visible_after_correction = ViewServiceHistory().execute(
+        corrected_history,
+        actor_id="owner-1",
+    )
+    _emit_use_case(
+        context,
+        "ViewServiceHistory",
+        "owner-1",
+        "succeeded",
+        use_case_results,
+        record_count=len(visible_after_correction),
+        voided_count=len(corrected_history.voided_records),
+    )
     history = ServiceHistoryState("moto-1", "owner-1", records=(service_event,))
     visible_history = ViewServiceHistory().execute(history, actor_id="owner-1")
     _emit_use_case(

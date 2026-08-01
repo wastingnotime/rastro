@@ -7,6 +7,7 @@ from app.domain.maintenance import (
     MaintenanceStatus,
     MotorcycleState,
     ServiceRecorded,
+    ServiceRecordVoided,
     assess,
     complete_service,
     grouped_actions,
@@ -149,6 +150,18 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(ViewServiceHistory().execute(state, actor_id="owner-1"), (record,))
         with self.assertRaises(ServiceHistoryViewForbidden):
             ViewServiceHistory().execute(state, actor_id="mechanic-1")
+
+    def test_service_history_query_hides_voided_records_but_keeps_audit_event(self):
+        active = ServiceRecorded(date(2026, 7, 1), 18000, ("oil",), service_id="active")
+        voided = ServiceRecorded(date(2026, 7, 2), 18100, ("oil",), service_id="voided")
+        state = ServiceHistoryState(
+            "moto-1",
+            "owner-1",
+            records=(active, voided),
+            voided_records=(ServiceRecordVoided("voided", "wrong mileage"),),
+        )
+        self.assertEqual(ViewServiceHistory().execute(state, actor_id="owner-1"), (active,))
+        self.assertEqual(state.voided_records[0].reason, "wrong mileage")
 
     def test_named_preference_sync_use_case_delegates_owner_scope(self):
         incoming = snapshot_preferences(
