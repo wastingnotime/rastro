@@ -68,6 +68,7 @@ from app.application.use_cases import (
     SyncAttentionPreferences,
     ViewOwnerStatus,
     ViewServiceHistory,
+    ViewWarningThresholdHistory,
 )
 from app.application.use_cases import (
     USE_CASE_CATALOG,
@@ -302,6 +303,7 @@ class MaintenanceStatusTests(unittest.TestCase):
     def test_use_case_catalog_classifies_query_and_commands(self):
         self.assertEqual(USE_CASE_KINDS["ViewOwnerStatus"], UseCaseKind.QUERY)
         self.assertEqual(USE_CASE_IDS["ViewOwnerStatus"], "view-owner-status")
+        self.assertEqual(USE_CASE_KINDS["ViewWarningThresholdHistory"], UseCaseKind.QUERY)
         self.assertEqual(
             {name for name, kind in USE_CASE_KINDS.items() if kind == UseCaseKind.COMMAND},
             {
@@ -434,6 +436,16 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(restored.warning_source, ThresholdSource.MANUFACTURER)
         self.assertEqual(event.maintenance_title, "Engine oil")
         self.assertEqual(event.changed_dimensions, ("mileage",))
+
+    def test_named_threshold_history_query_returns_effective_item_and_events(self):
+        item = MaintenanceItem("Engine oil", warning_km=500)
+        customized, customization_event = customize_warning_thresholds_with_event(
+            item,
+            warning_km=1000,
+        )
+        view = ViewWarningThresholdHistory().execute(item, [customization_event])
+        self.assertEqual(view.effective_item, customized)
+        self.assertEqual(view.events, (customization_event,))
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(

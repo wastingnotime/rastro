@@ -50,6 +50,7 @@ from app.application.use_cases import (
     USE_CASE_KINDS,
     ViewOwnerStatus,
     ViewServiceHistory,
+    ViewWarningThresholdHistory,
 )
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
@@ -189,6 +190,30 @@ def _start_owner(context: object) -> None:
             "warning_km": restoration_event.manufacturer_warning_km,
             "warning_days": restoration_event.manufacturer_warning_days,
             "changed_dimensions": list(restoration_event.changed_dimensions),
+        },
+    )
+    threshold_history_view = ViewWarningThresholdHistory().execute(
+        items[0],
+        [customization_event, restoration_event],
+    )
+    _emit_use_case(
+        context,
+        "ViewWarningThresholdHistory",
+        "owner",
+        "succeeded",
+        use_case_results,
+        maintenance_title=threshold_history_view.effective_item.title,
+        event_count=len(threshold_history_view.events),
+    )
+    context.emit(
+        "threshold_history_view",
+        threshold_history_view.effective_item.title,
+        source="maintenance-status",
+        actor="owner",
+        payload={
+            "event_count": len(threshold_history_view.events),
+            "warning_km": threshold_history_view.effective_item.warning_km,
+            "warning_days": threshold_history_view.effective_item.warning_days,
         },
     )
     items[0] = restored_engine_oil

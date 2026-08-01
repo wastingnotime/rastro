@@ -13,6 +13,9 @@ from app.application.use_cases.restore_manufacturer_warning_thresholds import (
 from app.application.use_cases.sync_attention_preferences import SyncAttentionPreferences
 from app.application.use_cases.view_owner_status import ViewOwnerStatus
 from app.application.use_cases.view_service_history import ViewServiceHistory
+from app.application.use_cases.view_warning_threshold_history import (
+    ViewWarningThresholdHistory,
+)
 
 
 class UseCaseKind(str, Enum):
@@ -48,6 +51,12 @@ USE_CASE_CATALOG = (
         "ViewServiceHistory",
         UseCaseKind.QUERY,
         "View owner-authorized active service records for one motorcycle.",
+    ),
+    UseCaseDefinition(
+        "view-warning-threshold-history",
+        "ViewWarningThresholdHistory",
+        UseCaseKind.QUERY,
+        "View effective warning policy and its append-only threshold events.",
     ),
     UseCaseDefinition(
         "record-service",
@@ -117,6 +126,7 @@ __all__ = [
     "SyncAttentionPreferences",
     "ViewOwnerStatus",
     "ViewServiceHistory",
+    "ViewWarningThresholdHistory",
     "USE_CASE_KINDS",
     "USE_CASE_IDS",
     "USE_CASE_CATALOG",

@@ -172,6 +172,8 @@ boundary rather than leaking an implementation-level attribute error.
 threshold changes. `RestoreManufacturerWarningThresholds` is the matching
 command for returning to canonical values. Both return the updated item with
 their audit event so adapters do not need to call domain functions directly.
+`ViewWarningThresholdHistory` provides the corresponding query, returning the
+effective policy together with its ordered audit events.
 The runtime scenario executes both commands and emits their domain events, so
 the catalog entries are backed by runtime evidence as well as unit tests.
 
@@ -268,7 +270,7 @@ projection explicitly.
 - owner status API versions success and error envelopes consistently;
 - odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
-- named application use cases cover two owner-facing queries and six
+- named application use cases cover three owner-facing queries and six
   owner-facing write interactions;
 - runtime observations expose each named use-case execution and outcome;
 
