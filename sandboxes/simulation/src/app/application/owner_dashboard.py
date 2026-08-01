@@ -45,10 +45,16 @@ def build_owner_status(
     motorcycle: MotorcycleState,
     maintenance_items: list[MaintenanceItem],
     obligations: list[DocumentObligation],
+    *,
+    odometer_stale_after_days: int = 90,
 ) -> OwnerStatusView:
     items: list[OwnerAttentionItem] = []
     for maintenance in maintenance_items:
-        assessment = assess(maintenance, motorcycle)
+        assessment = assess(
+            maintenance,
+            motorcycle,
+            odometer_stale_after_days=odometer_stale_after_days,
+        )
         if assessment.status not in {MaintenanceStatus.OK} and maintenance.enabled:
             items.append(_from_assessment(assessment, "maintenance"))
     for obligation in obligations:
