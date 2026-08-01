@@ -21,6 +21,12 @@ class UseCaseDefinition:
     kind: UseCaseKind
     purpose: str
 
+    def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("use-case name is required")
+        if not self.purpose.strip():
+            raise ValueError("use-case purpose is required")
+
 
 USE_CASE_CATALOG = (
     UseCaseDefinition(

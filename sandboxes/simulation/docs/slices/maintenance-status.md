@@ -89,7 +89,7 @@ so runtime call sites cannot silently disagree about an interaction's kind.
 The scenario emits that catalog before the first domain observation, making the
 available use cases visible even before one is executed. Each catalog entry
 also includes a concise purpose so the simulation explains the interaction
-semantics directly.
+semantics directly. Catalog definitions reject blank names and purposes.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
