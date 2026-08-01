@@ -104,6 +104,11 @@ history with the shared schema version and rejects non-owner requests without
 record data. The runtime scenario emits both the successful owner response and
 the forbidden non-owner response.
 
+The observatory graph also exposes every application use case as a first-class
+`use_case` node connected from the motorcycle owner, with query/command realm
+labels and purpose descriptions. Runtime observations are not the only way to
+discover the use-case surface.
+
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
 are separate phases because the runtime evaluates invariants after actor

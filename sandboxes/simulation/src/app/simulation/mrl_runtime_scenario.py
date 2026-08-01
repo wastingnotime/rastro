@@ -702,9 +702,24 @@ def create_simulation() -> Scenario:
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
             ObservatoryNode("status", "Maintenance status", "domain", "domain"),
             ObservatoryNode("action", "Next action", "projection", "application"),
+            *[
+                ObservatoryNode(
+                    definition.use_case_id,
+                    definition.name,
+                    "use_case",
+                    "application",
+                    realm=definition.kind.value,
+                    description=definition.purpose,
+                )
+                for definition in USE_CASE_CATALOG
+            ],
         ],
         observatory_edges=[
             ObservatoryEdge("owner", "status", "checks"),
             ObservatoryEdge("status", "action", "prioritizes"),
+            *[
+                ObservatoryEdge("owner", definition.use_case_id, "invokes")
+                for definition in USE_CASE_CATALOG
+            ],
         ],
     )
