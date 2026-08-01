@@ -90,7 +90,12 @@ class MaintenanceStatusTests(unittest.TestCase):
         owner_item = customize_warning_thresholds(manufacturer_item, warning_km=1000)
         motorcycle = MotorcycleState(date(2026, 7, 31), 18420)
         self.assertEqual(manufacturer_item.warning_source, ThresholdSource.MANUFACTURER)
-        self.assertEqual(owner_item.warning_source, ThresholdSource.OWNER)
+        self.assertEqual(owner_item.warning_source, ThresholdSource.MIXED)
+        self.assertEqual(owner_item.warning_km_source, ThresholdSource.OWNER)
+        self.assertEqual(
+            owner_item.warning_days_source,
+            ThresholdSource.MANUFACTURER,
+        )
         self.assertEqual(assess(manufacturer_item, motorcycle).status, MaintenanceStatus.OK)
         self.assertEqual(
             assess(owner_item, motorcycle).status,
@@ -98,7 +103,7 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertEqual(
             assess(owner_item, motorcycle).warning_source,
-            ThresholdSource.OWNER,
+            ThresholdSource.MIXED,
         )
 
     def test_warning_override_rejects_missing_or_negative_values(self):

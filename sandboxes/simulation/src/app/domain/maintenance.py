@@ -16,6 +16,7 @@ class MaintenanceStatus(str, Enum):
 class ThresholdSource(str, Enum):
     MANUFACTURER = "manufacturer"
     OWNER = "owner"
+    MIXED = "mixed"
 
 
 @dataclass(frozen=True)
@@ -35,7 +36,14 @@ class MaintenanceItem:
     last_service_date: date | None = None
     last_service_odometer_km: int | None = None
     enabled: bool = True
-    warning_source: ThresholdSource = ThresholdSource.MANUFACTURER
+    warning_km_source: ThresholdSource = ThresholdSource.MANUFACTURER
+    warning_days_source: ThresholdSource = ThresholdSource.MANUFACTURER
+
+    @property
+    def warning_source(self) -> ThresholdSource:
+        if self.warning_km_source == self.warning_days_source:
+            return self.warning_km_source
+        return ThresholdSource.MIXED
 
 
 @dataclass(frozen=True)
@@ -93,7 +101,12 @@ def customize_warning_thresholds(
         item,
         warning_km=item.warning_km if warning_km is None else warning_km,
         warning_days=item.warning_days if warning_days is None else warning_days,
-        warning_source=ThresholdSource.OWNER,
+        warning_km_source=(
+            item.warning_km_source if warning_km is None else ThresholdSource.OWNER
+        ),
+        warning_days_source=(
+            item.warning_days_source if warning_days is None else ThresholdSource.OWNER
+        ),
     )
 
 
@@ -112,7 +125,8 @@ def complete_service(
         last_service_date=serviced_at,
         last_service_odometer_km=odometer_km,
         enabled=item.enabled,
-        warning_source=item.warning_source,
+        warning_km_source=item.warning_km_source,
+        warning_days_source=item.warning_days_source,
     )
     return updated, ServiceCompleted(item.title, serviced_at, odometer_km)
 
