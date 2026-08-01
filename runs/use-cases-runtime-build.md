@@ -19,6 +19,14 @@ git diff --check
 passed
 ```
 
-The runtime launcher was also attempted, but this environment does not have
-the external `mrl_simulation_runtime` package installed. Runtime execution
-therefore remains pending dependency availability.
+The supervised runtime was executed successfully through the MRL launcher:
+
+```text
+PYTHONPATH=sandboxes/simulation/src mrl-simulation supervise \
+  --scenario-factory app.simulation.mrl_runtime_scenario:create_simulation \
+  --port 18766 --once
+listening on http://127.0.0.1:18766
+```
+
+The default port was already occupied, so the validation used an alternate
+local port.
