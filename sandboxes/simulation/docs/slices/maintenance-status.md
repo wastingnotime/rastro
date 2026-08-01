@@ -130,6 +130,10 @@ separate provenance; the aggregate is `mixed` when only one dimension is
 customized. `WarningThresholdsCustomized` records the before/after values when
 an owner preference is applied.
 
+`restore_manufacturer_warning_thresholds` provides the reverse transition when
+the canonical manufacturer values are known, resetting both warning
+provenance dimensions to `manufacturer`.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.

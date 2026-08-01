@@ -14,6 +14,7 @@ from app.domain.maintenance import (
     complete_service,
     customize_warning_thresholds,
     customize_warning_thresholds_with_event,
+    restore_manufacturer_warning_thresholds,
     grouped_actions,
     record_service,
     project_service_history,
@@ -128,6 +129,24 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual((event.previous_warning_km, event.warning_km), (500, 1000))
         self.assertEqual(updated.warning_km, event.warning_km)
         self.assertEqual(event.previous_warning_days, event.warning_days)
+
+    def test_owner_warning_override_can_restore_manufacturer_policy(self):
+        item = MaintenanceItem("Engine oil", interval_km=4000, warning_km=500)
+        customized = customize_warning_thresholds(item, warning_km=1000)
+        restored = restore_manufacturer_warning_thresholds(
+            customized,
+            warning_km=500,
+            warning_days=0,
+        )
+        self.assertEqual(restored.warning_km, 500)
+        self.assertEqual(restored.warning_days, 0)
+        self.assertEqual(restored.warning_source, ThresholdSource.MANUFACTURER)
+        with self.assertRaises(ValueError):
+            restore_manufacturer_warning_thresholds(
+                customized,
+                warning_km=-1,
+                warning_days=0,
+            )
 
     def test_named_owner_status_use_case_returns_attention(self):
         view = ViewOwnerStatus().execute(
