@@ -1,19 +1,12 @@
-# MRL build receipt: threshold customization event
-
-Date: 2026-08-01
+# Maintenance threshold event build
 
 ## Change
 
-Added the `WarningThresholdsCustomized` domain event and
-`customize_warning_thresholds_with_event` operation. Owner warning changes now
-retain an auditable before/after threshold record while preserving the existing
-item-only customization helper.
+Added constructor-level validation for threshold customization and restoration
+events. Blank titles, negative values, unknown or duplicate dimensions, and
+undeclared mileage/date changes are rejected before projection.
 
-## Validation
+## Verification
 
-```text
-Ran 73 tests in 0.010s
-OK
-git diff --check
-passed
-```
+- `PYTHONPATH=sandboxes/simulation/src python3 -m unittest discover -s sandboxes/simulation/tests -q`
+- `git diff --check`

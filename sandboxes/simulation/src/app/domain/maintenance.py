@@ -120,6 +120,36 @@ class ServiceRecordVoided:
     reason: str
 
 
+def _validate_warning_event(
+    maintenance_title: str,
+    previous_warning_km: int,
+    previous_warning_days: int,
+    current_warning_km: int,
+    current_warning_days: int,
+    changed_dimensions: tuple[str, ...],
+) -> None:
+    if not maintenance_title.strip():
+        raise ValueError("threshold event maintenance title is required")
+    if any(
+        value < 0
+        for value in (
+            previous_warning_km,
+            previous_warning_days,
+            current_warning_km,
+            current_warning_days,
+        )
+    ):
+        raise ValueError("threshold event values cannot be negative")
+    if set(changed_dimensions) - {"mileage", "date"}:
+        raise ValueError("threshold event contains an unknown dimension")
+    if len(set(changed_dimensions)) != len(changed_dimensions):
+        raise ValueError("threshold event contains duplicate dimensions")
+    if "mileage" not in changed_dimensions and current_warning_km != previous_warning_km:
+        raise ValueError("threshold event changes mileage without declaring it")
+    if "date" not in changed_dimensions and current_warning_days != previous_warning_days:
+        raise ValueError("threshold event changes date without declaring it")
+
+
 @dataclass(frozen=True)
 class WarningThresholdsCustomized:
     maintenance_title: str
@@ -128,6 +158,16 @@ class WarningThresholdsCustomized:
     warning_km: int
     warning_days: int
     changed_dimensions: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        _validate_warning_event(
+            self.maintenance_title,
+            self.previous_warning_km,
+            self.previous_warning_days,
+            self.warning_km,
+            self.warning_days,
+            self.changed_dimensions,
+        )
 
 
 @dataclass(frozen=True)
@@ -138,6 +178,16 @@ class WarningThresholdsRestored:
     manufacturer_warning_km: int
     manufacturer_warning_days: int
     changed_dimensions: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        _validate_warning_event(
+            self.maintenance_title,
+            self.previous_warning_km,
+            self.previous_warning_days,
+            self.manufacturer_warning_km,
+            self.manufacturer_warning_days,
+            self.changed_dimensions,
+        )
 
 
 WarningThresholdEvent = WarningThresholdsCustomized | WarningThresholdsRestored

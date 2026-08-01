@@ -226,16 +226,18 @@ class MaintenanceStatusTests(unittest.TestCase):
 
     def test_threshold_event_history_rejects_undeclared_or_duplicate_changes(self):
         item = MaintenanceItem("Engine oil", warning_km=500)
-        undeclared = WarningThresholdsCustomized(
-            "Engine oil", 500, 0, 1000, 0, ("date",)
-        )
-        duplicate = WarningThresholdsCustomized(
-            "Engine oil", 500, 0, 500, 0, ("mileage", "mileage")
-        )
         with self.assertRaises(ValueError):
-            project_warning_threshold_history(item, [undeclared])
+            WarningThresholdsCustomized("Engine oil", 500, 0, 1000, 0, ("date",))
         with self.assertRaises(ValueError):
-            project_warning_threshold_history(item, [duplicate])
+            WarningThresholdsCustomized(
+                "Engine oil", 500, 0, 500, 0, ("mileage", "mileage")
+            )
+
+    def test_threshold_events_reject_blank_or_negative_values(self):
+        with self.assertRaises(ValueError):
+            WarningThresholdsCustomized("", 500, 0, 500, 0)
+        with self.assertRaises(ValueError):
+            WarningThresholdsRestored("Engine oil", -1, 0, 500, 0)
 
     def test_named_owner_status_use_case_returns_attention(self):
         view = ViewOwnerStatus().execute(
