@@ -355,31 +355,24 @@ def project_warning_threshold_history(
             or event.previous_warning_days != projected.warning_days
         ):
             raise ValueError("threshold event does not follow the current projection")
-        invalid_dimensions = set(event.changed_dimensions) - {"mileage", "date"}
-        if invalid_dimensions:
-            raise ValueError("threshold event contains an unknown dimension")
-        if len(set(event.changed_dimensions)) != len(event.changed_dimensions):
-            raise ValueError("threshold event contains duplicate dimensions")
-        if (
-            "mileage" not in event.changed_dimensions
-            and (
-                isinstance(event, WarningThresholdsCustomized)
-                and event.warning_km != event.previous_warning_km
-                or isinstance(event, WarningThresholdsRestored)
-                and event.manufacturer_warning_km != event.previous_warning_km
-            )
-        ):
-            raise ValueError("threshold event changes mileage without declaring it")
-        if (
-            "date" not in event.changed_dimensions
-            and (
-                isinstance(event, WarningThresholdsCustomized)
-                and event.warning_days != event.previous_warning_days
-                or isinstance(event, WarningThresholdsRestored)
-                and event.manufacturer_warning_days != event.previous_warning_days
-            )
-        ):
-            raise ValueError("threshold event changes date without declaring it")
+        current_warning_km = (
+            event.warning_km
+            if isinstance(event, WarningThresholdsCustomized)
+            else event.manufacturer_warning_km
+        )
+        current_warning_days = (
+            event.warning_days
+            if isinstance(event, WarningThresholdsCustomized)
+            else event.manufacturer_warning_days
+        )
+        _validate_warning_event(
+            event.maintenance_title,
+            event.previous_warning_km,
+            event.previous_warning_days,
+            current_warning_km,
+            current_warning_days,
+            event.changed_dimensions,
+        )
 
         if isinstance(event, WarningThresholdsCustomized):
             manufacturer_warning_km = (

@@ -154,6 +154,8 @@ The replay also requires every changed dimension to be declared exactly once;
 an event cannot alter mileage or date invisibly.
 The event constructors enforce the same value, title, and dimension invariants,
 so invalid audit records cannot enter the domain event stream.
+Replay uses that shared validator as a defensive boundary as well, keeping
+directly supplied event objects subject to the same rules.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
