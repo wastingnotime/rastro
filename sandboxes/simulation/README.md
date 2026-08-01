@@ -21,3 +21,10 @@ Run the supervised runtime scenario with:
 ```bash
 mrl-simulation supervise --scenario-factory app.simulation.mrl_runtime_scenario:create_simulation --once
 ```
+
+Validate the required semantic observations with:
+
+```bash
+PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
+  python3 sandboxes/simulation/tools/validate_runtime_observations.py
+```
