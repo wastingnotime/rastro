@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta
 
 from app.simulation.mrl_runtime_scenario import create_simulation
 from mrl_simulation_runtime.runner import SimulationRunner
@@ -109,6 +110,31 @@ def main() -> None:
     }
     if reminder_profiles != expected_reminder_profiles:
         raise AssertionError("reminder profile evidence is incomplete")
+
+    threshold_sequence = [
+        observation
+        for observation in observations
+        if observation["name"]
+        in {
+            "CustomizeWarningThresholds",
+            "warning_thresholds_customized",
+            "RestoreManufacturerWarningThresholds",
+            "warning_thresholds_restored",
+            "ViewWarningThresholdHistory",
+        }
+        and observation["type"] in {"use_case_executed", "domain_event"}
+    ]
+    threshold_times = [
+        datetime.fromisoformat(observation["sim_time"])
+        for observation in threshold_sequence
+    ]
+    if threshold_times != sorted(threshold_times) or len(set(threshold_times)) == 1:
+        raise AssertionError("threshold interactions are not temporally ordered")
+    if any(
+        later - earlier < timedelta(seconds=2)
+        for earlier, later in zip(threshold_times, threshold_times[1:])
+    ):
+        raise AssertionError("threshold phases are closer than the configured interval")
     print(
         "validated runtime evidence: "
         f"{len(observations)} observations, "
