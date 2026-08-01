@@ -347,6 +347,15 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(store.load("owner-1", "moto-1"), first)
         self.assertIsNone(store.load("owner-2", "moto-1"))
 
+    def test_preference_snapshot_requires_non_empty_motorcycle_scope(self):
+        with self.assertRaises(ValueError):
+            snapshot_preferences(
+                AttentionViewPreferences(),
+                owner_id="owner-1",
+                revision=1,
+                device_id="phone",
+            )
+
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
             MaintenanceItem(
