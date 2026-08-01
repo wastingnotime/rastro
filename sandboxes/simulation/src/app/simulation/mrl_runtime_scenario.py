@@ -19,12 +19,10 @@ from app.domain.maintenance import (
     void_service_record,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
-from app.domain.odometer import OdometerHistory, current_odometer_reading, record_odometer_reading
+from app.domain.odometer import OdometerHistory, current_odometer_reading
 from app.application.service_history import (
-    CorrectionCommand,
     ServiceCorrectionForbidden,
     ServiceHistoryState,
-    handle_correction,
     void_service_record_for_owner,
 )
 from app.application.attention_view import (
@@ -34,13 +32,17 @@ from app.application.attention_view import (
 )
 from app.application.attention_sync import (
     AttentionSyncState,
-    handle_preference_sync,
     merge_preference_snapshots,
     snapshot_preferences,
 )
-from app.application.owner_dashboard import build_owner_status
 from app.application.owner_status_payload import owner_status_payload
 from app.application.owner_status_api import get_owner_status_response
+from app.application.use_cases import (
+    CorrectServiceRecord,
+    RecordOdometerReading,
+    SyncAttentionPreferences,
+    ViewOwnerStatus,
+)
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -173,10 +175,10 @@ def _start_owner(context: object) -> None:
             "expanded_statuses": sorted(merged_snapshot.expanded_statuses),
         },
     )
-    _, sync_response = handle_preference_sync(
+    _, sync_response = SyncAttentionPreferences().execute(
         AttentionSyncState("owner-1", (local_snapshot,)),
-        "owner-1",
-        remote_snapshot,
+        actor_id="owner-1",
+        incoming=remote_snapshot,
     )
     context.emit(
         "attention_preference_sync_response",
@@ -208,11 +210,11 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"items": [assessment.title for assessment in owner_actions]},
     )
-    dashboard = build_owner_status(
-        "moto-1",
-        motorcycle,
-        items,
-        obligations,
+    dashboard = ViewOwnerStatus().execute(
+        motorcycle_id="moto-1",
+        motorcycle=motorcycle,
+        maintenance_items=items,
+        obligations=obligations,
     )
     context.emit(
         "owner_status_view",
@@ -333,9 +335,11 @@ def _start_owner(context: object) -> None:
             actor="mechanic-1",
             payload={"message": str(error)},
         )
-    _, correction_response = handle_correction(
+    _, correction_response = CorrectServiceRecord().execute(
         history,
-        CorrectionCommand("mechanic-1", service_event.service_id, "Correction"),
+        actor_id="mechanic-1",
+        service_id=service_event.service_id,
+        reason="Correction",
     )
     context.emit(
         "application_response",
@@ -480,14 +484,18 @@ def _mixed_urgency_groups_keep_priority_context(context: object) -> bool:
 
 
 def _odometer_correction_preserves_history(context: object) -> bool:
-    history, original = record_odometer_reading(
-        OdometerHistory(), "reading-1", 18000, date(2026, 7, 1)
+    recorder = RecordOdometerReading()
+    history, original = recorder.execute(
+        OdometerHistory(),
+        reading_id="reading-1",
+        odometer_km=18000,
+        recorded_at=date(2026, 7, 1),
     )
-    history, correction = record_odometer_reading(
+    history, correction = recorder.execute(
         history,
-        "correction-1",
-        17500,
-        date(2026, 7, 2),
+        reading_id="correction-1",
+        odometer_km=17500,
+        recorded_at=date(2026, 7, 2),
         correction_of=original.reading_id,
     )
     return len(history.readings) == 2 and current_odometer_reading(history) == correction

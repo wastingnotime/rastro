@@ -73,6 +73,11 @@ The application boundary binds correction commands to `owner_id`. Unauthorized
 actors, unknown records, and repeated voids receive explicit errors before a
 domain event is appended.
 
+The runtime adapter now exercises the named application use cases for owner
+status, preference synchronization, service correction, and odometer
+correction, keeping runtime observations representative of the application
+boundary.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.
