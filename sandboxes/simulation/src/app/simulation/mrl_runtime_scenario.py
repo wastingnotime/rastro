@@ -43,6 +43,7 @@ from app.application.use_cases import (
     RecordService,
     SyncAttentionPreferences,
     USE_CASE_CATALOG,
+    USE_CASE_IDS,
     USE_CASE_KINDS,
     ViewOwnerStatus,
 )
@@ -67,13 +68,14 @@ def _emit_use_case(
 ) -> None:
     """Emit one stable observation shape for every application use case."""
     kind = USE_CASE_KINDS[name].value
-    results.append({"name": name, "kind": kind, "outcome": outcome})
+    use_case_id = USE_CASE_IDS[name]
+    results.append({"id": use_case_id, "name": name, "kind": kind, "outcome": outcome})
     context.emit(
         "use_case_executed",
         name,
         source="application-use-case",
         actor=actor,
-        payload={"kind": kind, "outcome": outcome, **details},
+        payload={"use_case_id": use_case_id, "kind": kind, "outcome": outcome, **details},
     )
 
 
@@ -87,6 +89,7 @@ def _emit_use_case_catalog(context: object) -> None:
             "use_cases": [
                 {
                     "name": definition.name,
+                    "use_case_id": definition.use_case_id,
                     "kind": definition.kind.value,
                     "purpose": definition.purpose,
                 }
@@ -114,6 +117,7 @@ def _emit_use_case_summary(
             "by_kind": by_kind,
             "by_outcome": by_outcome,
             "use_cases": [result["name"] for result in results],
+            "use_case_ids": [result["id"] for result in results],
         },
     )
 

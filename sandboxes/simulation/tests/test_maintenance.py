@@ -56,6 +56,7 @@ from app.application.use_cases import (
 )
 from app.application.use_cases import (
     USE_CASE_CATALOG,
+    USE_CASE_IDS,
     USE_CASE_KINDS,
     UseCaseDefinition,
     UseCaseKind,
@@ -90,6 +91,7 @@ class MaintenanceStatusTests(unittest.TestCase):
 
     def test_use_case_catalog_classifies_query_and_commands(self):
         self.assertEqual(USE_CASE_KINDS["ViewOwnerStatus"], UseCaseKind.QUERY)
+        self.assertEqual(USE_CASE_IDS["ViewOwnerStatus"], "view-owner-status")
         self.assertEqual(
             {name for name, kind in USE_CASE_KINDS.items() if kind == UseCaseKind.COMMAND},
             {
@@ -103,9 +105,11 @@ class MaintenanceStatusTests(unittest.TestCase):
 
     def test_use_case_definition_rejects_blank_identity_or_purpose(self):
         with self.assertRaises(ValueError):
-            UseCaseDefinition("", UseCaseKind.QUERY, "Shows status")
+            UseCaseDefinition("view-owner-status", "", UseCaseKind.QUERY, "Shows status")
         with self.assertRaises(ValueError):
-            UseCaseDefinition("ViewOwnerStatus", UseCaseKind.QUERY, "")
+            UseCaseDefinition("view-owner-status", "ViewOwnerStatus", UseCaseKind.QUERY, "")
+        with self.assertRaises(ValueError):
+            UseCaseDefinition("", "ViewOwnerStatus", UseCaseKind.QUERY, "Shows status")
 
     def test_named_service_correction_use_case_preserves_response_boundary(self):
         state = ServiceHistoryState(

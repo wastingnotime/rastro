@@ -17,11 +17,14 @@ class UseCaseKind(str, Enum):
 
 @dataclass(frozen=True)
 class UseCaseDefinition:
+    use_case_id: str
     name: str
     kind: UseCaseKind
     purpose: str
 
     def __post_init__(self) -> None:
+        if not self.use_case_id.strip():
+            raise ValueError("use-case id is required")
         if not self.name.strip():
             raise ValueError("use-case name is required")
         if not self.purpose.strip():
@@ -30,26 +33,31 @@ class UseCaseDefinition:
 
 USE_CASE_CATALOG = (
     UseCaseDefinition(
+        "view-owner-status",
         "ViewOwnerStatus",
         UseCaseKind.QUERY,
         "View maintenance and document attention for one motorcycle.",
     ),
     UseCaseDefinition(
+        "record-service",
         "RecordService",
         UseCaseKind.COMMAND,
         "Record a service visit against selected maintenance items.",
     ),
     UseCaseDefinition(
+        "correct-service-record",
         "CorrectServiceRecord",
         UseCaseKind.COMMAND,
         "Correct an incorrect service record without deleting history.",
     ),
     UseCaseDefinition(
+        "sync-attention-preferences",
         "SyncAttentionPreferences",
         UseCaseKind.COMMAND,
         "Synchronize owner attention-view preferences across devices.",
     ),
     UseCaseDefinition(
+        "record-odometer-reading",
         "RecordOdometerReading",
         UseCaseKind.COMMAND,
         "Append a normal or explicitly linked corrective odometer reading.",
@@ -57,6 +65,7 @@ USE_CASE_CATALOG = (
 )
 
 USE_CASE_KINDS = {definition.name: definition.kind for definition in USE_CASE_CATALOG}
+USE_CASE_IDS = {definition.name: definition.use_case_id for definition in USE_CASE_CATALOG}
 
 __all__ = [
     "CorrectServiceRecord",
@@ -65,6 +74,7 @@ __all__ = [
     "SyncAttentionPreferences",
     "ViewOwnerStatus",
     "USE_CASE_KINDS",
+    "USE_CASE_IDS",
     "USE_CASE_CATALOG",
     "UseCaseKind",
     "UseCaseDefinition",

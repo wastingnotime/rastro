@@ -90,6 +90,8 @@ The scenario emits that catalog before the first domain observation, making the
 available use cases visible even before one is executed. Each catalog entry
 also includes a concise purpose so the simulation explains the interaction
 semantics directly. Catalog definitions reject blank names and purposes.
+Stable IDs are included in catalog, execution, and summary observations for
+machine-readable correlation.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
