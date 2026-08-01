@@ -63,6 +63,9 @@ their status escalates. `ok` and `unknown` states do not produce reminders.
 The current profile comparison keeps 14 days as an exploratory midpoint: it
 produces 19 commuter reminders and 17 weekend-rider reminders in one year,
 compared with 37/31 at 7 days and 9/9 at 30 days.
+Reminder cadence, profile identity, and simulation duration are validated at
+their boundaries. Escalation is tested for both approaching-to-due and
+approaching-to-overdue transitions.
 
 Service records now support partial completion. A single `ServiceRecorded`
 event updates only the selected item baselines, preserving the remaining
@@ -167,6 +170,8 @@ boundary rather than leaking an implementation-level attribute error.
 threshold changes. `RestoreManufacturerWarningThresholds` is the matching
 command for returning to canonical values. Both return the updated item with
 their audit event so adapters do not need to call domain functions directly.
+The runtime scenario executes both commands and emits their domain events, so
+the catalog entries are backed by runtime evidence as well as unit tests.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

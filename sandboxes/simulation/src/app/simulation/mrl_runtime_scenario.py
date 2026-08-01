@@ -40,8 +40,10 @@ from app.application.owner_status_api import get_owner_status_response
 from app.application.service_history_api import get_service_history_response
 from app.application.use_cases import (
     CorrectServiceRecord,
+    CustomizeWarningThresholds,
     RecordOdometerReading,
     RecordService,
+    RestoreManufacturerWarningThresholds,
     SyncAttentionPreferences,
     USE_CASE_CATALOG,
     USE_CASE_IDS,
@@ -139,6 +141,57 @@ def _start_owner(context: object) -> None:
         MaintenanceItem("Engine oil", interval_km=4000, warning_km=500, last_service_odometer_km=16000),
         MaintenanceItem("Chain inspection", interval_km=3000, warning_km=500, last_service_odometer_km=15900),
     ]
+    threshold_customizer = CustomizeWarningThresholds()
+    customized_engine_oil, customization_event = threshold_customizer.execute(
+        items[0],
+        warning_km=1000,
+    )
+    _emit_use_case(
+        context,
+        "CustomizeWarningThresholds",
+        "owner",
+        "succeeded",
+        use_case_results,
+        maintenance_title=customization_event.maintenance_title,
+        changed_dimensions=list(customization_event.changed_dimensions),
+    )
+    context.emit(
+        "domain_event",
+        "warning_thresholds_customized",
+        source="maintenance-status",
+        actor="owner",
+        payload={
+            "maintenance_title": customization_event.maintenance_title,
+            "warning_km": customization_event.warning_km,
+            "warning_days": customization_event.warning_days,
+            "changed_dimensions": list(customization_event.changed_dimensions),
+        },
+    )
+    restored_engine_oil, restoration_event = RestoreManufacturerWarningThresholds().execute(
+        customized_engine_oil,
+    )
+    _emit_use_case(
+        context,
+        "RestoreManufacturerWarningThresholds",
+        "owner",
+        "succeeded",
+        use_case_results,
+        maintenance_title=restoration_event.maintenance_title,
+        changed_dimensions=list(restoration_event.changed_dimensions),
+    )
+    context.emit(
+        "domain_event",
+        "warning_thresholds_restored",
+        source="maintenance-status",
+        actor="owner",
+        payload={
+            "maintenance_title": restoration_event.maintenance_title,
+            "warning_km": restoration_event.manufacturer_warning_km,
+            "warning_days": restoration_event.manufacturer_warning_days,
+            "changed_dimensions": list(restoration_event.changed_dimensions),
+        },
+    )
+    items[0] = restored_engine_oil
     assessments = [assess(item, motorcycle) for item in items]
     action = next_action(items, motorcycle)
     for assessment in assessments:
