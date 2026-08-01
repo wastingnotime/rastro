@@ -8,6 +8,7 @@ from app.application.use_cases.record_odometer_reading import RecordOdometerRead
 from app.application.use_cases.record_service import RecordService
 from app.application.use_cases.sync_attention_preferences import SyncAttentionPreferences
 from app.application.use_cases.view_owner_status import ViewOwnerStatus
+from app.application.use_cases.view_service_history import ViewServiceHistory
 
 
 class UseCaseKind(str, Enum):
@@ -37,6 +38,12 @@ USE_CASE_CATALOG = (
         "ViewOwnerStatus",
         UseCaseKind.QUERY,
         "View maintenance and document attention for one motorcycle.",
+    ),
+    UseCaseDefinition(
+        "view-service-history",
+        "ViewServiceHistory",
+        UseCaseKind.QUERY,
+        "View owner-authorized active service records for one motorcycle.",
     ),
     UseCaseDefinition(
         "record-service",
@@ -91,6 +98,7 @@ __all__ = [
     "RecordService",
     "SyncAttentionPreferences",
     "ViewOwnerStatus",
+    "ViewServiceHistory",
     "USE_CASE_KINDS",
     "USE_CASE_IDS",
     "USE_CASE_CATALOG",

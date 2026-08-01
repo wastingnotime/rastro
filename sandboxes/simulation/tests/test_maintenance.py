@@ -29,6 +29,7 @@ from app.application.service_history import (
     ServiceCorrectionForbidden,
     ServiceCorrectionNotFound,
     ServiceHistoryState,
+    ServiceHistoryViewForbidden,
     handle_correction,
     void_service_record_for_owner,
 )
@@ -53,6 +54,7 @@ from app.application.use_cases import (
     RecordService,
     SyncAttentionPreferences,
     ViewOwnerStatus,
+    ViewServiceHistory,
 )
 from app.application.use_cases import (
     USE_CASE_CATALOG,
@@ -140,6 +142,13 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertTrue(response.accepted)
         self.assertEqual(updated.voided_records[0].service_id, "service-1")
+
+    def test_named_service_history_query_is_owner_authorized(self):
+        record = ServiceRecorded(date(2026, 7, 1), 18000, ("oil",), service_id="service-1")
+        state = ServiceHistoryState("moto-1", "owner-1", records=(record,))
+        self.assertEqual(ViewServiceHistory().execute(state, actor_id="owner-1"), (record,))
+        with self.assertRaises(ServiceHistoryViewForbidden):
+            ViewServiceHistory().execute(state, actor_id="mechanic-1")
 
     def test_named_preference_sync_use_case_delegates_owner_scope(self):
         incoming = snapshot_preferences(

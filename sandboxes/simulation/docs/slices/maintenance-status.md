@@ -192,7 +192,7 @@ projection explicitly.
 - owner status API versions success and error envelopes consistently;
 - odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
-- named application use cases cover the owner status query and four
+- named application use cases cover two owner-facing queries and four
   owner-facing write interactions;
 - runtime observations expose each named use-case execution and outcome;
 

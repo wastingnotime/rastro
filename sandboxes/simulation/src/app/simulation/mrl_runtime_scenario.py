@@ -46,6 +46,7 @@ from app.application.use_cases import (
     USE_CASE_IDS,
     USE_CASE_KINDS,
     ViewOwnerStatus,
+    ViewServiceHistory,
 )
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
@@ -422,6 +423,15 @@ def _start_owner(context: object) -> None:
         },
     )
     history = ServiceHistoryState("moto-1", "owner-1", records=(service_event,))
+    visible_history = ViewServiceHistory().execute(history, actor_id="owner-1")
+    _emit_use_case(
+        context,
+        "ViewServiceHistory",
+        "owner-1",
+        "succeeded",
+        use_case_results,
+        record_count=len(visible_history),
+    )
     try:
         void_service_record_for_owner(history, "mechanic-1", service_event.service_id, "Correction")
     except ServiceCorrectionForbidden as error:

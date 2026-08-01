@@ -26,6 +26,11 @@ class ServiceCorrectionForbidden(ServiceCorrectionError, PermissionError):
     user_message = "Only the motorcycle owner can correct service history."
 
 
+class ServiceHistoryViewForbidden(ServiceCorrectionError, PermissionError):
+    code = "service_history_view_forbidden"
+    user_message = "Only the motorcycle owner can view service history."
+
+
 class ServiceCorrectionNotFound(ServiceCorrectionError, LookupError):
     code = "service_record_not_found"
     user_message = "This service record is no longer available."
