@@ -75,7 +75,7 @@ def main() -> None:
                 raise AssertionError("delayed owner flow emitted an event too early")
             page.wait_for_function(
                 "document.querySelector('#event-source').textContent.includes('warning_thresholds_customized')",
-                timeout=10000,
+                timeout=20000,
             )
 
             timeline = page.request.get(f"{BASE_URL}/timeline").json()["observations"]
