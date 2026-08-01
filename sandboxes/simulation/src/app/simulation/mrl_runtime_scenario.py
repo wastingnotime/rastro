@@ -37,6 +37,7 @@ from app.application.attention_sync import (
     merge_preference_snapshots,
     snapshot_preferences,
 )
+from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -179,6 +180,18 @@ def _start_owner(context: object) -> None:
         source="attention-sync",
         actor="owner-1",
         payload={"accepted": sync_response.accepted, "message": sync_response.message},
+    )
+    preference_store = InMemoryAttentionPreferenceStore()
+    stored_snapshot = preference_store.save(remote_snapshot)
+    context.emit(
+        "attention_preference_stored",
+        stored_snapshot.scope_id,
+        source="account-preference-store",
+        actor="owner-1",
+        payload={
+            "revision": stored_snapshot.revision,
+            "device_id": stored_snapshot.device_id,
+        },
     )
     obligations = [
         DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)
