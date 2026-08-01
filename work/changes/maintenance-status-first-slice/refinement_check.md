@@ -51,6 +51,8 @@
   framework-neutral read contract with deterministic next actions.
 - The query exposes the odometer freshness threshold, keeping confidence policy
   explicit for future adapters.
+- The JSON-ready owner status payload preserves source labels, null metadata,
+  remaining values, and next actions for REST/web consumers.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 

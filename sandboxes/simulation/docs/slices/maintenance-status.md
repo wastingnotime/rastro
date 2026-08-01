@@ -112,6 +112,9 @@ odometer metadata, and returns the highest-urgency action titles.
 Callers can configure the odometer freshness threshold; the default remains 90
 days.
 
+`owner_status_payload` serializes this query into a snake_case JSON-ready
+contract, preserving null odometer dates and per-item source/status fields.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -142,6 +145,7 @@ days.
 - blank motorcycle scopes cannot enter sync or storage;
 - owner status combines maintenance and document attention deterministically;
 - owner status exposes configurable odometer freshness;
+- owner status payload preserves uncertainty and source labels;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

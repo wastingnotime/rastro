@@ -30,6 +30,8 @@ next action.
   for deterministic simulation.
 - `OwnerStatusView`: framework-neutral read contract combining odometer
   metadata, maintenance attention, document attention, and next actions.
+- `owner_status_payload`: snake_case JSON adapter contract for REST/web
+  consumers of `OwnerStatusView`.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -84,6 +86,8 @@ next action.
     preserving each source and deterministic next-action ordering.
 22. The owner status query must expose odometer freshness policy rather than
     silently hardcoding confidence behavior.
+23. The owner status payload must preserve unknown/null values and source labels
+    rather than flattening uncertainty into a healthy state.
 
 ## Open questions
 
