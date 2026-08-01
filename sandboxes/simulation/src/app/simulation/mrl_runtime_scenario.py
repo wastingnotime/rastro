@@ -51,6 +51,7 @@ from app.application.use_cases import (
     ViewOwnerStatus,
     ViewServiceHistory,
     ViewWarningThresholdHistory,
+    WarningThresholdHistoryViewForbidden,
 )
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
@@ -218,6 +219,29 @@ def _start_owner(context: object) -> None:
             "warning_days": threshold_history_view.effective_item.warning_days,
         },
     )
+    try:
+        ViewWarningThresholdHistory().execute(
+            items[0],
+            [customization_event, restoration_event],
+            actor_id="other-user",
+            owner_id="owner-1",
+        )
+    except WarningThresholdHistoryViewForbidden as error:
+        _emit_use_case(
+            context,
+            "ViewWarningThresholdHistory",
+            "other-user",
+            "rejected",
+            use_case_results,
+            code=error.code,
+        )
+        context.emit(
+            "application_response",
+            error.code,
+            source="maintenance-status-query",
+            actor="other-user",
+            payload={"accepted": False, "message": str(error)},
+        )
     items[0] = restored_engine_oil
     assessments = [assess(item, motorcycle) for item in items]
     action = next_action(items, motorcycle)

@@ -175,7 +175,8 @@ their audit event so adapters do not need to call domain functions directly.
 `ViewWarningThresholdHistory` provides the corresponding query, returning the
 effective policy together with its ordered audit events.
 It is owner-authorized and rejects non-owner requests with a stable forbidden
-error, matching the service-history query boundary.
+error, matching the service-history query boundary. The runtime scenario emits
+both the successful owner response and the forbidden non-owner response.
 The runtime scenario executes both commands and emits their domain events, so
 the catalog entries are backed by runtime evidence as well as unit tests.
 
