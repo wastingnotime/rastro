@@ -418,6 +418,8 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(updated.warning_km, 1000)
         self.assertEqual(event.maintenance_title, "Engine oil")
         self.assertEqual(event.changed_dimensions, ("mileage",))
+        with self.assertRaises(ValueError):
+            CustomizeWarningThresholds().execute(item)
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(
