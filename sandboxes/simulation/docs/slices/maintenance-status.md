@@ -78,6 +78,9 @@ status, preference synchronization, service correction, and odometer
 correction, keeping runtime observations representative of the application
 boundary.
 
+Each of those executions is also visible as a `use_case_executed` runtime
+observation with the use-case name and outcome code.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.
@@ -173,6 +176,7 @@ projection explicitly.
 - invariant confirms unknown data never becomes healthy.
 - named application use cases cover the owner status query and the three
   owner-facing write interactions;
+- runtime observations expose each named use-case execution and outcome;
 
 ## Out of scope
 

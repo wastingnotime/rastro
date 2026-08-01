@@ -30,3 +30,12 @@ listening on http://127.0.0.1:18766
 
 The default port was already occupied, so the validation used an alternate
 local port.
+
+The semantic observation runner also exposed the four application use cases:
+
+```text
+SyncAttentionPreferences       preference_sync_accepted
+ViewOwnerStatus                attention_count=2
+CorrectServiceRecord           service_correction_forbidden
+RecordOdometerReading          reading_count=2
+```
