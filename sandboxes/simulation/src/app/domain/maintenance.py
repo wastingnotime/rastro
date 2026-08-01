@@ -411,6 +411,26 @@ def project_warning_threshold_history(
     return projected
 
 
+def project_warning_threshold_histories(
+    items: list[MaintenanceItem],
+    events: list[WarningThresholdEvent],
+) -> list[MaintenanceItem]:
+    """Replay a shared threshold event stream across a maintenance plan."""
+    projected = list(items)
+    positions = {item.title: index for index, item in enumerate(items)}
+    if len(positions) != len(items):
+        raise ValueError("maintenance item titles must be unique")
+    for event in events:
+        if event.maintenance_title not in positions:
+            raise ValueError("threshold event targets an unknown maintenance item")
+        index = positions[event.maintenance_title]
+        projected[index] = project_warning_threshold_history(
+            projected[index],
+            [event],
+        )
+    return projected
+
+
 def complete_service(
     item: MaintenanceItem, serviced_at: date, odometer_km: int
 ) -> tuple[MaintenanceItem, ServiceCompleted]:

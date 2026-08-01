@@ -18,6 +18,7 @@ from app.domain.maintenance import (
     restore_manufacturer_warning_thresholds,
     restore_manufacturer_warning_thresholds_with_event,
     project_warning_threshold_history,
+    project_warning_threshold_histories,
     grouped_actions,
     record_service,
     project_service_history,
@@ -222,6 +223,39 @@ class MaintenanceStatusTests(unittest.TestCase):
             project_warning_threshold_history(
                 item,
                 [WarningThresholdsCustomized("Brake", 500, 0, 1000, 0)],
+            )
+
+    def test_threshold_event_histories_replay_shared_plan_events(self):
+        oil = MaintenanceItem("Engine oil", warning_km=500)
+        chain = MaintenanceItem("Chain inspection", warning_days=14)
+        updated_oil, oil_event = customize_warning_thresholds_with_event(
+            oil,
+            warning_km=1000,
+        )
+        updated_chain, chain_event = customize_warning_thresholds_with_event(
+            chain,
+            warning_days=30,
+        )
+
+        projected = project_warning_threshold_histories(
+            [oil, chain],
+            [oil_event, chain_event],
+        )
+        self.assertEqual(projected, [updated_oil, updated_chain])
+
+    def test_threshold_event_histories_reject_duplicate_titles_and_unknown_items(self):
+        duplicate_items = [
+            MaintenanceItem("Engine oil", warning_km=500),
+            MaintenanceItem("Engine oil", warning_km=1000),
+        ]
+        with self.assertRaises(ValueError):
+            project_warning_threshold_histories(duplicate_items, [])
+        item = MaintenanceItem("Engine oil", warning_km=500)
+        _, event = customize_warning_thresholds_with_event(item, warning_km=1000)
+        with self.assertRaises(ValueError):
+            project_warning_threshold_histories(
+                [MaintenanceItem("Chain inspection", warning_days=14)],
+                [event],
             )
 
     def test_threshold_event_history_rejects_undeclared_or_duplicate_changes(self):

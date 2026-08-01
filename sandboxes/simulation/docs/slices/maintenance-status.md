@@ -156,6 +156,9 @@ The event constructors enforce the same value, title, and dimension invariants,
 so invalid audit records cannot enter the domain event stream.
 Replay uses that shared validator as a defensive boundary as well, keeping
 directly supplied event objects subject to the same rules.
+`project_warning_threshold_histories` applies the same replay to a complete
+maintenance plan, routing each event by title and leaving unrelated items
+unchanged. Duplicate item titles and events for unknown items are rejected.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
