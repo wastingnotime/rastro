@@ -58,6 +58,8 @@
 - The versioned owner status API contract now enforces private-by-default
   access and returns a safe 403 response for non-owners.
 - API success and forbidden envelopes now share the centralized schema version.
+- Odometer history now supports monotonic readings and explicit linked
+  corrections without deleting the original observation.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 

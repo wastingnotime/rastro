@@ -121,6 +121,10 @@ The API adapter contract is `/api/v1/motorcycles/{motorcycle_id}/maintenance-sta
 Owner requests return the versioned payload; non-owner requests return 403
 without status data. Both response shapes declare the same schema version.
 
+Odometer history is append-only. Normal readings are monotonic; a lower value
+requires `correction_of`, preserves the original event, and changes the current
+projection explicitly.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -155,6 +159,7 @@ without status data. Both response shapes declare the same schema version.
 - owner status payload declares an explicit schema version;
 - owner status API enforces private-by-default access;
 - owner status API versions success and error envelopes consistently;
+- odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

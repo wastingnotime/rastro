@@ -30,6 +30,8 @@ next action.
   for deterministic simulation.
 - `OwnerStatusView`: framework-neutral read contract combining odometer
   metadata, maintenance attention, document attention, and next actions.
+- `OdometerHistory` / `OdometerReading`: append-only mileage observations with
+  explicit correction links.
 - `owner_status_payload`: snake_case JSON adapter contract for REST/web
   consumers of `OwnerStatusView`, currently schema version 1.
 - `OWNER_STATUS_ROUTE` / `ApiResponse`: versioned private REST adapter
@@ -95,6 +97,8 @@ next action.
     motorcycle data.
 26. Success and error owner-status responses must share the same schema-version
     contract.
+27. Normal odometer readings cannot decrease; corrections may change the
+    projection only through an explicit correction event.
 
 ## Open questions
 
