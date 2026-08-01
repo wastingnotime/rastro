@@ -38,6 +38,8 @@ class MaintenanceItem:
     enabled: bool = True
     warning_km_source: ThresholdSource = ThresholdSource.MANUFACTURER
     warning_days_source: ThresholdSource = ThresholdSource.MANUFACTURER
+    manufacturer_warning_km: int | None = None
+    manufacturer_warning_days: int | None = None
 
     @property
     def warning_source(self) -> ThresholdSource:
@@ -117,6 +119,16 @@ def customize_warning_thresholds(
         raise ValueError("warning mileage cannot be negative")
     if warning_days is not None and warning_days < 0:
         raise ValueError("warning days cannot be negative")
+    manufacturer_warning_km = (
+        item.manufacturer_warning_km
+        if item.manufacturer_warning_km is not None
+        else item.warning_km
+    )
+    manufacturer_warning_days = (
+        item.manufacturer_warning_days
+        if item.manufacturer_warning_days is not None
+        else item.warning_days
+    )
     return replace(
         item,
         warning_km=item.warning_km if warning_km is None else warning_km,
@@ -127,6 +139,8 @@ def customize_warning_thresholds(
         warning_days_source=(
             item.warning_days_source if warning_days is None else ThresholdSource.OWNER
         ),
+        manufacturer_warning_km=manufacturer_warning_km,
+        manufacturer_warning_days=manufacturer_warning_days,
     )
 
 
@@ -172,10 +186,20 @@ def customize_warning_thresholds_with_event(
 def restore_manufacturer_warning_thresholds(
     item: MaintenanceItem,
     *,
-    warning_km: int,
-    warning_days: int,
+    warning_km: int | None = None,
+    warning_days: int | None = None,
 ) -> MaintenanceItem:
     """Restore canonical manufacturer thresholds and their provenance."""
+    warning_km = (
+        item.manufacturer_warning_km
+        if warning_km is None and item.manufacturer_warning_km is not None
+        else item.warning_km if warning_km is None else warning_km
+    )
+    warning_days = (
+        item.manufacturer_warning_days
+        if warning_days is None and item.manufacturer_warning_days is not None
+        else item.warning_days if warning_days is None else warning_days
+    )
     if warning_km < 0:
         raise ValueError("manufacturer warning mileage cannot be negative")
     if warning_days < 0:
@@ -186,14 +210,16 @@ def restore_manufacturer_warning_thresholds(
         warning_days=warning_days,
         warning_km_source=ThresholdSource.MANUFACTURER,
         warning_days_source=ThresholdSource.MANUFACTURER,
+        manufacturer_warning_km=warning_km,
+        manufacturer_warning_days=warning_days,
     )
 
 
 def restore_manufacturer_warning_thresholds_with_event(
     item: MaintenanceItem,
     *,
-    warning_km: int,
-    warning_days: int,
+    warning_km: int | None = None,
+    warning_days: int | None = None,
 ) -> tuple[MaintenanceItem, WarningThresholdsRestored]:
     """Restore manufacturer values and preserve the reset audit event."""
     updated = restore_manufacturer_warning_thresholds(
@@ -245,6 +271,8 @@ def complete_service(
         enabled=item.enabled,
         warning_km_source=item.warning_km_source,
         warning_days_source=item.warning_days_source,
+        manufacturer_warning_km=item.manufacturer_warning_km,
+        manufacturer_warning_days=item.manufacturer_warning_days,
     )
     return updated, ServiceCompleted(item.title, serviced_at, odometer_km)
 
