@@ -398,6 +398,17 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(view.odometer_km, 18420)
         self.assertEqual(view.odometer_recorded_at, recorded)
 
+    def test_owner_status_exposes_configurable_odometer_freshness(self):
+        view = build_owner_status(
+            "moto-1",
+            MotorcycleState(date(2026, 7, 31), 18420, date(2026, 7, 1)),
+            [MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15900)],
+            [],
+            odometer_stale_after_days=29,
+        )
+        self.assertEqual(view.attention[0].status, MaintenanceStatus.UNKNOWN)
+        self.assertEqual(view.next_action_titles, ())
+
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
             MaintenanceItem(
