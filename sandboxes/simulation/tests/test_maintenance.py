@@ -17,6 +17,7 @@ from app.domain.maintenance import (
     customize_warning_thresholds_with_event,
     restore_manufacturer_warning_thresholds,
     restore_manufacturer_warning_thresholds_with_event,
+    project_warning_threshold_history,
     grouped_actions,
     record_service,
     project_service_history,
@@ -189,6 +190,39 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual((event.previous_warning_km, event.manufacturer_warning_km), (1000, 500))
         self.assertEqual(event.changed_dimensions, ("mileage",))
         self.assertEqual(restored.warning_source, ThresholdSource.MANUFACTURER)
+
+    def test_threshold_event_history_replays_customization_and_restore(self):
+        item = MaintenanceItem("Engine oil", interval_km=4000, warning_km=500)
+        customized, customization_event = customize_warning_thresholds_with_event(
+            item,
+            warning_km=1000,
+        )
+        restored, restoration_event = restore_manufacturer_warning_thresholds_with_event(
+            customized,
+        )
+
+        self.assertEqual(
+            project_warning_threshold_history(item, [customization_event]),
+            customized,
+        )
+        self.assertEqual(
+            project_warning_threshold_history(
+                item,
+                [customization_event, restoration_event],
+            ),
+            restored,
+        )
+
+    def test_threshold_event_history_rejects_gaps_and_wrong_items(self):
+        item = MaintenanceItem("Engine oil", warning_km=500)
+        _, event = customize_warning_thresholds_with_event(item, warning_km=1000)
+        with self.assertRaises(ValueError):
+            project_warning_threshold_history(item, [event, event])
+        with self.assertRaises(ValueError):
+            project_warning_threshold_history(
+                item,
+                [WarningThresholdsCustomized("Brake", 500, 0, 1000, 0)],
+            )
 
     def test_named_owner_status_use_case_returns_attention(self):
         view = ViewOwnerStatus().execute(

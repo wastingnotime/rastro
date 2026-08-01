@@ -140,6 +140,9 @@ class WarningThresholdsRestored:
     changed_dimensions: tuple[str, ...] = ()
 
 
+WarningThresholdEvent = WarningThresholdsCustomized | WarningThresholdsRestored
+
+
 def customize_warning_thresholds(
     item: MaintenanceItem,
     *,
@@ -286,6 +289,61 @@ def restore_manufacturer_warning_thresholds_with_event(
         changed_dimensions=changed_dimensions,
     )
     return updated, event
+
+
+def project_warning_threshold_history(
+    item: MaintenanceItem,
+    events: list[WarningThresholdEvent],
+) -> MaintenanceItem:
+    """Replay threshold changes while retaining the manufacturer's baseline."""
+    projected = item
+    for event in events:
+        if event.maintenance_title != projected.title:
+            raise ValueError("threshold event targets a different maintenance item")
+        if (
+            event.previous_warning_km != projected.warning_km
+            or event.previous_warning_days != projected.warning_days
+        ):
+            raise ValueError("threshold event does not follow the current projection")
+        invalid_dimensions = set(event.changed_dimensions) - {"mileage", "date"}
+        if invalid_dimensions:
+            raise ValueError("threshold event contains an unknown dimension")
+
+        if isinstance(event, WarningThresholdsCustomized):
+            manufacturer_warning_km = (
+                projected.manufacturer_warning_km
+                if projected.manufacturer_warning_km is not None
+                else projected.warning_km
+            )
+            manufacturer_warning_days = (
+                projected.manufacturer_warning_days
+                if projected.manufacturer_warning_days is not None
+                else projected.warning_days
+            )
+            projected = replace(
+                projected,
+                warning_km=event.warning_km,
+                warning_days=event.warning_days,
+                warning_km_source=(
+                    ThresholdSource.OWNER
+                    if "mileage" in event.changed_dimensions
+                    else projected.warning_km_source
+                ),
+                warning_days_source=(
+                    ThresholdSource.OWNER
+                    if "date" in event.changed_dimensions
+                    else projected.warning_days_source
+                ),
+                manufacturer_warning_km=manufacturer_warning_km,
+                manufacturer_warning_days=manufacturer_warning_days,
+            )
+        else:
+            projected = restore_manufacturer_warning_thresholds(
+                projected,
+                warning_km=event.manufacturer_warning_km,
+                warning_days=event.manufacturer_warning_days,
+            )
+    return projected
 
 
 def complete_service(

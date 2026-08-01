@@ -146,6 +146,11 @@ owner-sourced imported policies may remain without a canonical baseline until
 one is supplied. A manufacturer-sourced effective value must always match its
 persisted baseline.
 
+`project_warning_threshold_history` replays those audit events into an
+effective maintenance policy. It verifies item identity and each event's
+previous values, so a missing or misordered threshold event fails explicitly
+instead of silently producing an incorrect policy.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.
