@@ -150,6 +150,8 @@ persisted baseline.
 effective maintenance policy. It verifies item identity and each event's
 previous values, so a missing or misordered threshold event fails explicitly
 instead of silently producing an incorrect policy.
+The replay also requires every changed dimension to be declared exactly once;
+an event cannot alter mileage or date invisibly.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

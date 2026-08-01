@@ -308,6 +308,28 @@ def project_warning_threshold_history(
         invalid_dimensions = set(event.changed_dimensions) - {"mileage", "date"}
         if invalid_dimensions:
             raise ValueError("threshold event contains an unknown dimension")
+        if len(set(event.changed_dimensions)) != len(event.changed_dimensions):
+            raise ValueError("threshold event contains duplicate dimensions")
+        if (
+            "mileage" not in event.changed_dimensions
+            and (
+                isinstance(event, WarningThresholdsCustomized)
+                and event.warning_km != event.previous_warning_km
+                or isinstance(event, WarningThresholdsRestored)
+                and event.manufacturer_warning_km != event.previous_warning_km
+            )
+        ):
+            raise ValueError("threshold event changes mileage without declaring it")
+        if (
+            "date" not in event.changed_dimensions
+            and (
+                isinstance(event, WarningThresholdsCustomized)
+                and event.warning_days != event.previous_warning_days
+                or isinstance(event, WarningThresholdsRestored)
+                and event.manufacturer_warning_days != event.previous_warning_days
+            )
+        ):
+            raise ValueError("threshold event changes date without declaring it")
 
         if isinstance(event, WarningThresholdsCustomized):
             manufacturer_warning_km = (
