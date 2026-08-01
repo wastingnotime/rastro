@@ -45,6 +45,8 @@
   accepted/rejected response without database coupling.
 - The storage port and deterministic fake now exercise owner/motorcycle
   isolation and revision-aware persistence.
+- Snapshot creation now rejects blank motorcycle scopes before they can enter
+  the storage boundary.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 

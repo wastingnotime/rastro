@@ -103,7 +103,8 @@ rejected without mutating stored snapshots.
 
 The `AttentionPreferenceStore` port and in-memory fake demonstrate the storage
 contract: snapshots are isolated by `(owner_id, motorcycle_id)` and retain the
-revision winner across writes.
+revision winner across writes. Blank motorcycle scopes are rejected at snapshot
+creation.
 
 ## Done criteria
 
@@ -132,6 +133,7 @@ revision winner across writes.
 - cross-owner preference snapshots are rejected;
 - only the authenticated owner can write preference snapshots;
 - account storage isolates owner and motorcycle preference scopes;
+- blank motorcycle scopes cannot enter sync or storage;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

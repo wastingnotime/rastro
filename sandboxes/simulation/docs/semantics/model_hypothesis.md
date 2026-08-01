@@ -76,6 +76,8 @@ next action.
 18. Only the authenticated owner may write synchronized preference state.
 19. Account storage must isolate owner and motorcycle scopes while preserving
     revision conflict behavior.
+20. Preference snapshots must contain a non-empty motorcycle scope before they
+    can enter synchronization or storage.
 
 ## Open questions
 
