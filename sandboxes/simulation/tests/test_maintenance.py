@@ -69,6 +69,7 @@ from app.application.use_cases import (
     ViewOwnerStatus,
     ViewServiceHistory,
     ViewWarningThresholdHistory,
+    WarningThresholdHistoryViewForbidden,
 )
 from app.application.use_cases import (
     USE_CASE_CATALOG,
@@ -443,9 +444,22 @@ class MaintenanceStatusTests(unittest.TestCase):
             item,
             warning_km=1000,
         )
-        view = ViewWarningThresholdHistory().execute(item, [customization_event])
+        view = ViewWarningThresholdHistory().execute(
+            item,
+            [customization_event],
+            actor_id="owner-1",
+            owner_id="owner-1",
+        )
         self.assertEqual(view.effective_item, customized)
         self.assertEqual(view.events, (customization_event,))
+        with self.assertRaises(WarningThresholdHistoryViewForbidden) as context:
+            ViewWarningThresholdHistory().execute(
+                item,
+                [customization_event],
+                actor_id="other-user",
+                owner_id="owner-1",
+            )
+        self.assertEqual(context.exception.code, "warning_threshold_history_forbidden")
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(

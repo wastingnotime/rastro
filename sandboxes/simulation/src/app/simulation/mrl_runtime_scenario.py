@@ -195,6 +195,8 @@ def _start_owner(context: object) -> None:
     threshold_history_view = ViewWarningThresholdHistory().execute(
         items[0],
         [customization_event, restoration_event],
+        actor_id="owner-1",
+        owner_id="owner-1",
     )
     _emit_use_case(
         context,

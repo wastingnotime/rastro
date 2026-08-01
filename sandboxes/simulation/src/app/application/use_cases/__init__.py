@@ -15,6 +15,7 @@ from app.application.use_cases.view_owner_status import ViewOwnerStatus
 from app.application.use_cases.view_service_history import ViewServiceHistory
 from app.application.use_cases.view_warning_threshold_history import (
     ViewWarningThresholdHistory,
+    WarningThresholdHistoryViewForbidden,
 )
 
 
@@ -127,6 +128,7 @@ __all__ = [
     "ViewOwnerStatus",
     "ViewServiceHistory",
     "ViewWarningThresholdHistory",
+    "WarningThresholdHistoryViewForbidden",
     "USE_CASE_KINDS",
     "USE_CASE_IDS",
     "USE_CASE_CATALOG",
