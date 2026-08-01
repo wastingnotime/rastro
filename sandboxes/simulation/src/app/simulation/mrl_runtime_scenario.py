@@ -74,7 +74,23 @@ def _emit_use_case(
     )
 
 
+def _emit_use_case_catalog(context: object) -> None:
+    context.emit(
+        "use_case_catalog",
+        "motorcycle-maintenance",
+        source="application-use-case",
+        actor="owner",
+        payload={
+            "use_cases": [
+                {"name": name, "kind": kind.value}
+                for name, kind in USE_CASE_KINDS.items()
+            ]
+        },
+    )
+
+
 def _start_owner(context: object) -> None:
+    _emit_use_case_catalog(context)
     context.emit(
         "domain_observation",
         "motorcycle_status_calculated",

@@ -86,6 +86,8 @@ operation-specific details remain alongside it.
 
 The query/command classification is owned by the application use-case catalog,
 so runtime call sites cannot silently disagree about an interaction's kind.
+The scenario emits that catalog before the first domain observation, making the
+available use cases visible even before one is executed.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
