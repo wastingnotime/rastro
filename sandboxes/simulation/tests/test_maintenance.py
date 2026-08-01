@@ -61,6 +61,7 @@ from app.application.attention_sync import (
 )
 from app.application.use_cases import (
     CorrectServiceRecord,
+    CustomizeWarningThresholds,
     RecordOdometerReading,
     RecordService,
     SyncAttentionPreferences,
@@ -303,6 +304,7 @@ class MaintenanceStatusTests(unittest.TestCase):
             {name for name, kind in USE_CASE_KINDS.items() if kind == UseCaseKind.COMMAND},
             {
                 "RecordService",
+                "CustomizeWarningThresholds",
                 "CorrectServiceRecord",
                 "SyncAttentionPreferences",
                 "RecordOdometerReading",
@@ -406,6 +408,16 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(event.service_id, "service-1")
         self.assertEqual(updated[0].last_service_odometer_km, 14000)
         self.assertEqual(updated[1].last_service_odometer_km, 18420)
+
+    def test_named_threshold_use_case_returns_updated_item_and_event(self):
+        item = MaintenanceItem("Engine oil", warning_km=500)
+        updated, event = CustomizeWarningThresholds().execute(
+            item,
+            warning_km=1000,
+        )
+        self.assertEqual(updated.warning_km, 1000)
+        self.assertEqual(event.maintenance_title, "Engine oil")
+        self.assertEqual(event.changed_dimensions, ("mileage",))
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(

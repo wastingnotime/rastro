@@ -12,7 +12,8 @@ calculate status and emit the most urgent next maintenance action.
 
 The application surface now names the user-facing interactions explicitly:
 `ViewOwnerStatus`, `RecordService`, `CorrectServiceRecord`,
-`SyncAttentionPreferences`, and `RecordOdometerReading`. These use cases
+`CustomizeWarningThresholds`, `SyncAttentionPreferences`, and
+`RecordOdometerReading`. These use cases
 translate commands and queries into the existing domain functions while
 keeping adapters framework-neutral.
 
@@ -161,6 +162,11 @@ maintenance plan, routing each event by title and leaving unrelated items
 unchanged. Duplicate item titles and events for unknown items are rejected.
 Unsupported event values are rejected with a domain error at the projection
 boundary rather than leaking an implementation-level attribute error.
+
+`CustomizeWarningThresholds` is the application command boundary for owner
+threshold changes. It returns the updated item together with the
+`WarningThresholdsCustomized` event so adapters do not need to call the domain
+function directly.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

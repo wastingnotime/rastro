@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from app.application.use_cases.correct_service_record import CorrectServiceRecord
+from app.application.use_cases.customize_warning_thresholds import CustomizeWarningThresholds
 from app.application.use_cases.record_odometer_reading import RecordOdometerReading
 from app.application.use_cases.record_service import RecordService
 from app.application.use_cases.sync_attention_preferences import SyncAttentionPreferences
@@ -52,6 +53,12 @@ USE_CASE_CATALOG = (
         "Record a service visit against selected maintenance items.",
     ),
     UseCaseDefinition(
+        "customize-warning-thresholds",
+        "CustomizeWarningThresholds",
+        UseCaseKind.COMMAND,
+        "Customize maintenance warning thresholds while retaining an audit event.",
+    ),
+    UseCaseDefinition(
         "correct-service-record",
         "CorrectServiceRecord",
         UseCaseKind.COMMAND,
@@ -94,6 +101,7 @@ USE_CASE_KINDS, USE_CASE_IDS = index_use_case_catalog(USE_CASE_CATALOG)
 
 __all__ = [
     "CorrectServiceRecord",
+    "CustomizeWarningThresholds",
     "RecordOdometerReading",
     "RecordService",
     "SyncAttentionPreferences",
