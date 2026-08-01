@@ -42,6 +42,7 @@ from app.application.attention_sync import (
     preferences_from_snapshot,
     snapshot_preferences,
 )
+from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
     long_unused,
@@ -319,6 +320,32 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertFalse(response.accepted)
         self.assertEqual(response.code, "preference_sync_forbidden")
         self.assertEqual(updated, state)
+
+    def test_account_preference_store_is_owner_and_motorcycle_scoped(self):
+        store = InMemoryAttentionPreferenceStore()
+        first = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"due"})),
+            owner_id="owner-1",
+            revision=2,
+            device_id="phone",
+        )
+        stale = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset()),
+            owner_id="owner-1",
+            revision=1,
+            device_id="web",
+        )
+        other_motorcycle = snapshot_preferences(
+            AttentionViewPreferences("moto-2", frozenset({"overdue"})),
+            owner_id="owner-1",
+            revision=1,
+            device_id="phone",
+        )
+        self.assertEqual(store.save(first), first)
+        self.assertEqual(store.save(stale), first)
+        self.assertEqual(store.save(other_motorcycle), other_motorcycle)
+        self.assertEqual(store.load("owner-1", "moto-1"), first)
+        self.assertIsNone(store.load("owner-2", "moto-1"))
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
