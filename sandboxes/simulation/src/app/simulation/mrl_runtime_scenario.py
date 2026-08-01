@@ -19,6 +19,7 @@ from app.domain.maintenance import (
     void_service_record,
 )
 from app.domain.obligations import DocumentObligation, next_owner_actions
+from app.domain.odometer import OdometerHistory, current_odometer_reading, record_odometer_reading
 from app.application.service_history import (
     CorrectionCommand,
     ServiceCorrectionForbidden,
@@ -478,6 +479,20 @@ def _mixed_urgency_groups_keep_priority_context(context: object) -> bool:
     return [group.status.value for group in groups] == ["overdue", "due", "approaching_due"]
 
 
+def _odometer_correction_preserves_history(context: object) -> bool:
+    history, original = record_odometer_reading(
+        OdometerHistory(), "reading-1", 18000, date(2026, 7, 1)
+    )
+    history, correction = record_odometer_reading(
+        history,
+        "correction-1",
+        17500,
+        date(2026, 7, 2),
+        correction_of=original.reading_id,
+    )
+    return len(history.readings) == 2 and current_odometer_reading(history) == correction
+
+
 def create_simulation() -> Scenario:
     return Scenario(
         name="motorcycle-maintenance-status",
@@ -494,6 +509,7 @@ def create_simulation() -> Scenario:
             Invariant("non_owner_correction_is_denied", _non_owner_correction_is_denied),
             Invariant("same_day_due_items_are_grouped", _same_day_due_items_are_grouped),
             Invariant("mixed_urgency_groups_keep_priority_context", _mixed_urgency_groups_keep_priority_context),
+            Invariant("odometer_correction_preserves_history", _odometer_correction_preserves_history),
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
