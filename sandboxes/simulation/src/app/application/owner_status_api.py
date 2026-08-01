@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.application.owner_dashboard import build_owner_status
-from app.application.owner_status_payload import owner_status_payload
+from app.application.owner_status_payload import OWNER_STATUS_SCHEMA_VERSION, owner_status_payload
 from app.domain.maintenance import MaintenanceItem, MotorcycleState
 from app.domain.obligations import DocumentObligation
 
@@ -33,6 +33,7 @@ def get_owner_status_response(
         return ApiResponse(
             403,
             {
+                "schema_version": OWNER_STATUS_SCHEMA_VERSION,
                 "code": "motorcycle_status_forbidden",
                 "message": "Only the motorcycle owner can view maintenance status.",
             },

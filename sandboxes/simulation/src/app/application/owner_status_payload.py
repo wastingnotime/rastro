@@ -5,12 +5,15 @@ from typing import Any
 from app.application.owner_dashboard import OwnerStatusView
 
 
+OWNER_STATUS_SCHEMA_VERSION = 1
+
+
 def owner_status_payload(
     view: OwnerStatusView, *, odometer_stale_after_days: int = 90
 ) -> dict[str, Any]:
     """Serialize the owner status query into a stable snake_case JSON shape."""
     return {
-        "schema_version": 1,
+        "schema_version": OWNER_STATUS_SCHEMA_VERSION,
         "motorcycle_id": view.motorcycle_id,
         "current_odometer_km": view.odometer_km,
         "odometer_recorded_at": (
