@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from enum import Enum
 
@@ -11,6 +11,11 @@ class MaintenanceStatus(str, Enum):
     DUE = "due"
     OVERDUE = "overdue"
     UNKNOWN = "unknown"
+
+
+class ThresholdSource(str, Enum):
+    MANUFACTURER = "manufacturer"
+    OWNER = "owner"
 
 
 @dataclass(frozen=True)
@@ -30,6 +35,7 @@ class MaintenanceItem:
     last_service_date: date | None = None
     last_service_odometer_km: int | None = None
     enabled: bool = True
+    warning_source: ThresholdSource = ThresholdSource.MANUFACTURER
 
 
 @dataclass(frozen=True)
@@ -69,6 +75,27 @@ class ServiceRecordVoided:
     reason: str
 
 
+def customize_warning_thresholds(
+    item: MaintenanceItem,
+    *,
+    warning_km: int | None = None,
+    warning_days: int | None = None,
+) -> MaintenanceItem:
+    """Apply owner warning preferences while retaining explicit provenance."""
+    if warning_km is None and warning_days is None:
+        raise ValueError("at least one warning threshold is required")
+    if warning_km is not None and warning_km < 0:
+        raise ValueError("warning mileage cannot be negative")
+    if warning_days is not None and warning_days < 0:
+        raise ValueError("warning days cannot be negative")
+    return replace(
+        item,
+        warning_km=item.warning_km if warning_km is None else warning_km,
+        warning_days=item.warning_days if warning_days is None else warning_days,
+        warning_source=ThresholdSource.OWNER,
+    )
+
+
 def complete_service(
     item: MaintenanceItem, serviced_at: date, odometer_km: int
 ) -> tuple[MaintenanceItem, ServiceCompleted]:
@@ -84,6 +111,7 @@ def complete_service(
         last_service_date=serviced_at,
         last_service_odometer_km=odometer_km,
         enabled=item.enabled,
+        warning_source=item.warning_source,
     )
     return updated, ServiceCompleted(item.title, serviced_at, odometer_km)
 

@@ -8,8 +8,10 @@ from app.domain.maintenance import (
     MotorcycleState,
     ServiceRecorded,
     ServiceRecordVoided,
+    ThresholdSource,
     assess,
     complete_service,
+    customize_warning_thresholds,
     grouped_actions,
     record_service,
     project_service_history,
@@ -78,6 +80,32 @@ from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
 class MaintenanceStatusTests(unittest.TestCase):
+    def test_owner_warning_override_is_provenanced_and_changes_status(self):
+        manufacturer_item = MaintenanceItem(
+            "Engine oil",
+            interval_km=4000,
+            warning_km=500,
+            last_service_odometer_km=15000,
+        )
+        owner_item = customize_warning_thresholds(manufacturer_item, warning_km=1000)
+        motorcycle = MotorcycleState(date(2026, 7, 31), 18420)
+        self.assertEqual(manufacturer_item.warning_source, ThresholdSource.MANUFACTURER)
+        self.assertEqual(owner_item.warning_source, ThresholdSource.OWNER)
+        self.assertEqual(assess(manufacturer_item, motorcycle).status, MaintenanceStatus.OK)
+        self.assertEqual(
+            assess(owner_item, motorcycle).status,
+            MaintenanceStatus.APPROACHING_DUE,
+        )
+
+    def test_warning_override_rejects_missing_or_negative_values(self):
+        item = MaintenanceItem("Engine oil", interval_km=4000)
+        with self.assertRaises(ValueError):
+            customize_warning_thresholds(item)
+        with self.assertRaises(ValueError):
+            customize_warning_thresholds(item, warning_km=-1)
+        with self.assertRaises(ValueError):
+            customize_warning_thresholds(item, warning_days=-1)
+
     def test_named_owner_status_use_case_returns_attention(self):
         view = ViewOwnerStatus().execute(
             motorcycle_id="moto-1",

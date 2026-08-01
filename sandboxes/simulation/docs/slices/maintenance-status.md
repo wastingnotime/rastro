@@ -21,6 +21,7 @@ keeping adapters framework-neutral.
 - mileage and date intervals are optional independently;
 - when both exist, the earliest due dimension controls the status;
 - warning thresholds apply before due;
+- effective warning thresholds retain manufacturer/owner provenance;
 - missing required data produces `unknown`;
 - disabled items produce no action;
 - status calculation is deterministic and timezone-aware.
@@ -119,6 +120,11 @@ initial simulation time plus a five-second delay. Reset therefore starts with
 no domain events; Play or Step advances to the delayed flow before executing
 it. The batch semantic runner still drains the queue so it can produce a
 complete deterministic receipt.
+
+Warning thresholds now carry `ThresholdSource`: manufacturer defaults remain
+unchanged until `customize_warning_thresholds` applies an owner override. The
+override is validated for non-negative values and requires at least one
+dimension.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
