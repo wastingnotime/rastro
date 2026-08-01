@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from mrl_simulation_runtime.actors import Actor
 from mrl_simulation_runtime.invariants import Invariant
@@ -565,8 +565,9 @@ def _start_owner(context: object) -> None:
 
 class OwnerBehavior:
     def on_start(self, context: object) -> None:
-        context.scheduler.schedule_at(
-            context.clock.now(),
+        context.scheduler.schedule_after(
+            context,
+            timedelta(seconds=5),
             _start_owner,
             name="owner_start_flow",
             source="owner",
