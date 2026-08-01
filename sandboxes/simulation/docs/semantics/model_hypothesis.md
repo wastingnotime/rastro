@@ -75,8 +75,6 @@ next action.
 
 ## Open questions
 
-- Should lower-priority groups collapse by default in the owner interface?
-- Should users' expand/collapse choices persist between visits?
 - What authenticated account storage is appropriate for synchronized
   preferences remains a technology-project decision.
 

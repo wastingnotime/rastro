@@ -61,14 +61,6 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
-- Revisit correction copy with pilot users and localize only after the contract
-  is validated.
-- Decide how mixed-urgency groups should be presented in the owner interface.
-- Validate whether lower-priority groups should collapse by default in pilot
-  usability sessions.
-- Decide whether expand/collapse choices should persist between visits.
-- Decide whether preferences belong to the owner account or individual
-- motorcycle.
 - Choose authenticated account storage during technology-project
   synchronization.
 - Carry the owner-authorized sync contract into the eventual API/web adapter.
