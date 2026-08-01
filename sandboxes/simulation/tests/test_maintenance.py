@@ -37,6 +37,7 @@ from app.application.attention_view import (
 )
 from app.application.owner_dashboard import build_owner_status
 from app.application.owner_status_payload import owner_status_payload
+from app.application.owner_status_api import OWNER_STATUS_ROUTE, get_owner_status_response
 from app.application.attention_sync import (
     AttentionSyncState,
     handle_preference_sync,
@@ -432,6 +433,33 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(payload["odometer_stale_after_days"], 45)
         self.assertEqual(payload["attention"][0]["status"], "approaching_due")
         self.assertEqual(payload["next_action_titles"], ["Chain inspection", "Licensing renewal"])
+
+    def test_owner_status_api_contract_returns_versioned_private_response(self):
+        response = get_owner_status_response(
+            actor_id="owner-1",
+            owner_id="owner-1",
+            motorcycle_id="moto-1",
+            motorcycle=MotorcycleState(date(2026, 7, 31), 18420),
+            maintenance_items=[],
+            obligations=[],
+        )
+        self.assertEqual(OWNER_STATUS_ROUTE, "/api/v1/motorcycles/{motorcycle_id}/maintenance-status")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body["schema_version"], 1)
+        self.assertEqual(response.body["motorcycle_id"], "moto-1")
+
+    def test_owner_status_api_rejects_non_owner_without_data(self):
+        response = get_owner_status_response(
+            actor_id="other-user",
+            owner_id="owner-1",
+            motorcycle_id="moto-1",
+            motorcycle=MotorcycleState(date(2026, 7, 31), 18420),
+            maintenance_items=[],
+            obligations=[],
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.body["code"], "motorcycle_status_forbidden")
+        self.assertNotIn("attention", response.body)
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
