@@ -64,6 +64,48 @@ from app.simulation.ownership_profiles import (
 from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
+class _TemporalEmissionContext:
+    """Schedule owner-flow observations as distinct simulation phases."""
+
+    def __init__(self, context: object, interval: timedelta = timedelta(seconds=2)) -> None:
+        self._context = context
+        self._interval = interval
+        self._sequence = 0
+
+    def emit(
+        self,
+        event_type: str,
+        name: str,
+        *,
+        source: str | None = None,
+        actor: str | None = None,
+        correlation_id: str | None = None,
+        payload: dict[str, object] | None = None,
+    ) -> None:
+        self._sequence += 1
+        delay = self._interval * self._sequence
+        frozen_payload = dict(payload or {})
+
+        def publish(runtime_context: object) -> None:
+            runtime_context.emit(
+                event_type,
+                name,
+                source=source,
+                actor=actor,
+                correlation_id=correlation_id,
+                payload=frozen_payload,
+            )
+
+        self._context.scheduler.schedule_after(  # type: ignore[attr-defined]
+            self._context,
+            delay,
+            publish,
+            name=f"owner_phase_{self._sequence}_{name}",
+            source=source or "owner-flow",
+            correlation_id=correlation_id,
+        )
+
+
 def _emit_use_case(
     context: object,
     name: str,
@@ -130,6 +172,7 @@ def _emit_use_case_summary(
 
 def _start_owner(context: object) -> None:
     _emit_use_case_catalog(context)
+    context = _TemporalEmissionContext(context)
     use_case_results: list[dict[str, str]] = []
     context.emit(
         "domain_observation",
@@ -783,7 +826,6 @@ def _mixed_urgency_groups_keep_priority_context(context: object) -> bool:
 
 def _odometer_correction_preserves_history(context: object) -> bool:
     recorder = RecordOdometerReading()
-    use_case_results: list[dict[str, str]] = []
     history, original = recorder.execute(
         OdometerHistory(),
         reading_id="reading-1",
@@ -797,16 +839,19 @@ def _odometer_correction_preserves_history(context: object) -> bool:
         recorded_at=date(2026, 7, 2),
         correction_of=original.reading_id,
     )
-    _emit_use_case(
-        context,
-        "RecordOdometerReading",
-        "owner",
-        "succeeded",
-        use_case_results,
-        reading_count=len(history.readings),
-        corrected=True,
-    )
-    _emit_use_case_summary(context, "odometer-invariant", use_case_results)
+    if not getattr(context, "_odometer_evidence_emitted", False):
+        use_case_results: list[dict[str, str]] = []
+        _emit_use_case(
+            context,
+            "RecordOdometerReading",
+            "owner",
+            "succeeded",
+            use_case_results,
+            reading_count=len(history.readings),
+            corrected=True,
+        )
+        _emit_use_case_summary(context, "odometer-invariant", use_case_results)
+        setattr(context, "_odometer_evidence_emitted", True)
     return len(history.readings) == 2 and current_odometer_reading(history) == correction
 
 

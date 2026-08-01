@@ -34,6 +34,10 @@ The validator also confirms that forbidden API responses do not expose
 attention data and that every ownership profile is evaluated at 7, 14, and 30
 day reminder cadences.
 
+Owner-flow observations are emitted as two-second simulation phases after the
+initial five-second paused start, so use cases and domain events do not share
+one timestamp.
+
 Run the browser smoke test with Chromium and Playwright. It checks the paused
 reset state, then uses Play at 1× pace to verify the delayed owner flow:
 
