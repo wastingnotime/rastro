@@ -95,6 +95,8 @@ class MaintenanceStatusTests(unittest.TestCase):
         owner_item = customize_warning_thresholds(manufacturer_item, warning_km=1000)
         motorcycle = MotorcycleState(date(2026, 7, 31), 18420)
         self.assertEqual(manufacturer_item.warning_source, ThresholdSource.MANUFACTURER)
+        self.assertEqual(manufacturer_item.manufacturer_warning_km, 500)
+        self.assertEqual(manufacturer_item.manufacturer_warning_days, 0)
         self.assertEqual(owner_item.warning_source, ThresholdSource.MIXED)
         self.assertEqual(owner_item.warning_km_source, ThresholdSource.OWNER)
         self.assertEqual(

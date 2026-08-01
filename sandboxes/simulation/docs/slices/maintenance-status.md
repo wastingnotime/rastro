@@ -141,7 +141,9 @@ that reset as an audit event. Both audit events expose the dimensions that
 actually changed (`mileage`, `date`, or both). The first owner customization
 persists the manufacturer baseline on the item, allowing restoration without
 repeating canonical values; explicit values remain supported for imported
-plans.
+plans. Manufacturer-sourced items initialize that baseline at construction;
+owner-sourced imported policies may remain without a canonical baseline until
+one is supplied.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

@@ -54,6 +54,16 @@ class MaintenanceItem:
         ):
             if value is not None and value < 0:
                 raise ValueError(f"{label} cannot be negative")
+        if (
+            self.manufacturer_warning_km is None
+            and self.warning_km_source == ThresholdSource.MANUFACTURER
+        ):
+            object.__setattr__(self, "manufacturer_warning_km", self.warning_km)
+        if (
+            self.manufacturer_warning_days is None
+            and self.warning_days_source == ThresholdSource.MANUFACTURER
+        ):
+            object.__setattr__(self, "manufacturer_warning_days", self.warning_days)
 
     @property
     def warning_source(self) -> ThresholdSource:
