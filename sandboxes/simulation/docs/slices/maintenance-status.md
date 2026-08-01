@@ -118,6 +118,9 @@ discover the use-case surface.
 Threshold customization, restoration, service recording, and service voiding
 are also declared as domain-event nodes with use-case emission edges, allowing
 their runtime event beams to render as distinct graph paths.
+The Observatory keeps the complete observation and event history in its panels
+but limits the visual effect layer to the latest 24 effect observations, which
+keeps the live graph readable as the simulation grows.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
