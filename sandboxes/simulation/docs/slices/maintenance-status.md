@@ -119,7 +119,7 @@ increment that version.
 
 The API adapter contract is `/api/v1/motorcycles/{motorcycle_id}/maintenance-status`.
 Owner requests return the versioned payload; non-owner requests return 403
-without status data.
+without status data. Both response shapes declare the same schema version.
 
 ## Done criteria
 
@@ -154,6 +154,7 @@ without status data.
 - owner status payload preserves uncertainty and source labels;
 - owner status payload declares an explicit schema version;
 - owner status API enforces private-by-default access;
+- owner status API versions success and error envelopes consistently;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

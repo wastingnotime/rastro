@@ -93,6 +93,8 @@ next action.
 24. Material payload changes require an explicit schema-version increment.
 25. Non-owner status requests must return a safe 403 response without
     motorcycle data.
+26. Success and error owner-status responses must share the same schema-version
+    contract.
 
 ## Open questions
 
