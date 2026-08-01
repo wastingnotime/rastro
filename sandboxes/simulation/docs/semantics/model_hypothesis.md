@@ -26,6 +26,8 @@ next action.
   used for deterministic cross-device synchronization and bound to an owner.
 - `AttentionSyncState` / `AttentionSyncResponse`: owner-authorized storage
   boundary and framework-neutral synchronization result.
+- `AttentionPreferenceStore`: storage port with an owner-scoped in-memory fake
+  for deterministic simulation.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -72,11 +74,13 @@ next action.
 17. Preference snapshots from different owners must never merge, even when
     motorcycle scope IDs collide.
 18. Only the authenticated owner may write synchronized preference state.
+19. Account storage must isolate owner and motorcycle scopes while preserving
+    revision conflict behavior.
 
 ## Open questions
 
-- What authenticated account storage is appropriate for synchronized
-  preferences remains a technology-project decision.
+- The production storage technology remains a technology-project decision;
+  simulation uses the owner-scoped store port and fake provider.
 
 ## Candidate next slices
 

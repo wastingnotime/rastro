@@ -101,6 +101,10 @@ storage boundary without selecting a database or authentication framework.
 Accepted writes return `preference_sync_accepted`; unauthorized writes are
 rejected without mutating stored snapshots.
 
+The `AttentionPreferenceStore` port and in-memory fake demonstrate the storage
+contract: snapshots are isolated by `(owner_id, motorcycle_id)` and retain the
+revision winner across writes.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -127,6 +131,7 @@ rejected without mutating stored snapshots.
 - same-motorcycle preference snapshots merge deterministically across devices;
 - cross-owner preference snapshots are rejected;
 - only the authenticated owner can write preference snapshots;
+- account storage isolates owner and motorcycle preference scopes;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

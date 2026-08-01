@@ -43,6 +43,8 @@
   colliding motorcycle scope IDs.
 - The sync command now enforces owner authorization and returns an explicit
   accepted/rejected response without database coupling.
+- The storage port and deterministic fake now exercise owner/motorcycle
+  isolation and revision-aware persistence.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -61,6 +63,6 @@ does not reset unrelated maintenance items.
 - Tune the 14-day default against observed owner return behavior.
 - Validate cadence with real pilot return behavior before treating 14 days as a
   product default.
-- Choose authenticated account storage during technology-project
-  synchronization.
+- Choose the production storage implementation during technology-project
+  synchronization while preserving this owner-scoped contract.
 - Carry the owner-authorized sync contract into the eventual API/web adapter.
