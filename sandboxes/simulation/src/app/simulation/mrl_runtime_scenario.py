@@ -59,6 +59,7 @@ def _emit_use_case(
     context: object,
     name: str,
     actor: str,
+    kind: str,
     outcome: str,
     **details: object,
 ) -> None:
@@ -68,7 +69,7 @@ def _emit_use_case(
         name,
         source="application-use-case",
         actor=actor,
-        payload={"outcome": outcome, **details},
+        payload={"kind": kind, "outcome": outcome, **details},
     )
 
 
@@ -202,6 +203,7 @@ def _start_owner(context: object) -> None:
         context,
         "SyncAttentionPreferences",
         "owner-1",
+        "command",
         "accepted" if sync_response.accepted else "rejected",
         accepted=sync_response.accepted,
         code=sync_response.code,
@@ -246,6 +248,7 @@ def _start_owner(context: object) -> None:
         context,
         "ViewOwnerStatus",
         "owner",
+        "query",
         "succeeded",
         attention_count=len(dashboard.attention),
     )
@@ -311,6 +314,7 @@ def _start_owner(context: object) -> None:
         context,
         "RecordService",
         "owner",
+        "command",
         "succeeded",
         service_id=service_event.service_id,
         completed_items=list(service_event.completed_titles),
@@ -387,6 +391,7 @@ def _start_owner(context: object) -> None:
         context,
         "CorrectServiceRecord",
         "mechanic-1",
+        "command",
         "accepted" if correction_response.accepted else "rejected",
         accepted=correction_response.accepted,
         code=correction_response.code,
@@ -552,6 +557,7 @@ def _odometer_correction_preserves_history(context: object) -> bool:
         context,
         "RecordOdometerReading",
         "owner",
+        "command",
         "succeeded",
         reading_count=len(history.readings),
         corrected=True,

@@ -81,6 +81,7 @@ boundary.
 
 Each of those executions is also visible as a `use_case_executed` runtime
 observation with the use-case name and a consistent `payload.outcome` value;
+the payload also classifies the interaction as `query` or `command` while
 operation-specific details remain alongside it.
 
 Correction errors expose stable codes and safe messages for application

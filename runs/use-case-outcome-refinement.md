@@ -8,6 +8,9 @@ Centralized runtime use-case emission in `_emit_use_case`. Every
 `use_case_executed` observation now includes a stable `payload.outcome` field
 plus operation-specific details.
 
+The observation also includes a stable `kind` field: `ViewOwnerStatus` is a
+`query`; the remaining four interactions are `command` use cases.
+
 ## Validation
 
 ```text
