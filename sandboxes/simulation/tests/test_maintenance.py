@@ -42,6 +42,7 @@ from app.application.attention_view import (
 from app.application.owner_dashboard import build_owner_status
 from app.application.owner_status_payload import owner_status_payload
 from app.application.owner_status_api import OWNER_STATUS_ROUTE, get_owner_status_response
+from app.application.service_history_api import SERVICE_HISTORY_ROUTE, get_service_history_response
 from app.application.attention_sync import (
     AttentionSyncState,
     handle_preference_sync,
@@ -608,6 +609,25 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(response.body["schema_version"], 1)
         self.assertEqual(response.body["code"], "motorcycle_status_forbidden")
         self.assertNotIn("attention", response.body)
+
+    def test_service_history_api_returns_active_records_for_owner(self):
+        record = ServiceRecorded(date(2026, 7, 1), 18000, ("oil",), service_id="service-1")
+        response = get_service_history_response(
+            actor_id="owner-1",
+            state=ServiceHistoryState("moto-1", "owner-1", records=(record,)),
+        )
+        self.assertEqual(SERVICE_HISTORY_ROUTE, "/api/v1/motorcycles/{motorcycle_id}/service-history")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.body["records"][0]["service_id"], "service-1")
+
+    def test_service_history_api_rejects_non_owner_without_records(self):
+        record = ServiceRecorded(date(2026, 7, 1), 18000, ("oil",), service_id="service-1")
+        response = get_service_history_response(
+            actor_id="mechanic-1",
+            state=ServiceHistoryState("moto-1", "owner-1", records=(record,)),
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn("records", response.body)
 
     def test_odometer_history_accepts_monotonic_readings(self):
         history, first = record_odometer_reading(

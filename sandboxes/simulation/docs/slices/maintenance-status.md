@@ -98,6 +98,11 @@ The service-history query is exercised before and after a voided record: the
 active view excludes the voided event while the append-only audit event remains
 present in state.
 
+The owner service-history API is exposed at
+`/api/v1/motorcycles/{motorcycle_id}/service-history`; it returns the active
+history with the shared schema version and rejects non-owner requests without
+record data.
+
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
 are separate phases because the runtime evaluates invariants after actor

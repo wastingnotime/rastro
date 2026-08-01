@@ -37,6 +37,7 @@ from app.application.attention_sync import (
 )
 from app.application.owner_status_payload import owner_status_payload
 from app.application.owner_status_api import get_owner_status_response
+from app.application.service_history_api import get_service_history_response
 from app.application.use_cases import (
     CorrectServiceRecord,
     RecordOdometerReading,
@@ -440,6 +441,21 @@ def _start_owner(context: object) -> None:
         use_case_results,
         record_count=len(visible_after_correction),
         voided_count=len(corrected_history.voided_records),
+    )
+    history_api_response = get_service_history_response(
+        actor_id="owner-1",
+        state=corrected_history,
+    )
+    context.emit(
+        "service_history_api_response",
+        "/api/v1/motorcycles/{motorcycle_id}/service-history",
+        source="service-history-api",
+        actor="owner-1",
+        payload={
+            "status_code": history_api_response.status_code,
+            "schema_version": history_api_response.body["schema_version"],
+            "record_count": len(history_api_response.body["records"]),
+        },
     )
     history = ServiceHistoryState("moto-1", "owner-1", records=(service_event,))
     visible_history = ViewServiceHistory().execute(history, actor_id="owner-1")
