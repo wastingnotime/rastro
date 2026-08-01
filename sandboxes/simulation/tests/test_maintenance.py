@@ -36,6 +36,7 @@ from app.application.attention_view import (
     toggle_group,
 )
 from app.application.owner_dashboard import build_owner_status
+from app.application.owner_status_payload import owner_status_payload
 from app.application.attention_sync import (
     AttentionSyncState,
     handle_preference_sync,
@@ -408,6 +409,28 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertEqual(view.attention[0].status, MaintenanceStatus.UNKNOWN)
         self.assertEqual(view.next_action_titles, ())
+
+    def test_owner_status_payload_is_snake_case_and_json_ready(self):
+        view = build_owner_status(
+            "moto-1",
+            MotorcycleState(date(2026, 7, 31), 18420, date(2026, 7, 30)),
+            [
+                MaintenanceItem(
+                    "Chain inspection",
+                    interval_km=3000,
+                    warning_km=500,
+                    last_service_odometer_km=15900,
+                )
+            ],
+            [DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)],
+        )
+        payload = owner_status_payload(view, odometer_stale_after_days=45)
+        self.assertEqual(payload["motorcycle_id"], "moto-1")
+        self.assertEqual(payload["current_odometer_km"], 18420)
+        self.assertEqual(payload["odometer_recorded_at"], "2026-07-30")
+        self.assertEqual(payload["odometer_stale_after_days"], 45)
+        self.assertEqual(payload["attention"][0]["status"], "approaching_due")
+        self.assertEqual(payload["next_action_titles"], ["Chain inspection", "Licensing renewal"])
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
