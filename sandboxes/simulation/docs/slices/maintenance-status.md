@@ -91,6 +91,11 @@ available use cases visible even before one is executed. Each catalog entry
 also includes a concise purpose so the simulation explains the interaction
 semantics directly.
 
+Use-case executions are summarized by runtime phase with counts by kind,
+outcome, and executed name. The owner-start flow and the odometer invariant
+are separate phases because the runtime evaluates invariants after actor
+execution.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.

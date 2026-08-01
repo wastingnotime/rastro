@@ -62,10 +62,12 @@ def _emit_use_case(
     name: str,
     actor: str,
     outcome: str,
+    results: list[dict[str, str]],
     **details: object,
 ) -> None:
     """Emit one stable observation shape for every application use case."""
     kind = USE_CASE_KINDS[name].value
+    results.append({"name": name, "kind": kind, "outcome": outcome})
     context.emit(
         "use_case_executed",
         name,
@@ -94,8 +96,31 @@ def _emit_use_case_catalog(context: object) -> None:
     )
 
 
+def _emit_use_case_summary(
+    context: object, phase: str, results: list[dict[str, str]]
+) -> None:
+    by_kind = {kind: sum(result["kind"] == kind for result in results) for kind in ("query", "command")}
+    by_outcome = {
+        outcome: sum(result["outcome"] == outcome for result in results)
+        for outcome in ("accepted", "rejected", "succeeded")
+    }
+    context.emit(
+        "use_case_summary",
+        phase,
+        source="application-use-case",
+        actor="owner",
+        payload={
+            "execution_count": len(results),
+            "by_kind": by_kind,
+            "by_outcome": by_outcome,
+            "use_cases": [result["name"] for result in results],
+        },
+    )
+
+
 def _start_owner(context: object) -> None:
     _emit_use_case_catalog(context)
+    use_case_results: list[dict[str, str]] = []
     context.emit(
         "domain_observation",
         "motorcycle_status_calculated",
@@ -226,6 +251,7 @@ def _start_owner(context: object) -> None:
         "SyncAttentionPreferences",
         "owner-1",
         "accepted" if sync_response.accepted else "rejected",
+        use_case_results,
         accepted=sync_response.accepted,
         code=sync_response.code,
     )
@@ -270,6 +296,7 @@ def _start_owner(context: object) -> None:
         "ViewOwnerStatus",
         "owner",
         "succeeded",
+        use_case_results,
         attention_count=len(dashboard.attention),
     )
     context.emit(
@@ -335,6 +362,7 @@ def _start_owner(context: object) -> None:
         "RecordService",
         "owner",
         "succeeded",
+        use_case_results,
         service_id=service_event.service_id,
         completed_items=list(service_event.completed_titles),
     )
@@ -411,6 +439,7 @@ def _start_owner(context: object) -> None:
         "CorrectServiceRecord",
         "mechanic-1",
         "accepted" if correction_response.accepted else "rejected",
+        use_case_results,
         accepted=correction_response.accepted,
         code=correction_response.code,
     )
@@ -424,6 +453,7 @@ def _start_owner(context: object) -> None:
             "message": correction_response.message,
         },
     )
+    _emit_use_case_summary(context, "owner-start", use_case_results)
     profile_item = MaintenanceItem(
         "Engine oil",
         interval_km=4000,
@@ -558,6 +588,7 @@ def _mixed_urgency_groups_keep_priority_context(context: object) -> bool:
 
 def _odometer_correction_preserves_history(context: object) -> bool:
     recorder = RecordOdometerReading()
+    use_case_results: list[dict[str, str]] = []
     history, original = recorder.execute(
         OdometerHistory(),
         reading_id="reading-1",
@@ -576,9 +607,11 @@ def _odometer_correction_preserves_history(context: object) -> bool:
         "RecordOdometerReading",
         "owner",
         "succeeded",
+        use_case_results,
         reading_count=len(history.readings),
         corrected=True,
     )
+    _emit_use_case_summary(context, "odometer-invariant", use_case_results)
     return len(history.readings) == 2 and current_odometer_reading(history) == correction
 
 
