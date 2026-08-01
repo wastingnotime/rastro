@@ -51,6 +51,8 @@ status view but do not add another immediate reminder group.
 Document obligations use the same status vocabulary but remain a separate
 date-based model. The combined owner projection merges their actionable
 assessments with maintenance assessments at the highest urgency.
+Document obligation titles and warning windows are validated, and owner-status
+construction rejects blank motorcycle scopes or negative freshness windows.
 
 One-year profile refinement compares daily commuter, weekend rider, and
 long-unused ownership patterns. Active profiles retain fresh mileage status;

@@ -48,6 +48,10 @@ def build_owner_status(
     *,
     odometer_stale_after_days: int = 90,
 ) -> OwnerStatusView:
+    if not motorcycle_id.strip():
+        raise ValueError("motorcycle id is required")
+    if odometer_stale_after_days < 0:
+        raise ValueError("odometer freshness threshold cannot be negative")
     items: list[OwnerAttentionItem] = []
     for maintenance in maintenance_items:
         assessment = assess(

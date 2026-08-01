@@ -789,6 +789,18 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(view.attention[0].status, MaintenanceStatus.UNKNOWN)
         self.assertEqual(view.next_action_titles, ())
 
+    def test_owner_status_rejects_blank_scope_and_negative_freshness(self):
+        with self.assertRaises(ValueError):
+            build_owner_status("", MotorcycleState(date(2026, 7, 31), 18420), [], [])
+        with self.assertRaises(ValueError):
+            build_owner_status(
+                "moto-1",
+                MotorcycleState(date(2026, 7, 31), 18420),
+                [],
+                [],
+                odometer_stale_after_days=-1,
+            )
+
     def test_owner_status_payload_is_snake_case_and_json_ready(self):
         view = build_owner_status(
             "moto-1",
@@ -1103,6 +1115,12 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertEqual(result.status, MaintenanceStatus.APPROACHING_DUE)
         self.assertEqual(result.remaining_days, 24)
+
+    def test_document_obligation_rejects_invalid_policy_values(self):
+        with self.assertRaises(ValueError):
+            DocumentObligation("", date(2026, 8, 24))
+        with self.assertRaises(ValueError):
+            DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=-1)
 
     def test_completed_document_obligation_is_not_actionable(self):
         obligation = DocumentObligation(

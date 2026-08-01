@@ -20,6 +20,12 @@ class DocumentObligation:
     completed_at: date | None = None
     enabled: bool = True
 
+    def __post_init__(self) -> None:
+        if not self.title.strip():
+            raise ValueError("document obligation title is required")
+        if self.warning_days < 0:
+            raise ValueError("document warning days cannot be negative")
+
 
 def assess_obligation(
     obligation: DocumentObligation, current_date: date
