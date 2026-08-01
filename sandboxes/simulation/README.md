@@ -45,3 +45,6 @@ reset state, then uses Play at 1× pace to verify the delayed owner flow:
 PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
   python3 sandboxes/simulation/tools/browser_smoke_test.py
 ```
+
+The smoke test also checks the renderer's active travelling-beam mesh through
+the shared runtime's development-only `window.__mrlObservatoryDebug` surface.

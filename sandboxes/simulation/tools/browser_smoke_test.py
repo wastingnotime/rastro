@@ -90,6 +90,10 @@ def main() -> None:
                 raise AssertionError("observatory graph metadata is empty")
             if not page.locator("#observatory-canvas").is_visible():
                 raise AssertionError("observatory canvas is not visible")
+            page.wait_for_function(
+                "window.__mrlObservatoryDebug && window.__mrlObservatoryDebug.activeBeamCount() > 0",
+                timeout=10000,
+            )
             browser.close()
     finally:
         server.terminate()
