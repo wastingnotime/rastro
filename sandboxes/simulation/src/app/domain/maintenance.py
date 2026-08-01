@@ -348,6 +348,8 @@ def project_warning_threshold_history(
     """Replay threshold changes while retaining the manufacturer's baseline."""
     projected = item
     for event in events:
+        if not isinstance(event, (WarningThresholdsCustomized, WarningThresholdsRestored)):
+            raise ValueError("unsupported threshold event")
         if event.maintenance_title != projected.title:
             raise ValueError("threshold event targets a different maintenance item")
         if (
@@ -421,6 +423,8 @@ def project_warning_threshold_histories(
     if len(positions) != len(items):
         raise ValueError("maintenance item titles must be unique")
     for event in events:
+        if not isinstance(event, (WarningThresholdsCustomized, WarningThresholdsRestored)):
+            raise ValueError("unsupported threshold event")
         if event.maintenance_title not in positions:
             raise ValueError("threshold event targets an unknown maintenance item")
         index = positions[event.maintenance_title]

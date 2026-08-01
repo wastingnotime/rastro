@@ -159,6 +159,8 @@ directly supplied event objects subject to the same rules.
 `project_warning_threshold_histories` applies the same replay to a complete
 maintenance plan, routing each event by title and leaving unrelated items
 unchanged. Duplicate item titles and events for unknown items are rejected.
+Unsupported event values are rejected with a domain error at the projection
+boundary rather than leaking an implementation-level attribute error.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

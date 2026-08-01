@@ -258,6 +258,13 @@ class MaintenanceStatusTests(unittest.TestCase):
                 [event],
             )
 
+    def test_threshold_event_history_rejects_unsupported_events(self):
+        item = MaintenanceItem("Engine oil", warning_km=500)
+        with self.assertRaises(ValueError):
+            project_warning_threshold_history(item, [object()])
+        with self.assertRaises(ValueError):
+            project_warning_threshold_histories([item], [object()])
+
     def test_threshold_event_history_rejects_undeclared_or_duplicate_changes(self):
         item = MaintenanceItem("Engine oil", warning_km=500)
         with self.assertRaises(ValueError):
