@@ -37,6 +37,8 @@ def snapshot_preferences(
 ) -> AttentionPreferenceSnapshot:
     if not owner_id.strip():
         raise ValueError("owner id is required")
+    if not preferences.scope_id.strip():
+        raise ValueError("motorcycle scope id is required")
     if revision < 0:
         raise ValueError("preference revision cannot be negative")
     if not device_id.strip():
