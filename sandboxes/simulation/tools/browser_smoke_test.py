@@ -94,6 +94,10 @@ def main() -> None:
                 "window.__mrlObservatoryDebug && window.__mrlObservatoryDebug.activeBeamNames().includes('CustomizeWarningThresholds')",
                 timeout=10000,
             )
+            page.wait_for_function(
+                "window.__mrlObservatoryDebug.activeBeamNames().includes('warning_thresholds_customized')",
+                timeout=10000,
+            )
             browser.close()
     finally:
         server.terminate()

@@ -115,6 +115,9 @@ The observatory graph also exposes every application use case as a first-class
 `use_case` node connected from the motorcycle owner, with query/command realm
 labels and purpose descriptions. Runtime observations are not the only way to
 discover the use-case surface.
+Threshold customization, restoration, service recording, and service voiding
+are also declared as domain-event nodes with use-case emission edges, allowing
+their runtime event beams to render as distinct graph paths.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant

@@ -888,6 +888,25 @@ def create_simulation() -> Scenario:
                 )
                 for definition in USE_CASE_CATALOG
             ],
+            ObservatoryNode(
+                "warning_thresholds_customized",
+                "Warning thresholds customized",
+                "event",
+                "domain",
+            ),
+            ObservatoryNode(
+                "warning_thresholds_restored",
+                "Warning thresholds restored",
+                "event",
+                "domain",
+            ),
+            ObservatoryNode("service_recorded", "Service recorded", "event", "domain"),
+            ObservatoryNode(
+                "service_record_voided",
+                "Service record voided",
+                "event",
+                "domain",
+            ),
         ],
         observatory_edges=[
             ObservatoryEdge("owner", "status", "checks"),
@@ -896,5 +915,17 @@ def create_simulation() -> Scenario:
                 ObservatoryEdge("owner", definition.use_case_id, "invokes")
                 for definition in USE_CASE_CATALOG
             ],
+            ObservatoryEdge(
+                "customize-warning-thresholds",
+                "warning_thresholds_customized",
+                "emits",
+            ),
+            ObservatoryEdge(
+                "restore-manufacturer-warning-thresholds",
+                "warning_thresholds_restored",
+                "emits",
+            ),
+            ObservatoryEdge("record-service", "service_recorded", "emits"),
+            ObservatoryEdge("correct-service-record", "service_record_voided", "emits"),
         ],
     )
