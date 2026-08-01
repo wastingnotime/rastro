@@ -425,6 +425,7 @@ class MaintenanceStatusTests(unittest.TestCase):
             [DocumentObligation("Licensing renewal", date(2026, 8, 24), warning_days=30)],
         )
         payload = owner_status_payload(view, odometer_stale_after_days=45)
+        self.assertEqual(payload["schema_version"], 1)
         self.assertEqual(payload["motorcycle_id"], "moto-1")
         self.assertEqual(payload["current_odometer_km"], 18420)
         self.assertEqual(payload["odometer_recorded_at"], "2026-07-30")
