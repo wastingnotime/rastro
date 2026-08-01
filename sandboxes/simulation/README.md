@@ -33,3 +33,11 @@ PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
 The validator also confirms that forbidden API responses do not expose
 attention data and that every ownership profile is evaluated at 7, 14, and 30
 day reminder cadences.
+
+Run the browser smoke test with Chromium and Playwright. It checks the paused
+reset state, then uses Play at 1× pace to verify the delayed owner flow:
+
+```bash
+PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
+  python3 sandboxes/simulation/tools/browser_smoke_test.py
+```
