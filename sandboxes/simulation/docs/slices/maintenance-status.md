@@ -164,9 +164,9 @@ Unsupported event values are rejected with a domain error at the projection
 boundary rather than leaking an implementation-level attribute error.
 
 `CustomizeWarningThresholds` is the application command boundary for owner
-threshold changes. It returns the updated item together with the
-`WarningThresholdsCustomized` event so adapters do not need to call the domain
-function directly.
+threshold changes. `RestoreManufacturerWarningThresholds` is the matching
+command for returning to canonical values. Both return the updated item with
+their audit event so adapters do not need to call domain functions directly.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
@@ -261,7 +261,7 @@ projection explicitly.
 - owner status API versions success and error envelopes consistently;
 - odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
-- named application use cases cover two owner-facing queries and five
+- named application use cases cover two owner-facing queries and six
   owner-facing write interactions;
 - runtime observations expose each named use-case execution and outcome;
 

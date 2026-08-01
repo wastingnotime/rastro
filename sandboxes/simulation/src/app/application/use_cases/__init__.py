@@ -7,6 +7,9 @@ from app.application.use_cases.correct_service_record import CorrectServiceRecor
 from app.application.use_cases.customize_warning_thresholds import CustomizeWarningThresholds
 from app.application.use_cases.record_odometer_reading import RecordOdometerReading
 from app.application.use_cases.record_service import RecordService
+from app.application.use_cases.restore_manufacturer_warning_thresholds import (
+    RestoreManufacturerWarningThresholds,
+)
 from app.application.use_cases.sync_attention_preferences import SyncAttentionPreferences
 from app.application.use_cases.view_owner_status import ViewOwnerStatus
 from app.application.use_cases.view_service_history import ViewServiceHistory
@@ -59,6 +62,12 @@ USE_CASE_CATALOG = (
         "Customize maintenance warning thresholds while retaining an audit event.",
     ),
     UseCaseDefinition(
+        "restore-manufacturer-warning-thresholds",
+        "RestoreManufacturerWarningThresholds",
+        UseCaseKind.COMMAND,
+        "Restore canonical warning thresholds while retaining an audit event.",
+    ),
+    UseCaseDefinition(
         "correct-service-record",
         "CorrectServiceRecord",
         UseCaseKind.COMMAND,
@@ -104,6 +113,7 @@ __all__ = [
     "CustomizeWarningThresholds",
     "RecordOdometerReading",
     "RecordService",
+    "RestoreManufacturerWarningThresholds",
     "SyncAttentionPreferences",
     "ViewOwnerStatus",
     "ViewServiceHistory",

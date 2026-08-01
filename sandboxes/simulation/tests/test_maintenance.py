@@ -64,6 +64,7 @@ from app.application.use_cases import (
     CustomizeWarningThresholds,
     RecordOdometerReading,
     RecordService,
+    RestoreManufacturerWarningThresholds,
     SyncAttentionPreferences,
     ViewOwnerStatus,
     ViewServiceHistory,
@@ -305,6 +306,7 @@ class MaintenanceStatusTests(unittest.TestCase):
             {
                 "RecordService",
                 "CustomizeWarningThresholds",
+                "RestoreManufacturerWarningThresholds",
                 "CorrectServiceRecord",
                 "SyncAttentionPreferences",
                 "RecordOdometerReading",
@@ -420,6 +422,17 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(event.changed_dimensions, ("mileage",))
         with self.assertRaises(ValueError):
             CustomizeWarningThresholds().execute(item)
+
+    def test_named_restore_threshold_use_case_returns_updated_item_and_event(self):
+        customized = customize_warning_thresholds(
+            MaintenanceItem("Engine oil", warning_km=500),
+            warning_km=1000,
+        )
+        restored, event = RestoreManufacturerWarningThresholds().execute(customized)
+        self.assertEqual(restored.warning_km, 500)
+        self.assertEqual(restored.warning_source, ThresholdSource.MANUFACTURER)
+        self.assertEqual(event.maintenance_title, "Engine oil")
+        self.assertEqual(event.changed_dimensions, ("mileage",))
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(
