@@ -129,6 +129,7 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertIsInstance(event, WarningThresholdsCustomized)
         self.assertEqual(event.maintenance_title, "Engine oil")
         self.assertEqual((event.previous_warning_km, event.warning_km), (500, 1000))
+        self.assertEqual(event.changed_dimensions, ("mileage",))
         self.assertEqual(updated.warning_km, event.warning_km)
         self.assertEqual(event.previous_warning_days, event.warning_days)
 
@@ -162,6 +163,7 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertIsInstance(event, WarningThresholdsRestored)
         self.assertEqual((event.previous_warning_km, event.manufacturer_warning_km), (1000, 500))
+        self.assertEqual(event.changed_dimensions, ("mileage",))
         self.assertEqual(restored.warning_source, ThresholdSource.MANUFACTURER)
 
     def test_named_owner_status_use_case_returns_attention(self):

@@ -133,7 +133,8 @@ an owner preference is applied.
 `restore_manufacturer_warning_thresholds` provides the reverse transition when
 the canonical manufacturer values are known, resetting both warning
 provenance dimensions to `manufacturer`. `WarningThresholdsRestored` records
-that reset as an audit event.
+that reset as an audit event. Both audit events expose the dimensions that
+actually changed (`mileage`, `date`, or both).
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

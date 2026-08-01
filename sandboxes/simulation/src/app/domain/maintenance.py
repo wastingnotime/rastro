@@ -91,6 +91,7 @@ class WarningThresholdsCustomized:
     previous_warning_days: int
     warning_km: int
     warning_days: int
+    changed_dimensions: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -100,6 +101,7 @@ class WarningThresholdsRestored:
     previous_warning_days: int
     manufacturer_warning_km: int
     manufacturer_warning_days: int
+    changed_dimensions: tuple[str, ...] = ()
 
 
 def customize_warning_thresholds(
@@ -140,12 +142,29 @@ def customize_warning_thresholds_with_event(
         warning_km=warning_km,
         warning_days=warning_days,
     )
+    changed_dimensions = tuple(
+        dimension
+        for dimension, changed in (
+            (
+                "mileage",
+                updated.warning_km != item.warning_km
+                or updated.warning_km_source != item.warning_km_source,
+            ),
+            (
+                "date",
+                updated.warning_days != item.warning_days
+                or updated.warning_days_source != item.warning_days_source,
+            ),
+        )
+        if changed
+    )
     event = WarningThresholdsCustomized(
         maintenance_title=item.title,
         previous_warning_km=item.warning_km,
         previous_warning_days=item.warning_days,
         warning_km=updated.warning_km,
         warning_days=updated.warning_days,
+        changed_dimensions=changed_dimensions,
     )
     return updated, event
 
@@ -182,12 +201,29 @@ def restore_manufacturer_warning_thresholds_with_event(
         warning_km=warning_km,
         warning_days=warning_days,
     )
+    changed_dimensions = tuple(
+        dimension
+        for dimension, changed in (
+            (
+                "mileage",
+                updated.warning_km != item.warning_km
+                or updated.warning_km_source != item.warning_km_source,
+            ),
+            (
+                "date",
+                updated.warning_days != item.warning_days
+                or updated.warning_days_source != item.warning_days_source,
+            ),
+        )
+        if changed
+    )
     event = WarningThresholdsRestored(
         maintenance_title=item.title,
         previous_warning_km=item.warning_km,
         previous_warning_days=item.warning_days,
         manufacturer_warning_km=updated.warning_km,
         manufacturer_warning_days=updated.warning_days,
+        changed_dimensions=changed_dimensions,
     )
     return updated, event
 
