@@ -458,6 +458,7 @@ class MaintenanceStatusTests(unittest.TestCase):
             obligations=[],
         )
         self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.body["schema_version"], 1)
         self.assertEqual(response.body["code"], "motorcycle_status_forbidden")
         self.assertNotIn("attention", response.body)
 
