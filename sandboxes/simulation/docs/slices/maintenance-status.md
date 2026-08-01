@@ -109,6 +109,8 @@ creation.
 `OwnerStatusView` is the first owner-facing query contract. It combines
 maintenance and document assessments, retains their source labels, preserves
 odometer metadata, and returns the highest-urgency action titles.
+Callers can configure the odometer freshness threshold; the default remains 90
+days.
 
 ## Done criteria
 
@@ -139,6 +141,7 @@ odometer metadata, and returns the highest-urgency action titles.
 - account storage isolates owner and motorcycle preference scopes;
 - blank motorcycle scopes cannot enter sync or storage;
 - owner status combines maintenance and document attention deterministically;
+- owner status exposes configurable odometer freshness;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

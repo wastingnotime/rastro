@@ -49,6 +49,8 @@
   the storage boundary.
 - The owner status query now combines maintenance and document attention into a
   framework-neutral read contract with deterministic next actions.
+- The query exposes the odometer freshness threshold, keeping confidence policy
+  explicit for future adapters.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 

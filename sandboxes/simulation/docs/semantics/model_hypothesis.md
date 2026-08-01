@@ -82,6 +82,8 @@ next action.
     can enter synchronization or storage.
 21. The owner status view should combine mechanical and document attention while
     preserving each source and deterministic next-action ordering.
+22. The owner status query must expose odometer freshness policy rather than
+    silently hardcoding confidence behavior.
 
 ## Open questions
 
