@@ -93,6 +93,15 @@ class WarningThresholdsCustomized:
     warning_days: int
 
 
+@dataclass(frozen=True)
+class WarningThresholdsRestored:
+    maintenance_title: str
+    previous_warning_km: int
+    previous_warning_days: int
+    manufacturer_warning_km: int
+    manufacturer_warning_days: int
+
+
 def customize_warning_thresholds(
     item: MaintenanceItem,
     *,
@@ -159,6 +168,28 @@ def restore_manufacturer_warning_thresholds(
         warning_km_source=ThresholdSource.MANUFACTURER,
         warning_days_source=ThresholdSource.MANUFACTURER,
     )
+
+
+def restore_manufacturer_warning_thresholds_with_event(
+    item: MaintenanceItem,
+    *,
+    warning_km: int,
+    warning_days: int,
+) -> tuple[MaintenanceItem, WarningThresholdsRestored]:
+    """Restore manufacturer values and preserve the reset audit event."""
+    updated = restore_manufacturer_warning_thresholds(
+        item,
+        warning_km=warning_km,
+        warning_days=warning_days,
+    )
+    event = WarningThresholdsRestored(
+        maintenance_title=item.title,
+        previous_warning_km=item.warning_km,
+        previous_warning_days=item.warning_days,
+        manufacturer_warning_km=updated.warning_km,
+        manufacturer_warning_days=updated.warning_days,
+    )
+    return updated, event
 
 
 def complete_service(
