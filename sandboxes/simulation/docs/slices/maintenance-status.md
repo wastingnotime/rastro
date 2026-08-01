@@ -143,7 +143,8 @@ persists the manufacturer baseline on the item, allowing restoration without
 repeating canonical values; explicit values remain supported for imported
 plans. Manufacturer-sourced items initialize that baseline at construction;
 owner-sourced imported policies may remain without a canonical baseline until
-one is supplied.
+one is supplied. A manufacturer-sourced effective value must always match its
+persisted baseline.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

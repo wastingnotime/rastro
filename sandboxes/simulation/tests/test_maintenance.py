@@ -130,6 +130,18 @@ class MaintenanceStatusTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MaintenanceItem("Engine oil", manufacturer_warning_km=-1)
         with self.assertRaises(ValueError):
+            MaintenanceItem(
+                "Engine oil",
+                warning_km=500,
+                manufacturer_warning_km=1000,
+            )
+        with self.assertRaises(ValueError):
+            MaintenanceItem(
+                "Engine oil",
+                warning_days=7,
+                manufacturer_warning_days=30,
+            )
+        with self.assertRaises(ValueError):
             MaintenanceItem("")
 
     def test_warning_override_event_preserves_before_and_after_thresholds(self):

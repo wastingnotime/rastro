@@ -64,6 +64,16 @@ class MaintenanceItem:
             and self.warning_days_source == ThresholdSource.MANUFACTURER
         ):
             object.__setattr__(self, "manufacturer_warning_days", self.warning_days)
+        if (
+            self.warning_km_source == ThresholdSource.MANUFACTURER
+            and self.manufacturer_warning_km != self.warning_km
+        ):
+            raise ValueError("manufacturer mileage warning must match its baseline")
+        if (
+            self.warning_days_source == ThresholdSource.MANUFACTURER
+            and self.manufacturer_warning_days != self.warning_days
+        ):
+            raise ValueError("manufacturer date warning must match its baseline")
 
     @property
     def warning_source(self) -> ThresholdSource:
