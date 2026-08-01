@@ -106,6 +106,10 @@ contract: snapshots are isolated by `(owner_id, motorcycle_id)` and retain the
 revision winner across writes. Blank motorcycle scopes are rejected at snapshot
 creation.
 
+`OwnerStatusView` is the first owner-facing query contract. It combines
+maintenance and document assessments, retains their source labels, preserves
+odometer metadata, and returns the highest-urgency action titles.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -134,6 +138,7 @@ creation.
 - only the authenticated owner can write preference snapshots;
 - account storage isolates owner and motorcycle preference scopes;
 - blank motorcycle scopes cannot enter sync or storage;
+- owner status combines maintenance and document attention deterministically;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

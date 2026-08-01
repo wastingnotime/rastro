@@ -47,6 +47,8 @@
   isolation and revision-aware persistence.
 - Snapshot creation now rejects blank motorcycle scopes before they can enter
   the storage boundary.
+- The owner status query now combines maintenance and document attention into a
+  framework-neutral read contract with deterministic next actions.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
@@ -68,3 +70,4 @@ does not reset unrelated maintenance items.
 - Choose the production storage implementation during technology-project
   synchronization while preserving this owner-scoped contract.
 - Carry the owner-authorized sync contract into the eventual API/web adapter.
+- Carry the owner status query contract into the eventual API/web adapter.

@@ -28,6 +28,8 @@ next action.
   boundary and framework-neutral synchronization result.
 - `AttentionPreferenceStore`: storage port with an owner-scoped in-memory fake
   for deterministic simulation.
+- `OwnerStatusView`: framework-neutral read contract combining odometer
+  metadata, maintenance attention, document attention, and next actions.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -78,6 +80,8 @@ next action.
     revision conflict behavior.
 20. Preference snapshots must contain a non-empty motorcycle scope before they
     can enter synchronization or storage.
+21. The owner status view should combine mechanical and document attention while
+    preserving each source and deterministic next-action ordering.
 
 ## Open questions
 
