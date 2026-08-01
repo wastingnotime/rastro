@@ -39,6 +39,7 @@ from app.application.attention_sync import (
 )
 from app.application.owner_dashboard import build_owner_status
 from app.application.owner_status_payload import owner_status_payload
+from app.application.owner_status_api import get_owner_status_response
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -232,6 +233,21 @@ def _start_owner(context: object) -> None:
         source="owner-status-adapter",
         actor="owner",
         payload=owner_status_payload(dashboard),
+    )
+    api_response = get_owner_status_response(
+        actor_id="owner-1",
+        owner_id="owner-1",
+        motorcycle_id="moto-1",
+        motorcycle=motorcycle,
+        maintenance_items=items,
+        obligations=obligations,
+    )
+    context.emit(
+        "owner_status_api_response",
+        "/api/v1/motorcycles/{motorcycle_id}/maintenance-status",
+        source="owner-status-api",
+        actor="owner-1",
+        payload={"status_code": api_response.status_code, "schema_version": api_response.body["schema_version"]},
     )
     reminder_tracker = ReminderTracker(ReminderPolicy(repeat_every_days=14))
     first_reminders = reminder_tracker.evaluate(date(2026, 7, 31), owner_actions)
