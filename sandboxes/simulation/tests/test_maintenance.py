@@ -21,6 +21,7 @@ from app.domain.obligations import (
     next_obligation_actions,
     next_owner_actions,
 )
+from app.domain.odometer import OdometerHistory, current_odometer_reading, record_odometer_reading
 from app.application.service_history import (
     CorrectionCommand,
     ServiceCorrectionAlreadyVoided,
@@ -461,6 +462,49 @@ class MaintenanceStatusTests(unittest.TestCase):
         self.assertEqual(response.body["schema_version"], 1)
         self.assertEqual(response.body["code"], "motorcycle_status_forbidden")
         self.assertNotIn("attention", response.body)
+
+    def test_odometer_history_accepts_monotonic_readings(self):
+        history, first = record_odometer_reading(
+            OdometerHistory(), "reading-1", 18000, date(2026, 7, 1)
+        )
+        history, second = record_odometer_reading(
+            history, "reading-2", 18420, date(2026, 7, 31)
+        )
+        self.assertEqual(first.value_km, 18000)
+        self.assertEqual(current_odometer_reading(history), second)
+
+    def test_odometer_history_rejects_normal_decrease(self):
+        history, _ = record_odometer_reading(
+            OdometerHistory(), "reading-1", 18000, date(2026, 7, 1)
+        )
+        with self.assertRaises(ValueError):
+            record_odometer_reading(history, "reading-2", 17900, date(2026, 7, 31))
+
+    def test_odometer_correction_preserves_history_and_changes_projection(self):
+        history, original = record_odometer_reading(
+            OdometerHistory(), "reading-1", 18000, date(2026, 7, 1)
+        )
+        history, correction = record_odometer_reading(
+            history,
+            "correction-1",
+            17500,
+            date(2026, 7, 2),
+            correction_of=original.reading_id,
+            note="Dashboard typo",
+        )
+        self.assertEqual(len(history.readings), 2)
+        self.assertEqual(current_odometer_reading(history), correction)
+        self.assertEqual(correction.correction_of, "reading-1")
+
+    def test_odometer_correction_requires_existing_uncorrected_reading(self):
+        with self.assertRaises(ValueError):
+            record_odometer_reading(
+                OdometerHistory(),
+                "correction-1",
+                17500,
+                date(2026, 7, 2),
+                correction_of="missing",
+            )
 
     def test_next_action_keeps_first_grouped_action_compatibility(self):
         items = [
