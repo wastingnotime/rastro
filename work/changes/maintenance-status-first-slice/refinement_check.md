@@ -53,6 +53,8 @@
   explicit for future adapters.
 - The JSON-ready owner status payload preserves source labels, null metadata,
   remaining values, and next actions for REST/web consumers.
+- The owner status payload now declares schema version 1 for future compatible
+  adapter evolution.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 

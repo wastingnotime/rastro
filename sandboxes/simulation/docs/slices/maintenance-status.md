@@ -114,6 +114,8 @@ days.
 
 `owner_status_payload` serializes this query into a snake_case JSON-ready
 contract, preserving null odometer dates and per-item source/status fields.
+The payload currently declares `schema_version: 1`; material changes must
+increment that version.
 
 ## Done criteria
 
@@ -146,6 +148,7 @@ contract, preserving null odometer dates and per-item source/status fields.
 - owner status combines maintenance and document attention deterministically;
 - owner status exposes configurable odometer freshness;
 - owner status payload preserves uncertainty and source labels;
+- owner status payload declares an explicit schema version;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

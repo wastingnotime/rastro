@@ -31,7 +31,7 @@ next action.
 - `OwnerStatusView`: framework-neutral read contract combining odometer
   metadata, maintenance attention, document attention, and next actions.
 - `owner_status_payload`: snake_case JSON adapter contract for REST/web
-  consumers of `OwnerStatusView`.
+  consumers of `OwnerStatusView`, currently schema version 1.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -88,6 +88,7 @@ next action.
     silently hardcoding confidence behavior.
 23. The owner status payload must preserve unknown/null values and source labels
     rather than flattening uncertainty into a healthy state.
+24. Material payload changes require an explicit schema-version increment.
 
 ## Open questions
 
