@@ -457,6 +457,22 @@ def _start_owner(context: object) -> None:
             "record_count": len(history_api_response.body["records"]),
         },
     )
+    forbidden_history_api_response = get_service_history_response(
+        actor_id="mechanic-1",
+        state=corrected_history,
+    )
+    context.emit(
+        "service_history_api_response",
+        "/api/v1/motorcycles/{motorcycle_id}/service-history",
+        source="service-history-api",
+        actor="mechanic-1",
+        payload={
+            "status_code": forbidden_history_api_response.status_code,
+            "schema_version": forbidden_history_api_response.body["schema_version"],
+            "code": forbidden_history_api_response.body["code"],
+            "records_exposed": "records" in forbidden_history_api_response.body,
+        },
+    )
     history = ServiceHistoryState("moto-1", "owner-1", records=(service_event,))
     visible_history = ViewServiceHistory().execute(history, actor_id="owner-1")
     _emit_use_case(

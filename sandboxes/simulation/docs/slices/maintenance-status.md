@@ -101,7 +101,8 @@ present in state.
 The owner service-history API is exposed at
 `/api/v1/motorcycles/{motorcycle_id}/service-history`; it returns the active
 history with the shared schema version and rejects non-owner requests without
-record data.
+record data. The runtime scenario emits both the successful owner response and
+the forbidden non-owner response.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant
