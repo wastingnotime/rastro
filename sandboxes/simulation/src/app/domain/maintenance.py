@@ -44,6 +44,7 @@ class MaintenanceAssessment:
     status: MaintenanceStatus
     remaining_km: int | None = None
     remaining_days: int | None = None
+    warning_source: ThresholdSource = ThresholdSource.MANUFACTURER
 
 
 @dataclass(frozen=True)
@@ -185,18 +186,24 @@ def assess(
     odometer_stale_after_days: int = 90,
 ) -> MaintenanceAssessment:
     if not item.enabled:
-        return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+        return MaintenanceAssessment(
+            item.title, MaintenanceStatus.UNKNOWN, warning_source=item.warning_source
+        )
 
     mileage_remaining = None
     if item.interval_km is not None:
         if motorcycle.odometer_km is None or item.last_service_odometer_km is None:
-            return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+            return MaintenanceAssessment(
+                item.title, MaintenanceStatus.UNKNOWN, warning_source=item.warning_source
+            )
         if motorcycle.odometer_recorded_at is not None:
             odometer_age = (
                 motorcycle.current_date - motorcycle.odometer_recorded_at
             ).days
             if odometer_age > odometer_stale_after_days:
-                return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+                return MaintenanceAssessment(
+                    item.title, MaintenanceStatus.UNKNOWN, warning_source=item.warning_source
+                )
         mileage_remaining = (
             item.last_service_odometer_km + item.interval_km - motorcycle.odometer_km
         )
@@ -204,14 +211,18 @@ def assess(
     days_remaining = None
     if item.interval_days is not None:
         if item.last_service_date is None:
-            return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+            return MaintenanceAssessment(
+                item.title, MaintenanceStatus.UNKNOWN, warning_source=item.warning_source
+            )
         due_date = item.last_service_date.fromordinal(
             item.last_service_date.toordinal() + item.interval_days
         )
         days_remaining = (due_date - motorcycle.current_date).days
 
     if mileage_remaining is None and days_remaining is None:
-        return MaintenanceAssessment(item.title, MaintenanceStatus.UNKNOWN)
+        return MaintenanceAssessment(
+            item.title, MaintenanceStatus.UNKNOWN, warning_source=item.warning_source
+        )
 
     remaining_dimensions = [x for x in (mileage_remaining, days_remaining) if x is not None]
     if any(x < 0 for x in remaining_dimensions):
@@ -225,7 +236,13 @@ def assess(
     else:
         status = MaintenanceStatus.OK
 
-    return MaintenanceAssessment(item.title, status, mileage_remaining, days_remaining)
+    return MaintenanceAssessment(
+        item.title,
+        status,
+        mileage_remaining,
+        days_remaining,
+        item.warning_source,
+    )
 
 
 _URGENCY = {

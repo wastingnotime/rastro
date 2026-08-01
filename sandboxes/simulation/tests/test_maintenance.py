@@ -96,6 +96,10 @@ class MaintenanceStatusTests(unittest.TestCase):
             assess(owner_item, motorcycle).status,
             MaintenanceStatus.APPROACHING_DUE,
         )
+        self.assertEqual(
+            assess(owner_item, motorcycle).warning_source,
+            ThresholdSource.OWNER,
+        )
 
     def test_warning_override_rejects_missing_or_negative_values(self):
         item = MaintenanceItem("Engine oil", interval_km=4000)
