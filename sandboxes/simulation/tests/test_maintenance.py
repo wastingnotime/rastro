@@ -6,6 +6,7 @@ from app.domain.maintenance import (
     MaintenanceItem,
     MaintenanceStatus,
     MotorcycleState,
+    ServiceRecorded,
     assess,
     complete_service,
     grouped_actions,
@@ -46,6 +47,12 @@ from app.application.attention_sync import (
     preferences_from_snapshot,
     snapshot_preferences,
 )
+from app.application.use_cases import (
+    CorrectServiceRecord,
+    RecordOdometerReading,
+    SyncAttentionPreferences,
+    ViewOwnerStatus,
+)
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -58,6 +65,62 @@ from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
 class MaintenanceStatusTests(unittest.TestCase):
+    def test_named_owner_status_use_case_returns_attention(self):
+        view = ViewOwnerStatus().execute(
+            motorcycle_id="moto-1",
+            motorcycle=MotorcycleState(date(2026, 7, 31), 18500),
+            maintenance_items=[
+                MaintenanceItem(
+                    interval_km=4000,
+                    warning_km=500,
+                    last_service_odometer_km=15000,
+                    title="Engine oil",
+                )
+            ],
+            obligations=[],
+        )
+        self.assertEqual(view.next_action_titles, ("Engine oil",))
+
+    def test_named_service_correction_use_case_preserves_response_boundary(self):
+        state = ServiceHistoryState(
+            "moto-1",
+            "owner-1",
+            records=(ServiceRecorded(date(2026, 7, 1), 18000, ("oil",), service_id="service-1"),),
+        )
+        updated, response = CorrectServiceRecord().execute(
+            state,
+            actor_id="owner-1",
+            service_id="service-1",
+            reason="entered wrong mileage",
+        )
+        self.assertTrue(response.accepted)
+        self.assertEqual(updated.voided_records[0].service_id, "service-1")
+
+    def test_named_preference_sync_use_case_delegates_owner_scope(self):
+        incoming = snapshot_preferences(
+            AttentionViewPreferences("moto-1", frozenset({"overdue"})),
+            owner_id="owner-1",
+            revision=1,
+            device_id="phone",
+        )
+        state, response = SyncAttentionPreferences().execute(
+            AttentionSyncState("owner-1"),
+            actor_id="owner-1",
+            incoming=incoming,
+        )
+        self.assertTrue(response.accepted)
+        self.assertEqual(state.snapshots, (incoming,))
+
+    def test_named_odometer_use_case_appends_reading(self):
+        history, reading = RecordOdometerReading().execute(
+            OdometerHistory(),
+            reading_id="reading-1",
+            odometer_km=18000,
+            recorded_at=date(2026, 7, 31),
+        )
+        self.assertEqual(reading.value_km, 18000)
+        self.assertEqual(history.readings, (reading,))
+
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(
             MaintenanceItem(interval_km=4000, warning_km=500, last_service_odometer_km=15000, title="oil"),

@@ -10,6 +10,11 @@ Runtime.
 Given a current motorcycle odometer/date and an item's last service baseline,
 calculate status and emit the most urgent next maintenance action.
 
+The application surface now names the user-facing interactions explicitly:
+`ViewOwnerStatus`, `CorrectServiceRecord`, `SyncAttentionPreferences`, and
+`RecordOdometerReading`. These use cases translate commands and queries into
+the existing domain functions while keeping adapters framework-neutral.
+
 ## Rules
 
 - mileage and date intervals are optional independently;
@@ -161,6 +166,8 @@ projection explicitly.
 - owner status API versions success and error envelopes consistently;
 - odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
+- named application use cases cover the owner status query and the three
+  owner-facing write interactions;
 
 ## Out of scope
 

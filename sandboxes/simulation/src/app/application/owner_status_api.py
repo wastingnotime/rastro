@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from app.application.owner_dashboard import build_owner_status
 from app.application.owner_status_payload import OWNER_STATUS_SCHEMA_VERSION, owner_status_payload
+from app.application.use_cases.view_owner_status import ViewOwnerStatus
 from app.domain.maintenance import MaintenanceItem, MotorcycleState
 from app.domain.obligations import DocumentObligation
 
@@ -38,11 +38,11 @@ def get_owner_status_response(
                 "message": "Only the motorcycle owner can view maintenance status.",
             },
         )
-    view = build_owner_status(
-        motorcycle_id,
-        motorcycle,
-        maintenance_items,
-        obligations,
+    view = ViewOwnerStatus().execute(
+        motorcycle_id=motorcycle_id,
+        motorcycle=motorcycle,
+        maintenance_items=maintenance_items,
+        obligations=obligations,
         odometer_stale_after_days=odometer_stale_after_days,
     )
     return ApiResponse(200, owner_status_payload(view, odometer_stale_after_days=odometer_stale_after_days))
