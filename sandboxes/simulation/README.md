@@ -29,3 +29,7 @@ status/API access, reminder cadence, and ownership profiles with:
 PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
   python3 sandboxes/simulation/tools/validate_runtime_observations.py
 ```
+
+The validator also confirms that forbidden API responses do not expose
+attention data and that every ownership profile is evaluated at 7, 14, and 30
+day reminder cadences.

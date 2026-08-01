@@ -64,9 +64,17 @@ def main() -> None:
         for observation in observations
         if observation["type"] == "owner_status_api_response"
     ]
-    if not any(response["payload"].get("status_code") == 200 for response in owner_status_responses):
+    if not any(
+        response["payload"].get("status_code") == 200
+        and response["payload"].get("schema_version") == 1
+        for response in owner_status_responses
+    ):
         raise AssertionError("missing successful owner-status API response")
-    if not any(response["payload"].get("status_code") == 403 for response in owner_status_responses):
+    if not any(
+        response["payload"].get("status_code") == 403
+        and response["payload"].get("attention_exposed") is False
+        for response in owner_status_responses
+    ):
         raise AssertionError("missing forbidden owner-status API response")
 
     reminder_evaluations = [
@@ -89,6 +97,18 @@ def main() -> None:
         raise AssertionError("ownership profile evidence is incomplete")
     if profiles["long_unused"]["payload"]["unknown_days"] != 274:
         raise AssertionError("long-unused freshness evidence is unexpected")
+    reminder_profiles = {
+        observation["name"]
+        for observation in observations
+        if observation["type"] == "reminder_profile_evidence"
+    }
+    expected_reminder_profiles = {
+        f"{profile}_{cadence}d"
+        for profile in profiles
+        for cadence in (7, 14, 30)
+    }
+    if reminder_profiles != expected_reminder_profiles:
+        raise AssertionError("reminder profile evidence is incomplete")
     print(
         "validated runtime evidence: "
         f"{len(observations)} observations, "
