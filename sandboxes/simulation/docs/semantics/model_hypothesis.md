@@ -32,6 +32,8 @@ next action.
   metadata, maintenance attention, document attention, and next actions.
 - `owner_status_payload`: snake_case JSON adapter contract for REST/web
   consumers of `OwnerStatusView`, currently schema version 1.
+- `OWNER_STATUS_ROUTE` / `ApiResponse`: versioned private REST adapter
+  contract with owner authorization.
 - `DocumentObligation`: a date-based licensing, insurance, inspection, or
   warranty obligation with completion state.
 - `ReminderTracker`: stateful policy that suppresses same-status repeats,
@@ -89,6 +91,8 @@ next action.
 23. The owner status payload must preserve unknown/null values and source labels
     rather than flattening uncertainty into a healthy state.
 24. Material payload changes require an explicit schema-version increment.
+25. Non-owner status requests must return a safe 403 response without
+    motorcycle data.
 
 ## Open questions
 

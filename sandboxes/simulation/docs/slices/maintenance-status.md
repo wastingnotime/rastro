@@ -117,6 +117,10 @@ contract, preserving null odometer dates and per-item source/status fields.
 The payload currently declares `schema_version: 1`; material changes must
 increment that version.
 
+The API adapter contract is `/api/v1/motorcycles/{motorcycle_id}/maintenance-status`.
+Owner requests return the versioned payload; non-owner requests return 403
+without status data.
+
 ## Done criteria
 
 - mileage-only, date-only, combined, missing-data, disabled, and overdue cases
@@ -149,6 +153,7 @@ increment that version.
 - owner status exposes configurable odometer freshness;
 - owner status payload preserves uncertainty and source labels;
 - owner status payload declares an explicit schema version;
+- owner status API enforces private-by-default access;
 - invariant confirms unknown data never becomes healthy.
 
 ## Out of scope

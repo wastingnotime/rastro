@@ -55,6 +55,8 @@
   remaining values, and next actions for REST/web consumers.
 - The owner status payload now declares schema version 1 for future compatible
   adapter evolution.
+- The versioned owner status API contract now enforces private-by-default
+  access and returns a safe 403 response for non-owners.
 - One-year cadence comparison shows 14 days as a practical exploratory
   midpoint: commuter 19 reminders and weekend rider 17 reminders.
 
