@@ -6,7 +6,8 @@ Date: 2026-08-01
 
 The runtime adapter now emits a `use_case_executed` observation whenever a
 named application use case runs. The observation includes the use-case name,
-actor, and outcome payload.
+actor, and outcome payload. This build adds `RecordService` to the explicit
+application boundary.
 
 ## Validation
 
@@ -15,9 +16,10 @@ PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
 python3 sandboxes/simulation/tools/run_maintenance_status.py \
 | rg 'use_case_executed'
 
-4 observations returned:
+5 observations returned:
 SyncAttentionPreferences
 ViewOwnerStatus
+RecordService
 CorrectServiceRecord
 RecordOdometerReading
 ```

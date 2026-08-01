@@ -50,6 +50,7 @@ from app.application.attention_sync import (
 from app.application.use_cases import (
     CorrectServiceRecord,
     RecordOdometerReading,
+    RecordService,
     SyncAttentionPreferences,
     ViewOwnerStatus,
 )
@@ -120,6 +121,22 @@ class MaintenanceStatusTests(unittest.TestCase):
         )
         self.assertEqual(reading.value_km, 18000)
         self.assertEqual(history.readings, (reading,))
+
+    def test_named_service_use_case_records_selected_items(self):
+        items = [
+            MaintenanceItem("Engine oil", interval_km=4000, last_service_odometer_km=14000),
+            MaintenanceItem("Chain inspection", interval_km=3000, last_service_odometer_km=15900),
+        ]
+        updated, event = RecordService().execute(
+            items,
+            completed_titles=["Chain inspection"],
+            serviced_at=date(2026, 7, 31),
+            odometer_km=18420,
+            service_id="service-1",
+        )
+        self.assertEqual(event.service_id, "service-1")
+        self.assertEqual(updated[0].last_service_odometer_km, 14000)
+        self.assertEqual(updated[1].last_service_odometer_km, 18420)
 
     def test_mileage_only_is_ok_outside_warning_window(self):
         result = assess(

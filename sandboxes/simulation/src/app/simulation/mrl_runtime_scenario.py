@@ -40,6 +40,7 @@ from app.application.owner_status_api import get_owner_status_response
 from app.application.use_cases import (
     CorrectServiceRecord,
     RecordOdometerReading,
+    RecordService,
     SyncAttentionPreferences,
     ViewOwnerStatus,
 )
@@ -279,13 +280,21 @@ def _start_owner(context: object) -> None:
             "next_day_reminders": suppressed_reminders,
         },
     )
-    serviced_items, service_event = record_service(
+    service_recorder = RecordService()
+    serviced_items, service_event = service_recorder.execute(
         items,
-        ["Chain inspection"],
-        date(2026, 7, 31),
-        18420,
+        completed_titles=["Chain inspection"],
+        serviced_at=date(2026, 7, 31),
+        odometer_km=18420,
         provider_name="Local mechanic",
         notes="Chain adjusted",
+    )
+    context.emit(
+        "use_case_executed",
+        "RecordService",
+        source="application-use-case",
+        actor="owner",
+        payload={"service_id": service_event.service_id, "completed_items": list(service_event.completed_titles)},
     )
     context.emit(
         "domain_event",
@@ -307,11 +316,11 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"status": after_service.status.value, "remaining_km": after_service.remaining_km},
     )
-    _, corrected_record = record_service(
+    _, corrected_record = service_recorder.execute(
         items,
-        ["Chain inspection"],
-        date(2026, 8, 1),
-        99999,
+        completed_titles=["Chain inspection"],
+        serviced_at=date(2026, 8, 1),
+        odometer_km=99999,
         service_id="service-correction",
     )
     void_event = void_service_record("service-correction", "Incorrect odometer")
