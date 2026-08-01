@@ -9,6 +9,9 @@ named application use case runs. The observation includes the use-case name,
 actor, and outcome payload. This build adds `RecordService` to the explicit
 application boundary.
 
+The observation payload now uses one common `outcome` field (`accepted`,
+`rejected`, or `succeeded`) across all use cases.
+
 ## Validation
 
 ```text
@@ -24,4 +27,4 @@ CorrectServiceRecord
 RecordOdometerReading
 ```
 
-The unit suite remains green: 62 tests passed.
+The unit suite remains green: 63 tests passed.

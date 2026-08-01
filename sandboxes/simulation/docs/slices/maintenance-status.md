@@ -80,7 +80,8 @@ correction, keeping runtime observations representative of the application
 boundary.
 
 Each of those executions is also visible as a `use_case_executed` runtime
-observation with the use-case name and outcome code.
+observation with the use-case name and a consistent `payload.outcome` value;
+operation-specific details remain alongside it.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

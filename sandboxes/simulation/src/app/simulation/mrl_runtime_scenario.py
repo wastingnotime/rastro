@@ -55,6 +55,23 @@ from app.simulation.ownership_profiles import (
 from app.simulation.reminders import ReminderPolicy, ReminderTracker
 
 
+def _emit_use_case(
+    context: object,
+    name: str,
+    actor: str,
+    outcome: str,
+    **details: object,
+) -> None:
+    """Emit one stable observation shape for every application use case."""
+    context.emit(
+        "use_case_executed",
+        name,
+        source="application-use-case",
+        actor=actor,
+        payload={"outcome": outcome, **details},
+    )
+
+
 def _start_owner(context: object) -> None:
     context.emit(
         "domain_observation",
@@ -181,12 +198,13 @@ def _start_owner(context: object) -> None:
         actor_id="owner-1",
         incoming=remote_snapshot,
     )
-    context.emit(
-        "use_case_executed",
+    _emit_use_case(
+        context,
         "SyncAttentionPreferences",
-        source="application-use-case",
-        actor="owner-1",
-        payload={"accepted": sync_response.accepted, "code": sync_response.code},
+        "owner-1",
+        "accepted" if sync_response.accepted else "rejected",
+        accepted=sync_response.accepted,
+        code=sync_response.code,
     )
     context.emit(
         "attention_preference_sync_response",
@@ -224,12 +242,12 @@ def _start_owner(context: object) -> None:
         maintenance_items=items,
         obligations=obligations,
     )
-    context.emit(
-        "use_case_executed",
+    _emit_use_case(
+        context,
         "ViewOwnerStatus",
-        source="application-use-case",
-        actor="owner",
-        payload={"attention_count": len(dashboard.attention)},
+        "owner",
+        "succeeded",
+        attention_count=len(dashboard.attention),
     )
     context.emit(
         "owner_status_view",
@@ -289,12 +307,13 @@ def _start_owner(context: object) -> None:
         provider_name="Local mechanic",
         notes="Chain adjusted",
     )
-    context.emit(
-        "use_case_executed",
+    _emit_use_case(
+        context,
         "RecordService",
-        source="application-use-case",
-        actor="owner",
-        payload={"service_id": service_event.service_id, "completed_items": list(service_event.completed_titles)},
+        "owner",
+        "succeeded",
+        service_id=service_event.service_id,
+        completed_items=list(service_event.completed_titles),
     )
     context.emit(
         "domain_event",
@@ -364,12 +383,13 @@ def _start_owner(context: object) -> None:
         service_id=service_event.service_id,
         reason="Correction",
     )
-    context.emit(
-        "use_case_executed",
+    _emit_use_case(
+        context,
         "CorrectServiceRecord",
-        source="application-use-case",
-        actor="mechanic-1",
-        payload={"accepted": correction_response.accepted, "code": correction_response.code},
+        "mechanic-1",
+        "accepted" if correction_response.accepted else "rejected",
+        accepted=correction_response.accepted,
+        code=correction_response.code,
     )
     context.emit(
         "application_response",
@@ -528,12 +548,13 @@ def _odometer_correction_preserves_history(context: object) -> bool:
         recorded_at=date(2026, 7, 2),
         correction_of=original.reading_id,
     )
-    context.emit(
-        "use_case_executed",
+    _emit_use_case(
+        context,
         "RecordOdometerReading",
-        source="application-use-case",
-        actor="owner",
-        payload={"reading_count": len(history.readings), "corrected": True},
+        "owner",
+        "succeeded",
+        reading_count=len(history.readings),
+        corrected=True,
     )
     return len(history.readings) == 2 and current_odometer_reading(history) == correction
 
