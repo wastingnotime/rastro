@@ -54,6 +54,7 @@ from app.application.use_cases import (
     SyncAttentionPreferences,
     ViewOwnerStatus,
 )
+from app.application.use_cases import USE_CASE_KINDS, UseCaseKind
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -81,6 +82,18 @@ class MaintenanceStatusTests(unittest.TestCase):
             obligations=[],
         )
         self.assertEqual(view.next_action_titles, ("Engine oil",))
+
+    def test_use_case_catalog_classifies_query_and_commands(self):
+        self.assertEqual(USE_CASE_KINDS["ViewOwnerStatus"], UseCaseKind.QUERY)
+        self.assertEqual(
+            {name for name, kind in USE_CASE_KINDS.items() if kind == UseCaseKind.COMMAND},
+            {
+                "RecordService",
+                "CorrectServiceRecord",
+                "SyncAttentionPreferences",
+                "RecordOdometerReading",
+            },
+        )
 
     def test_named_service_correction_use_case_preserves_response_boundary(self):
         state = ServiceHistoryState(

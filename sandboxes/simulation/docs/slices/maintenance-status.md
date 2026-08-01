@@ -84,6 +84,9 @@ observation with the use-case name and a consistent `payload.outcome` value;
 the payload also classifies the interaction as `query` or `command` while
 operation-specific details remain alongside it.
 
+The query/command classification is owned by the application use-case catalog,
+so runtime call sites cannot silently disagree about an interaction's kind.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.

@@ -8,10 +8,13 @@ The `use_case_executed` observation contract now includes a stable `kind`
 field. The owner status interaction is classified as a query; service,
 correction, preference, and odometer interactions are commands.
 
+The classification is now derived from the typed `USE_CASE_KINDS` application
+catalog rather than repeated at each runtime call site.
+
 ## Validation
 
 ```text
-Ran 63 tests in 0.010s
+Ran 64 tests in 0.010s
 OK
 
 mrl-simulation supervise --scenario-factory \
