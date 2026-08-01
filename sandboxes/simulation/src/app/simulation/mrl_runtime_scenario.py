@@ -565,7 +565,12 @@ def _start_owner(context: object) -> None:
 
 class OwnerBehavior:
     def on_start(self, context: object) -> None:
-        _start_owner(context)
+        context.scheduler.schedule_at(
+            context.clock.now(),
+            _start_owner,
+            name="owner_start_flow",
+            source="owner",
+        )
 
 
 def _unknown_is_not_healthy(context: object) -> bool:

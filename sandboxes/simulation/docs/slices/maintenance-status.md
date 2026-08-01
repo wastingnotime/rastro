@@ -114,6 +114,11 @@ outcome, and executed name. The owner-start flow and the odometer invariant
 are separate phases because the runtime evaluates invariants after actor
 execution.
 
+The supervised scenario starts paused with the owner flow queued at the
+initial simulation time. Reset therefore starts with no domain events; Run or
+Step executes the queued flow. The batch semantic runner still drains the
+queue so it can produce a complete deterministic receipt.
+
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a
 non-owner actor.
