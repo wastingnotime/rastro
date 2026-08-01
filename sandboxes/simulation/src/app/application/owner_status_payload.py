@@ -10,6 +10,7 @@ def owner_status_payload(
 ) -> dict[str, Any]:
     """Serialize the owner status query into a stable snake_case JSON shape."""
     return {
+        "schema_version": 1,
         "motorcycle_id": view.motorcycle_id,
         "current_odometer_km": view.odometer_km,
         "odometer_recorded_at": (
