@@ -60,6 +60,7 @@ from app.application.use_cases import (
     USE_CASE_KINDS,
     UseCaseDefinition,
     UseCaseKind,
+    index_use_case_catalog,
 )
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
@@ -110,6 +111,20 @@ class MaintenanceStatusTests(unittest.TestCase):
             UseCaseDefinition("view-owner-status", "ViewOwnerStatus", UseCaseKind.QUERY, "")
         with self.assertRaises(ValueError):
             UseCaseDefinition("", "ViewOwnerStatus", UseCaseKind.QUERY, "Shows status")
+
+    def test_use_case_catalog_rejects_duplicate_names_and_ids(self):
+        duplicate_name = (
+            UseCaseDefinition("one", "SameName", UseCaseKind.QUERY, "First"),
+            UseCaseDefinition("two", "SameName", UseCaseKind.COMMAND, "Second"),
+        )
+        duplicate_id = (
+            UseCaseDefinition("same", "FirstName", UseCaseKind.QUERY, "First"),
+            UseCaseDefinition("same", "SecondName", UseCaseKind.COMMAND, "Second"),
+        )
+        with self.assertRaises(ValueError):
+            index_use_case_catalog(duplicate_name)
+        with self.assertRaises(ValueError):
+            index_use_case_catalog(duplicate_id)
 
     def test_named_service_correction_use_case_preserves_response_boundary(self):
         state = ServiceHistoryState(

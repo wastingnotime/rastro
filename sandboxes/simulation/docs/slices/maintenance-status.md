@@ -91,7 +91,8 @@ available use cases visible even before one is executed. Each catalog entry
 also includes a concise purpose so the simulation explains the interaction
 semantics directly. Catalog definitions reject blank names and purposes.
 Stable IDs are included in catalog, execution, and summary observations for
-machine-readable correlation.
+machine-readable correlation. Catalog indexing rejects duplicate display names
+and duplicate stable IDs before the runtime can publish them.
 
 Use-case executions are summarized by runtime phase with counts by kind,
 outcome, and executed name. The owner-start flow and the odometer invariant

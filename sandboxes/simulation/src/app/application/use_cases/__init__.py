@@ -64,8 +64,26 @@ USE_CASE_CATALOG = (
     ),
 )
 
-USE_CASE_KINDS = {definition.name: definition.kind for definition in USE_CASE_CATALOG}
-USE_CASE_IDS = {definition.name: definition.use_case_id for definition in USE_CASE_CATALOG}
+def index_use_case_catalog(
+    catalog: tuple[UseCaseDefinition, ...],
+) -> tuple[dict[str, UseCaseKind], dict[str, str]]:
+    names: set[str] = set()
+    ids: set[str] = set()
+    kinds: dict[str, UseCaseKind] = {}
+    use_case_ids: dict[str, str] = {}
+    for definition in catalog:
+        if definition.name in names:
+            raise ValueError(f"duplicate use-case name: {definition.name}")
+        if definition.use_case_id in ids:
+            raise ValueError(f"duplicate use-case id: {definition.use_case_id}")
+        names.add(definition.name)
+        ids.add(definition.use_case_id)
+        kinds[definition.name] = definition.kind
+        use_case_ids[definition.name] = definition.use_case_id
+    return kinds, use_case_ids
+
+
+USE_CASE_KINDS, USE_CASE_IDS = index_use_case_catalog(USE_CASE_CATALOG)
 
 __all__ = [
     "CorrectServiceRecord",
@@ -78,4 +96,5 @@ __all__ = [
     "USE_CASE_CATALOG",
     "UseCaseKind",
     "UseCaseDefinition",
+    "index_use_case_catalog",
 ]
