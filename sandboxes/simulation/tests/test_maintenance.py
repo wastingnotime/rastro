@@ -9,9 +9,11 @@ from app.domain.maintenance import (
     ServiceRecorded,
     ServiceRecordVoided,
     ThresholdSource,
+    WarningThresholdsCustomized,
     assess,
     complete_service,
     customize_warning_thresholds,
+    customize_warning_thresholds_with_event,
     grouped_actions,
     record_service,
     project_service_history,
@@ -114,6 +116,18 @@ class MaintenanceStatusTests(unittest.TestCase):
             customize_warning_thresholds(item, warning_km=-1)
         with self.assertRaises(ValueError):
             customize_warning_thresholds(item, warning_days=-1)
+
+    def test_warning_override_event_preserves_before_and_after_thresholds(self):
+        item = MaintenanceItem("Engine oil", interval_km=4000, warning_km=500)
+        updated, event = customize_warning_thresholds_with_event(
+            item,
+            warning_km=1000,
+        )
+        self.assertIsInstance(event, WarningThresholdsCustomized)
+        self.assertEqual(event.maintenance_title, "Engine oil")
+        self.assertEqual((event.previous_warning_km, event.warning_km), (500, 1000))
+        self.assertEqual(updated.warning_km, event.warning_km)
+        self.assertEqual(event.previous_warning_days, event.warning_days)
 
     def test_named_owner_status_use_case_returns_attention(self):
         view = ViewOwnerStatus().execute(

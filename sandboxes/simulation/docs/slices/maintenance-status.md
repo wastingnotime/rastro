@@ -127,7 +127,8 @@ override is validated for non-negative values and requires at least one
 dimension. `MaintenanceAssessment` carries the same provenance through status
 calculation, including `unknown` outcomes. Mileage and date thresholds retain
 separate provenance; the aggregate is `mixed` when only one dimension is
-customized.
+customized. `WarningThresholdsCustomized` records the before/after values when
+an owner preference is applied.
 
 Correction errors expose stable codes and safe messages for application
 adapters. The runtime scenario emits the forbidden correction contract for a

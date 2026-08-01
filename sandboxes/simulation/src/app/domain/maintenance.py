@@ -84,6 +84,15 @@ class ServiceRecordVoided:
     reason: str
 
 
+@dataclass(frozen=True)
+class WarningThresholdsCustomized:
+    maintenance_title: str
+    previous_warning_km: int
+    previous_warning_days: int
+    warning_km: int
+    warning_days: int
+
+
 def customize_warning_thresholds(
     item: MaintenanceItem,
     *,
@@ -108,6 +117,28 @@ def customize_warning_thresholds(
             item.warning_days_source if warning_days is None else ThresholdSource.OWNER
         ),
     )
+
+
+def customize_warning_thresholds_with_event(
+    item: MaintenanceItem,
+    *,
+    warning_km: int | None = None,
+    warning_days: int | None = None,
+) -> tuple[MaintenanceItem, WarningThresholdsCustomized]:
+    """Apply owner thresholds and preserve the before/after audit event."""
+    updated = customize_warning_thresholds(
+        item,
+        warning_km=warning_km,
+        warning_days=warning_days,
+    )
+    event = WarningThresholdsCustomized(
+        maintenance_title=item.title,
+        previous_warning_km=item.warning_km,
+        previous_warning_days=item.warning_days,
+        warning_km=updated.warning_km,
+        warning_days=updated.warning_days,
+    )
+    return updated, event
 
 
 def complete_service(
