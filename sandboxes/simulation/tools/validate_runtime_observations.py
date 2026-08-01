@@ -58,6 +58,37 @@ def main() -> None:
     ]
     if len(summaries) != 1 or summaries[0]["payload"]["execution_count"] < 10:
         raise AssertionError("owner-start use-case summary is incomplete")
+
+    owner_status_responses = [
+        observation
+        for observation in observations
+        if observation["type"] == "owner_status_api_response"
+    ]
+    if not any(response["payload"].get("status_code") == 200 for response in owner_status_responses):
+        raise AssertionError("missing successful owner-status API response")
+    if not any(response["payload"].get("status_code") == 403 for response in owner_status_responses):
+        raise AssertionError("missing forbidden owner-status API response")
+
+    reminder_evaluations = [
+        observation
+        for observation in observations
+        if observation["type"] == "reminder_evaluation"
+    ]
+    if not reminder_evaluations:
+        raise AssertionError("missing reminder evaluation")
+    reminder_payload = reminder_evaluations[0]["payload"]
+    if not reminder_payload["first_reminders"] or reminder_payload["next_day_reminders"]:
+        raise AssertionError("reminder cadence evidence is incomplete")
+
+    profiles = {
+        observation["name"]: observation
+        for observation in observations
+        if observation["type"] == "profile_evidence"
+    }
+    if set(profiles) != {"daily_commuter", "weekend_rider", "long_unused"}:
+        raise AssertionError("ownership profile evidence is incomplete")
+    if profiles["long_unused"]["payload"]["unknown_days"] != 274:
+        raise AssertionError("long-unused freshness evidence is unexpected")
     print(
         "validated runtime evidence: "
         f"{len(observations)} observations, "

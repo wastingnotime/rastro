@@ -22,7 +22,8 @@ Run the supervised runtime scenario with:
 mrl-simulation supervise --scenario-factory app.simulation.mrl_runtime_scenario:create_simulation --once
 ```
 
-Validate the required semantic observations with:
+Validate the required semantic observations for threshold history, owner
+status/API access, reminder cadence, and ownership profiles with:
 
 ```bash
 PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \

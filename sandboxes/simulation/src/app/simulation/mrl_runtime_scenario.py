@@ -445,6 +445,26 @@ def _start_owner(context: object) -> None:
         actor="owner-1",
         payload={"status_code": api_response.status_code, "schema_version": api_response.body["schema_version"]},
     )
+    forbidden_api_response = get_owner_status_response(
+        actor_id="other-user",
+        owner_id="owner-1",
+        motorcycle_id="moto-1",
+        motorcycle=motorcycle,
+        maintenance_items=items,
+        obligations=obligations,
+    )
+    context.emit(
+        "owner_status_api_response",
+        "/api/v1/motorcycles/{motorcycle_id}/maintenance-status",
+        source="owner-status-api",
+        actor="other-user",
+        payload={
+            "status_code": forbidden_api_response.status_code,
+            "schema_version": forbidden_api_response.body["schema_version"],
+            "code": forbidden_api_response.body["code"],
+            "attention_exposed": "attention" in forbidden_api_response.body,
+        },
+    )
     reminder_tracker = ReminderTracker(ReminderPolicy(repeat_every_days=14))
     first_reminders = reminder_tracker.evaluate(date(2026, 7, 31), owner_actions)
     suppressed_reminders = reminder_tracker.evaluate(date(2026, 8, 1), owner_actions)
