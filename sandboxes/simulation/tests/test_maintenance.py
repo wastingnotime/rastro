@@ -54,7 +54,7 @@ from app.application.use_cases import (
     SyncAttentionPreferences,
     ViewOwnerStatus,
 )
-from app.application.use_cases import USE_CASE_KINDS, UseCaseKind
+from app.application.use_cases import USE_CASE_CATALOG, USE_CASE_KINDS, UseCaseKind
 from app.infrastructure.fakes.attention_preferences import InMemoryAttentionPreferenceStore
 from app.simulation.ownership_profiles import (
     daily_commuter,
@@ -94,6 +94,7 @@ class MaintenanceStatusTests(unittest.TestCase):
                 "RecordOdometerReading",
             },
         )
+        self.assertTrue(all(definition.purpose for definition in USE_CASE_CATALOG))
 
     def test_named_service_correction_use_case_preserves_response_boundary(self):
         state = ServiceHistoryState(

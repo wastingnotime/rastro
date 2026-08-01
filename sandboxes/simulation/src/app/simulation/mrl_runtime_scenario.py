@@ -42,6 +42,7 @@ from app.application.use_cases import (
     RecordOdometerReading,
     RecordService,
     SyncAttentionPreferences,
+    USE_CASE_CATALOG,
     USE_CASE_KINDS,
     ViewOwnerStatus,
 )
@@ -82,8 +83,12 @@ def _emit_use_case_catalog(context: object) -> None:
         actor="owner",
         payload={
             "use_cases": [
-                {"name": name, "kind": kind.value}
-                for name, kind in USE_CASE_KINDS.items()
+                {
+                    "name": definition.name,
+                    "kind": definition.kind.value,
+                    "purpose": definition.purpose,
+                }
+                for definition in USE_CASE_CATALOG
             ]
         },
     )
