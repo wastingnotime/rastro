@@ -88,6 +88,7 @@ def main() -> None:
             graph = page.request.get(f"{BASE_URL}/graph").json()["graph"]
             if not graph.get("nodes") or not graph.get("edges"):
                 raise AssertionError("observatory graph metadata is empty")
+            page.locator('[data-stage-view="architecture"]').click()
             if not page.locator("#observatory-canvas").is_visible():
                 raise AssertionError("observatory canvas is not visible")
             page.wait_for_function(

@@ -48,3 +48,11 @@ PYTHONPATH=sandboxes/simulation/src:/home/henrique/.wnt/runtime/mrl \
 
 The smoke test also checks the renderer's active travelling-beam mesh through
 the shared runtime's development-only `window.__mrlObservatoryDebug` surface.
+
+## Negotiated service order
+
+The shared simulation now continues from maintenance attention into an
+owner-mechanic order: motorcycle identification, request review, versioned
+proposal negotiation, explicit agreement, work, maintenance-history update,
+invoice, and payment. See
+`docs/slices/service-order-lifecycle.md` for the bounded contract.

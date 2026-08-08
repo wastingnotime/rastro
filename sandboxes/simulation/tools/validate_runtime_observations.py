@@ -31,6 +31,19 @@ def main() -> None:
     }
     if not required_ids <= catalog_ids:
         raise AssertionError("threshold use cases are missing from the runtime catalog")
+    service_order_ids = {
+        "identify-motorcycle",
+        "create-service-request",
+        "review-service-request",
+        "propose-service-work",
+        "respond-to-service-proposal",
+        "start-service-job",
+        "complete-service-job",
+        "issue-service-invoice",
+        "pay-service-job",
+    }
+    if not service_order_ids <= catalog_ids:
+        raise AssertionError("service-order use cases are missing from the runtime catalog")
 
     executions = [
         observation
@@ -50,6 +63,52 @@ def main() -> None:
         for observation in executions
     ):
         raise AssertionError("missing forbidden threshold-history execution")
+    executed_service_ids = {
+        observation["payload"]["use_case_id"]
+        for observation in executions
+        if observation["payload"].get("use_case_id") in service_order_ids
+    }
+    if executed_service_ids != service_order_ids:
+        raise AssertionError("service-order runtime executions are incomplete")
+
+    service_event_names = [
+        observation["name"]
+        for observation in observations
+        if observation["type"] == "domain_event"
+        and observation["name"]
+        in {
+            "service_requested",
+            "service_request_reviewed",
+            "service_proposed",
+            "service_proposal_rejected",
+            "service_proposal_accepted",
+            "service_job_started",
+            "service_job_completed",
+            "service_invoice_issued",
+            "service_payment_recorded",
+        }
+    ]
+    if service_event_names != [
+        "service_requested",
+        "service_request_reviewed",
+        "service_proposed",
+        "service_proposal_rejected",
+        "service_proposed",
+        "service_proposal_accepted",
+        "service_job_started",
+        "service_job_completed",
+        "service_invoice_issued",
+        "service_payment_recorded",
+    ]:
+        raise AssertionError("service-order negotiation lifecycle is incomplete or unordered")
+    invoice = next(
+        observation
+        for observation in observations
+        if observation["name"] == "service_invoice_issued"
+        and observation["type"] == "domain_event"
+    )
+    if invoice["payload"]["amount_cents"] != 22000:
+        raise AssertionError("service invoice does not match the accepted proposal")
 
     summaries = [
         observation

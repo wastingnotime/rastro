@@ -10,6 +10,17 @@ from app.application.use_cases.record_service import RecordService
 from app.application.use_cases.restore_manufacturer_warning_thresholds import (
     RestoreManufacturerWarningThresholds,
 )
+from app.application.use_cases.service_order_workflow import (
+    CompleteServiceJob,
+    CreateServiceRequest,
+    IdentifyMotorcycle,
+    IssueServiceInvoice,
+    PayServiceJob,
+    ProposeServiceWork,
+    RespondToServiceProposal,
+    ReviewServiceRequest,
+    StartServiceJob,
+)
 from app.application.use_cases.sync_attention_preferences import SyncAttentionPreferences
 from app.application.use_cases.view_owner_status import ViewOwnerStatus
 from app.application.use_cases.view_service_history import ViewServiceHistory
@@ -95,6 +106,60 @@ USE_CASE_CATALOG = (
         UseCaseKind.COMMAND,
         "Append a normal or explicitly linked corrective odometer reading.",
     ),
+    UseCaseDefinition(
+        "identify-motorcycle",
+        "IdentifyMotorcycle",
+        UseCaseKind.COMMAND,
+        "Identify an owner-bound motorcycle before assessing its maintenance needs.",
+    ),
+    UseCaseDefinition(
+        "create-service-request",
+        "CreateServiceRequest",
+        UseCaseKind.COMMAND,
+        "Send maintenance needs and known information gaps to a mechanic.",
+    ),
+    UseCaseDefinition(
+        "review-service-request",
+        "ReviewServiceRequest",
+        UseCaseKind.COMMAND,
+        "Let the assigned mechanic accept or reject a service request for review.",
+    ),
+    UseCaseDefinition(
+        "propose-service-work",
+        "ProposeServiceWork",
+        UseCaseKind.COMMAND,
+        "Propose work, parts, price, and timing for an owner request.",
+    ),
+    UseCaseDefinition(
+        "respond-to-service-proposal",
+        "RespondToServiceProposal",
+        UseCaseKind.COMMAND,
+        "Let the owner accept or reject a proposal while preserving negotiation history.",
+    ),
+    UseCaseDefinition(
+        "start-service-job",
+        "StartServiceJob",
+        UseCaseKind.COMMAND,
+        "Start mechanic work only after owner and mechanic agree.",
+    ),
+    UseCaseDefinition(
+        "complete-service-job",
+        "CompleteServiceJob",
+        UseCaseKind.COMMAND,
+        "Complete agreed work and update the motorcycle maintenance history.",
+    ),
+    UseCaseDefinition(
+        "issue-service-invoice",
+        "IssueServiceInvoice",
+        UseCaseKind.COMMAND,
+        "Invoice the exact price accepted in the service proposal.",
+    ),
+    UseCaseDefinition(
+        "pay-service-job",
+        "PayServiceJob",
+        UseCaseKind.COMMAND,
+        "Record owner payment for completed and invoiced work.",
+    ),
 )
 
 def index_use_case_catalog(
@@ -120,10 +185,19 @@ USE_CASE_KINDS, USE_CASE_IDS = index_use_case_catalog(USE_CASE_CATALOG)
 
 __all__ = [
     "CorrectServiceRecord",
+    "CompleteServiceJob",
+    "CreateServiceRequest",
     "CustomizeWarningThresholds",
+    "IdentifyMotorcycle",
+    "IssueServiceInvoice",
+    "PayServiceJob",
+    "ProposeServiceWork",
     "RecordOdometerReading",
     "RecordService",
     "RestoreManufacturerWarningThresholds",
+    "RespondToServiceProposal",
+    "ReviewServiceRequest",
+    "StartServiceJob",
     "SyncAttentionPreferences",
     "ViewOwnerStatus",
     "ViewServiceHistory",

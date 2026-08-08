@@ -314,6 +314,15 @@ class MaintenanceStatusTests(unittest.TestCase):
                 "CorrectServiceRecord",
                 "SyncAttentionPreferences",
                 "RecordOdometerReading",
+                "IdentifyMotorcycle",
+                "CreateServiceRequest",
+                "ReviewServiceRequest",
+                "ProposeServiceWork",
+                "RespondToServiceProposal",
+                "StartServiceJob",
+                "CompleteServiceJob",
+                "IssueServiceInvoice",
+                "PayServiceJob",
             },
         )
         self.assertTrue(all(definition.purpose for definition in USE_CASE_CATALOG))

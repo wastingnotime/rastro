@@ -279,11 +279,11 @@ projection explicitly.
 - owner status API versions success and error envelopes consistently;
 - odometer corrections preserve history and require explicit linkage;
 - invariant confirms unknown data never becomes healthy.
-- named application use cases cover three owner-facing queries and six
-  owner-facing write interactions;
+- named application use cases cover three owner-facing queries, maintenance
+  commands, and the owner-mechanic service-order lifecycle;
 - runtime observations expose each named use-case execution and outcome;
 
 ## Out of scope
 
-Document obligations, authentication, sharing, persistence, browser behavior,
-and mechanical diagnosis.
+Authentication, sharing, persistence, browser product behavior, payment
+settlement, and mechanical diagnosis.

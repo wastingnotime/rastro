@@ -2,10 +2,10 @@
 
 ## Boundary
 
-The first simulation boundary is one motorcycle owner, one current odometer
-reading, and a set of maintenance items with optional mileage and date
-intervals. The model produces deterministic item status and one prioritized
-next action.
+The simulation boundary includes a motorcycle owner, an owner-bound motorcycle,
+maintenance status and gaps, and an assigned mechanic. It produces deterministic
+owner attention and carries an identified maintenance need through request,
+proposal negotiation, agreed work, completion, invoice, and payment.
 
 ## Vocabulary
 
@@ -50,6 +50,14 @@ next action.
   for forbidden, missing, or repeated corrections.
 - `CorrectionCommand` / `CorrectionResponse`: framework-neutral command and
   response contract for future API or web adapters.
+- `MotorcycleIdentity`: the owner-bound motorcycle subject used by a service
+  order; it is not an actor.
+- `ServiceOrder`: the owner-mechanic agreement lifecycle and append-only event
+  history.
+- `ServiceProposal`: a versioned offer of work, parts, price, and estimated
+  completion.
+- `ServiceOrderStatus`: requested, review, proposal, negotiation, agreement,
+  work, invoice, payment, rejection, and cancellation states.
 
 ## Hypotheses to test
 
@@ -99,11 +107,20 @@ next action.
     contract.
 27. Normal odometer readings cannot decrease; corrections may change the
     projection only through an explicit correction event.
+28. Only the owner and assigned mechanic may perform their respective service
+    order actions.
+29. Proposal rejection should preserve history and allow a revised proposal.
+30. Work must not start before explicit owner acceptance.
+31. Completed work should update the maintenance baseline through the existing
+    service-record event.
+32. Invoice and payment amounts must match the accepted proposal.
 
 ## Open questions
 
 - The production storage technology remains a technology-project decision;
   simulation uses the owner-scoped store port and fake provider.
+- Mechanic discovery, asynchronous messaging, payment settlement, disputes,
+  and production API shapes remain open technology and slice decisions.
 
 ## Candidate next slices
 
@@ -114,3 +131,6 @@ next action.
 - reminder cadence tuning with real owner return behavior.
 - service-record correction history and user-facing error contracts are now
   modeled.
+- mechanic discovery and service-order scheduling;
+- payment settlement, refunds, and disputes;
+- production owner/mechanic API contracts.

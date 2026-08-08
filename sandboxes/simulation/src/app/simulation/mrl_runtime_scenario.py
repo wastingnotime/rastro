@@ -39,11 +39,20 @@ from app.application.owner_status_payload import owner_status_payload
 from app.application.owner_status_api import get_owner_status_response
 from app.application.service_history_api import get_service_history_response
 from app.application.use_cases import (
+    CompleteServiceJob,
     CorrectServiceRecord,
+    CreateServiceRequest,
     CustomizeWarningThresholds,
+    IdentifyMotorcycle,
+    IssueServiceInvoice,
+    PayServiceJob,
+    ProposeServiceWork,
     RecordOdometerReading,
     RecordService,
+    RespondToServiceProposal,
+    ReviewServiceRequest,
     RestoreManufacturerWarningThresholds,
+    StartServiceJob,
     SyncAttentionPreferences,
     USE_CASE_CATALOG,
     USE_CASE_IDS,
@@ -62,6 +71,48 @@ from app.simulation.ownership_profiles import (
     weekend_rider,
 )
 from app.simulation.reminders import ReminderPolicy, ReminderTracker
+
+
+MECHANIC_USE_CASE_IDS = {
+    "review-service-request",
+    "propose-service-work",
+    "start-service-job",
+    "complete-service-job",
+    "issue-service-invoice",
+}
+
+SERVICE_ORDER_USE_CASE_IDS = MECHANIC_USE_CASE_IDS | {
+    "identify-motorcycle",
+    "create-service-request",
+    "respond-to-service-proposal",
+    "pay-service-job",
+}
+
+SERVICE_ORDER_EVENTS = (
+    ("motorcycle_identified", "Motorcycle identified"),
+    ("service_requested", "Service requested"),
+    ("service_request_reviewed", "Service request reviewed"),
+    ("service_proposed", "Service proposed"),
+    ("service_proposal_rejected", "Service proposal rejected"),
+    ("service_proposal_accepted", "Service proposal accepted"),
+    ("service_job_started", "Service job started"),
+    ("service_job_completed", "Service job completed"),
+    ("service_invoice_issued", "Service invoice issued"),
+    ("service_payment_recorded", "Service payment recorded"),
+)
+
+SERVICE_ORDER_EVENT_PATHS = (
+    ("identify-motorcycle", "motorcycle_identified"),
+    ("create-service-request", "service_requested"),
+    ("review-service-request", "service_request_reviewed"),
+    ("propose-service-work", "service_proposed"),
+    ("respond-to-service-proposal", "service_proposal_rejected"),
+    ("respond-to-service-proposal", "service_proposal_accepted"),
+    ("start-service-job", "service_job_started"),
+    ("complete-service-job", "service_job_completed"),
+    ("issue-service-invoice", "service_invoice_issued"),
+    ("pay-service-job", "service_payment_recorded"),
+)
 
 
 class _TemporalEmissionContext:
@@ -521,19 +572,209 @@ def _start_owner(context: object) -> None:
             "next_day_reminders": suppressed_reminders,
         },
     )
-    service_recorder = RecordService()
-    serviced_items, service_event = service_recorder.execute(
+    identity = IdentifyMotorcycle().execute(
+        motorcycle_id="moto-1",
+        owner_id="owner",
+        manufacturer="Honda",
+        model="CB 500X",
+        model_year=2024,
+        registration="ABC1D23",
+    )
+    _emit_use_case(
+        context,
+        "IdentifyMotorcycle",
+        "owner",
+        "succeeded",
+        use_case_results,
+        motorcycle_id=identity.motorcycle_id,
+        manufacturer=identity.manufacturer,
+        model=identity.model,
+    )
+    context.emit(
+        "domain_event",
+        "motorcycle_identified",
+        source="service-order",
+        actor="owner",
+        payload={"motorcycle_id": identity.motorcycle_id, "model": identity.model},
+    )
+    order = CreateServiceRequest().execute(
+        order_id="service-order-1",
+        motorcycle=identity,
+        actor_id="owner",
+        mechanic_id="mechanic",
+        maintenance_needs=("Chain inspection",),
+        maintenance_gaps=("No recent chain condition photo",),
+    )
+    _emit_use_case(
+        context,
+        "CreateServiceRequest",
+        "owner",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        maintenance_needs=list(order.maintenance_needs),
+        maintenance_gaps=list(order.maintenance_gaps),
+    )
+    context.emit(
+        "domain_event",
+        "service_requested",
+        source="service-order",
+        actor="owner",
+        payload={"order_id": order.order_id, "mechanic_id": order.mechanic_id},
+    )
+    order = ReviewServiceRequest().execute(order, actor_id="mechanic", accept=True)
+    _emit_use_case(
+        context,
+        "ReviewServiceRequest",
+        "mechanic",
+        "accepted",
+        use_case_results,
+        order_id=order.order_id,
+        status=order.status.value,
+    )
+    context.emit(
+        "domain_event",
+        "service_request_reviewed",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id, "accepted": True},
+    )
+    order = ProposeServiceWork().execute(
+        order,
+        actor_id="mechanic",
+        work_items=("Inspect, clean, and adjust chain",),
+        parts=("Chain lubricant",),
+        price_cents=25000,
+        estimated_completion=date(2026, 8, 2),
+    )
+    _emit_use_case(
+        context,
+        "ProposeServiceWork",
+        "mechanic",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        proposal_version=1,
+        price_cents=25000,
+    )
+    context.emit(
+        "domain_event",
+        "service_proposed",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id, "proposal_version": 1, "price_cents": 25000},
+    )
+    order = RespondToServiceProposal().execute(
+        order,
+        actor_id="owner",
+        accept=False,
+        reason="Price is above budget",
+    )
+    _emit_use_case(
+        context,
+        "RespondToServiceProposal",
+        "owner",
+        "rejected",
+        use_case_results,
+        order_id=order.order_id,
+        proposal_version=1,
+        status=order.status.value,
+    )
+    context.emit(
+        "domain_event",
+        "service_proposal_rejected",
+        source="service-order",
+        actor="owner",
+        payload={"order_id": order.order_id, "proposal_version": 1},
+    )
+    order = ProposeServiceWork().execute(
+        order,
+        actor_id="mechanic",
+        work_items=("Inspect, clean, and adjust chain",),
+        parts=(),
+        price_cents=22000,
+        estimated_completion=date(2026, 8, 2),
+    )
+    _emit_use_case(
+        context,
+        "ProposeServiceWork",
+        "mechanic",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        proposal_version=2,
+        price_cents=22000,
+    )
+    context.emit(
+        "domain_event",
+        "service_proposed",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id, "proposal_version": 2, "price_cents": 22000},
+    )
+    order = RespondToServiceProposal().execute(order, actor_id="owner", accept=True)
+    _emit_use_case(
+        context,
+        "RespondToServiceProposal",
+        "owner",
+        "accepted",
+        use_case_results,
+        order_id=order.order_id,
+        proposal_version=2,
+        status=order.status.value,
+    )
+    context.emit(
+        "domain_event",
+        "service_proposal_accepted",
+        source="service-order",
+        actor="owner",
+        payload={"order_id": order.order_id, "proposal_version": 2},
+    )
+    order = StartServiceJob().execute(order, actor_id="mechanic")
+    _emit_use_case(
+        context,
+        "StartServiceJob",
+        "mechanic",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        status=order.status.value,
+    )
+    context.emit(
+        "domain_event",
+        "service_job_started",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id},
+    )
+    order, serviced_items, service_event = CompleteServiceJob().execute(
+        order,
         items,
-        completed_titles=["Chain inspection"],
-        serviced_at=date(2026, 7, 31),
-        odometer_km=18420,
-        provider_name="Local mechanic",
-        notes="Chain adjusted",
+        actor_id="mechanic",
+        completion_notes="Chain inspected, cleaned, and adjusted",
+        serviced_at=date(2026, 8, 2),
+        odometer_km=18510,
+    )
+    _emit_use_case(
+        context,
+        "CompleteServiceJob",
+        "mechanic",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        completed_items=list(service_event.completed_titles),
+    )
+    context.emit(
+        "domain_event",
+        "service_job_completed",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id, "completed_items": list(service_event.completed_titles)},
     )
     _emit_use_case(
         context,
         "RecordService",
-        "owner",
+        "mechanic",
         "succeeded",
         use_case_results,
         service_id=service_event.service_id,
@@ -543,13 +784,53 @@ def _start_owner(context: object) -> None:
         "domain_event",
         "service_recorded",
         source="maintenance-status",
-        actor="owner",
+        actor="mechanic",
         payload={
             "completed_items": list(service_event.completed_titles),
             "serviced_at": service_event.serviced_at.isoformat(),
             "odometer_km": service_event.odometer_km,
             "provider_name": service_event.provider_name,
         },
+    )
+    order = IssueServiceInvoice().execute(order, actor_id="mechanic")
+    _emit_use_case(
+        context,
+        "IssueServiceInvoice",
+        "mechanic",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        amount_cents=order.invoice_cents,
+    )
+    context.emit(
+        "domain_event",
+        "service_invoice_issued",
+        source="service-order",
+        actor="mechanic",
+        payload={"order_id": order.order_id, "amount_cents": order.invoice_cents},
+    )
+    order = PayServiceJob().execute(
+        order,
+        actor_id="owner",
+        amount_cents=22000,
+        payment_reference="payment-1",
+    )
+    _emit_use_case(
+        context,
+        "PayServiceJob",
+        "owner",
+        "succeeded",
+        use_case_results,
+        order_id=order.order_id,
+        amount_cents=order.invoice_cents,
+        status=order.status.value,
+    )
+    context.emit(
+        "domain_event",
+        "service_payment_recorded",
+        source="service-order",
+        actor="owner",
+        payload={"order_id": order.order_id, "payment_reference": order.payment_reference},
     )
     after_service = assess(serviced_items[1], motorcycle)
     context.emit(
@@ -559,7 +840,7 @@ def _start_owner(context: object) -> None:
         actor="owner",
         payload={"status": after_service.status.value, "remaining_km": after_service.remaining_km},
     )
-    _, corrected_record = service_recorder.execute(
+    _, corrected_record = RecordService().execute(
         items,
         completed_titles=["Chain inspection"],
         serviced_at=date(2026, 8, 1),
@@ -861,7 +1142,10 @@ def create_simulation() -> Scenario:
         seed=500,
         initial_time=datetime(2026, 7, 31, tzinfo=timezone.utc),
         run_id="maintenance-status-first-slice",
-        actors=[Actor(name="owner", behavior=OwnerBehavior())],
+        actors=[
+            Actor(name="owner", behavior=OwnerBehavior()),
+            Actor(name="mechanic"),
+        ],
         invariants=[
             Invariant("unknown_data_is_not_healthy", _unknown_is_not_healthy),
             Invariant("stale_mileage_is_unknown", _stale_mileage_is_unknown),
@@ -875,15 +1159,20 @@ def create_simulation() -> Scenario:
         ],
         observatory_nodes=[
             ObservatoryNode("owner", "Motorcycle owner", "actor", "domain"),
+            ObservatoryNode("mechanic", "Mechanic", "actor", "actors"),
             ObservatoryNode("status", "Maintenance status", "domain", "domain"),
-            ObservatoryNode("action", "Next action", "projection", "application"),
+            ObservatoryNode("action", "Next action", "projection", "projections", "application"),
             *[
                 ObservatoryNode(
                     definition.use_case_id,
                     definition.name,
                     "use_case",
                     "application",
-                    realm=definition.kind.value,
+                    realm=(
+                        "service_order"
+                        if definition.use_case_id in SERVICE_ORDER_USE_CASE_IDS
+                        else definition.kind.value
+                    ),
                     description=definition.purpose,
                 )
                 for definition in USE_CASE_CATALOG
@@ -907,6 +1196,10 @@ def create_simulation() -> Scenario:
                 "event",
                 "domain",
             ),
+            *[
+                ObservatoryNode(event_id, label, "event", "domain", realm="service_order")
+                for event_id, label in SERVICE_ORDER_EVENTS
+            ],
         ],
         observatory_edges=[
             ObservatoryEdge("owner", "status", "checks"),
@@ -914,6 +1207,12 @@ def create_simulation() -> Scenario:
             *[
                 ObservatoryEdge("owner", definition.use_case_id, "invokes")
                 for definition in USE_CASE_CATALOG
+                if definition.use_case_id not in MECHANIC_USE_CASE_IDS
+            ],
+            *[
+                ObservatoryEdge("mechanic", definition.use_case_id, "invokes")
+                for definition in USE_CASE_CATALOG
+                if definition.use_case_id in MECHANIC_USE_CASE_IDS
             ],
             ObservatoryEdge(
                 "customize-warning-thresholds",
@@ -927,5 +1226,9 @@ def create_simulation() -> Scenario:
             ),
             ObservatoryEdge("record-service", "service_recorded", "emits"),
             ObservatoryEdge("correct-service-record", "service_record_voided", "emits"),
+            *[
+                ObservatoryEdge(use_case_id, event_id, "emits")
+                for use_case_id, event_id in SERVICE_ORDER_EVENT_PATHS
+            ],
         ],
     )
