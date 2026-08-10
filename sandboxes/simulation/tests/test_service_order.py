@@ -215,6 +215,27 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
             )
         self.assertEqual(order.status, ServiceOrderStatus.IN_PROGRESS)
 
+    def test_owner_cannot_respond_to_stale_proposal_version(self):
+        order = ReviewServiceRequest().execute(
+            self.request(), actor_id="mechanic-1", accept=True
+        )
+        order = ProposeServiceWork().execute(
+            order,
+            actor_id="mechanic-1",
+            work_items=("Inspect and adjust chain",),
+            parts=(),
+            price_cents=22000,
+            estimated_completion=date(2026, 8, 2),
+        )
+        with self.assertRaisesRegex(ValueError, "proposal response is stale"):
+            RespondToServiceProposal().execute(
+                order,
+                actor_id="owner-1",
+                accept=True,
+                proposal_version=2,
+            )
+        self.assertEqual(order.status, ServiceOrderStatus.PROPOSED)
+
 
 if __name__ == "__main__":
     unittest.main()

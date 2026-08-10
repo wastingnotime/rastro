@@ -163,13 +163,20 @@ class ServiceOrder:
         )
 
     def respond_to_proposal(
-        self, *, actor_id: str, accept: bool, reason: str | None = None
+        self,
+        *,
+        actor_id: str,
+        accept: bool,
+        reason: str | None = None,
+        proposal_version: int | None = None,
     ) -> "ServiceOrder":
         self._require_owner(actor_id)
         self._require_status(ServiceOrderStatus.PROPOSED)
         proposal = self.current_proposal
         if proposal is None:
             raise ValueError("service proposal is missing")
+        if proposal_version is not None and proposal_version != proposal.version:
+            raise ValueError("proposal response is stale")
         if not accept and not (reason or "").strip():
             raise ValueError("proposal rejection reason is required")
         status = ServiceOrderStatus.AGREED if accept else ServiceOrderStatus.NEGOTIATING
