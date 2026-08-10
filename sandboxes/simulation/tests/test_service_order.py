@@ -169,6 +169,12 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 maintenance_needs=("Chain inspection", "Chain inspection"),
             )
 
+    def test_order_rejects_blank_identity_when_constructed_directly(self):
+        with self.assertRaisesRegex(ValueError, "order id is required"):
+            self.request().__class__(
+                " ", self.motorcycle, "mechanic-1", ("Chain inspection",), (), ServiceOrderStatus.REQUESTED
+            )
+
     def test_event_requires_name_and_actor(self):
         with self.assertRaises(ValueError):
             ServiceOrderEvent("", "owner-1")

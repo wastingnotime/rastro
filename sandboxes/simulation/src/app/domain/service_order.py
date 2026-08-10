@@ -95,6 +95,22 @@ class ServiceOrder:
     payment_reference: str | None = None
     events: tuple[ServiceOrderEvent, ...] = ()
 
+    def __post_init__(self) -> None:
+        if not self.order_id.strip():
+            raise ValueError("order id is required")
+        if not self.mechanic_id.strip():
+            raise ValueError("mechanic id is required")
+        if not isinstance(self.status, ServiceOrderStatus):
+            raise ValueError("service order status is invalid")
+        if not self.maintenance_needs or any(not item.strip() for item in self.maintenance_needs):
+            raise ValueError("at least one maintenance need is required")
+        if len(set(self.maintenance_needs)) != len(self.maintenance_needs):
+            raise ValueError("maintenance needs cannot be duplicated")
+        if any(not item.strip() for item in self.maintenance_gaps):
+            raise ValueError("maintenance gaps must not be blank")
+        if len(set(self.maintenance_gaps)) != len(self.maintenance_gaps):
+            raise ValueError("maintenance gaps cannot be duplicated")
+
     @classmethod
     def request(
         cls,
