@@ -13,7 +13,7 @@ from app.application.use_cases import (
     StartServiceJob,
 )
 from app.domain.maintenance import MaintenanceItem
-from app.domain.service_order import ServiceOrderEvent, ServiceOrderStatus
+from app.domain.service_order import ServiceOrderEvent, ServiceOrderStatus, ServiceProposal
 
 
 class ServiceOrderWorkflowTests(unittest.TestCase):
@@ -223,6 +223,14 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 price_cents=22000,
                 estimated_completion=date(2026, 8, 2),
             )
+
+    def test_proposal_rejects_invalid_scalar_types(self):
+        with self.assertRaises(ValueError):
+            ServiceProposal(True, ("Inspect chain",), (), 22000, date(2026, 8, 2))  # type: ignore[arg-type]
+        with self.assertRaises(ValueError):
+            ServiceProposal(1, ("Inspect chain",), (), True, date(2026, 8, 2))  # type: ignore[arg-type]
+        with self.assertRaises(ValueError):
+            ServiceProposal(1, ("Inspect chain",), (), 22000, "tomorrow")  # type: ignore[arg-type]
 
     def request_reviewed(self):
         return ReviewServiceRequest().execute(

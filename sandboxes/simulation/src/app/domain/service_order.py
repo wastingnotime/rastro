@@ -53,7 +53,7 @@ class ServiceProposal:
     notes: str | None = None
 
     def __post_init__(self) -> None:
-        if self.version < 1:
+        if not isinstance(self.version, int) or isinstance(self.version, bool) or self.version < 1:
             raise ValueError("proposal version must be positive")
         if not self.work_items or any(not item.strip() for item in self.work_items):
             raise ValueError("proposal work items are required")
@@ -61,8 +61,10 @@ class ServiceProposal:
             raise ValueError("proposal work items cannot be duplicated")
         if any(not part.strip() for part in self.parts):
             raise ValueError("proposal parts must not be blank")
-        if self.price_cents <= 0:
+        if not isinstance(self.price_cents, int) or isinstance(self.price_cents, bool) or self.price_cents <= 0:
             raise ValueError("proposal price must be positive")
+        if not isinstance(self.estimated_completion, date):
+            raise ValueError("proposal completion date is invalid")
 
 
 @dataclass(frozen=True)
