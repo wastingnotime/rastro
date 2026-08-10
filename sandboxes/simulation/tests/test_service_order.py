@@ -186,6 +186,22 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 estimated_completion=date(2026, 8, 2),
             )
 
+    def test_proposal_rejects_duplicate_work_item(self):
+        with self.assertRaisesRegex(ValueError, "work items cannot be duplicated"):
+            ProposeServiceWork().execute(
+                self.request_reviewed(),
+                actor_id="mechanic-1",
+                work_items=("Inspect chain", "Inspect chain"),
+                parts=(),
+                price_cents=22000,
+                estimated_completion=date(2026, 8, 2),
+            )
+
+    def request_reviewed(self):
+        return ReviewServiceRequest().execute(
+            self.request(), actor_id="mechanic-1", accept=True
+        )
+
     def test_unassigned_mechanic_cannot_review_or_start_work(self):
         with self.assertRaises(PermissionError):
             ReviewServiceRequest().execute(

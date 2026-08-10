@@ -55,6 +55,8 @@ class ServiceProposal:
             raise ValueError("proposal version must be positive")
         if not self.work_items or any(not item.strip() for item in self.work_items):
             raise ValueError("proposal work items are required")
+        if len(set(self.work_items)) != len(self.work_items):
+            raise ValueError("proposal work items cannot be duplicated")
         if any(not part.strip() for part in self.parts):
             raise ValueError("proposal parts must not be blank")
         if self.price_cents <= 0:
