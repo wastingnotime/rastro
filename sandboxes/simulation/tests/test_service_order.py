@@ -187,6 +187,16 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 registration="  ",
             )
 
+    def test_motorcycle_rejects_invalid_scalar_types(self):
+        with self.assertRaises(ValueError):
+            IdentifyMotorcycle().execute(
+                motorcycle_id=1, owner_id="owner-1", manufacturer="Honda", model="CB 500X", model_year=2024
+            )
+        with self.assertRaises(ValueError):
+            IdentifyMotorcycle().execute(
+                motorcycle_id="moto-1", owner_id="owner-1", manufacturer="Honda", model="CB 500X", model_year=True
+            )
+
     def test_event_requires_name_and_actor(self):
         with self.assertRaises(ValueError):
             ServiceOrderEvent("", "owner-1")

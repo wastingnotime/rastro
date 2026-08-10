@@ -35,11 +35,13 @@ class MotorcycleIdentity:
             (self.manufacturer, "motorcycle manufacturer is required"),
             (self.model, "motorcycle model is required"),
         ):
-            if not value.strip():
+            if not isinstance(value, str) or not value.strip():
                 raise ValueError(message)
-        if self.model_year < 1885:
+        if not isinstance(self.model_year, int) or isinstance(self.model_year, bool) or self.model_year < 1885:
             raise ValueError("motorcycle model year is invalid")
-        if self.registration is not None and not self.registration.strip():
+        if self.registration is not None and (
+            not isinstance(self.registration, str) or not self.registration.strip()
+        ):
             raise ValueError("motorcycle registration must not be blank")
 
 
