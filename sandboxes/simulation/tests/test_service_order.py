@@ -151,6 +151,8 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
             reason="Required equipment is unavailable",
         )
         self.assertEqual(order.status, ServiceOrderStatus.REJECTED)
+        with self.assertRaises(ValueError):
+            ReviewServiceRequest().execute(self.request(), actor_id="mechanic-1", accept=False, reason=1)  # type: ignore[arg-type]
 
     def test_owner_can_cancel_before_work_starts(self):
         cancelled = CancelServiceOrder().execute(
@@ -169,6 +171,15 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
         started = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
         with self.assertRaises(ValueError):
             CancelServiceOrder().execute(started, actor_id="owner-1", reason="No longer needed")
+        with self.assertRaises(ValueError):
+            CompleteServiceJob().execute(
+                started,
+                self.items,
+                actor_id="mechanic-1",
+                completion_notes=1,  # type: ignore[arg-type]
+                serviced_at=date(2026, 8, 2),
+                odometer_km=18510,
+            )
 
     def test_request_rejects_blank_maintenance_gap(self):
         with self.assertRaises(ValueError):

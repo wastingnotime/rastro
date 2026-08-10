@@ -180,7 +180,7 @@ class ServiceOrder:
     def review(self, *, actor_id: str, accept: bool, reason: str | None = None) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.REQUESTED)
-        if not accept and not (reason or "").strip():
+        if not accept and (not isinstance(reason, str) or not reason.strip()):
             raise ValueError("rejection reason is required")
         status = ServiceOrderStatus.UNDER_REVIEW if accept else ServiceOrderStatus.REJECTED
         name = "service_request_reviewed" if accept else "service_request_rejected"
@@ -234,7 +234,7 @@ class ServiceOrder:
             raise ValueError("service proposal is missing")
         if proposal_version is not None and proposal_version != proposal.version:
             raise ValueError("proposal response is stale")
-        if not accept and not (reason or "").strip():
+        if not accept and (not isinstance(reason, str) or not reason.strip()):
             raise ValueError("proposal rejection reason is required")
         status = ServiceOrderStatus.AGREED if accept else ServiceOrderStatus.NEGOTIATING
         name = "service_proposal_accepted" if accept else "service_proposal_rejected"
@@ -282,7 +282,7 @@ class ServiceOrder:
     def complete(self, *, actor_id: str, completion_notes: str) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.IN_PROGRESS)
-        if not completion_notes.strip():
+        if not isinstance(completion_notes, str) or not completion_notes.strip():
             raise ValueError("completion notes are required")
         return self._transition(
             ServiceOrderStatus.COMPLETED,
