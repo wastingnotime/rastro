@@ -138,6 +138,28 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
         )
         self.assertEqual(order.status, ServiceOrderStatus.REJECTED)
 
+    def test_request_rejects_blank_maintenance_gap(self):
+        with self.assertRaises(ValueError):
+            CreateServiceRequest().execute(
+                order_id="order-1",
+                motorcycle=self.motorcycle,
+                actor_id="owner-1",
+                mechanic_id="mechanic-1",
+                maintenance_needs=("Chain inspection",),
+                maintenance_gaps=("  ",),
+            )
+
+    def test_proposal_rejects_blank_part(self):
+        with self.assertRaises(ValueError):
+            ProposeServiceWork().execute(
+                self.agreed_order(),
+                actor_id="mechanic-1",
+                work_items=("Inspect and adjust chain",),
+                parts=("  ",),
+                price_cents=22000,
+                estimated_completion=date(2026, 8, 2),
+            )
+
     def test_unassigned_mechanic_cannot_review_or_start_work(self):
         with self.assertRaises(PermissionError):
             ReviewServiceRequest().execute(

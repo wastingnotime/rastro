@@ -55,6 +55,8 @@ class ServiceProposal:
             raise ValueError("proposal version must be positive")
         if not self.work_items or any(not item.strip() for item in self.work_items):
             raise ValueError("proposal work items are required")
+        if any(not part.strip() for part in self.parts):
+            raise ValueError("proposal parts must not be blank")
         if self.price_cents <= 0:
             raise ValueError("proposal price must be positive")
 
@@ -97,6 +99,8 @@ class ServiceOrder:
             raise ValueError("order and mechanic ids are required")
         if not maintenance_needs or any(not item.strip() for item in maintenance_needs):
             raise ValueError("at least one maintenance need is required")
+        if any(not item.strip() for item in maintenance_gaps):
+            raise ValueError("maintenance gaps must not be blank")
         event = ServiceOrderEvent(
             "service_requested",
             actor_id,
