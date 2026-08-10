@@ -67,6 +67,12 @@ class ServiceOrderEvent:
     actor_id: str
     details: tuple[tuple[str, object], ...] = ()
 
+    def __post_init__(self) -> None:
+        if not self.name.strip():
+            raise ValueError("service order event name is required")
+        if not self.actor_id.strip():
+            raise ValueError("service order event actor is required")
+
 
 @dataclass(frozen=True)
 class ServiceOrder:
@@ -101,6 +107,10 @@ class ServiceOrder:
             raise ValueError("at least one maintenance need is required")
         if any(not item.strip() for item in maintenance_gaps):
             raise ValueError("maintenance gaps must not be blank")
+        if len(set(maintenance_needs)) != len(maintenance_needs):
+            raise ValueError("maintenance needs cannot be duplicated")
+        if len(set(maintenance_gaps)) != len(maintenance_gaps):
+            raise ValueError("maintenance gaps cannot be duplicated")
         event = ServiceOrderEvent(
             "service_requested",
             actor_id,

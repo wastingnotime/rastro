@@ -13,7 +13,7 @@ from app.application.use_cases import (
     StartServiceJob,
 )
 from app.domain.maintenance import MaintenanceItem
-from app.domain.service_order import ServiceOrderStatus
+from app.domain.service_order import ServiceOrderEvent, ServiceOrderStatus
 
 
 class ServiceOrderWorkflowTests(unittest.TestCase):
@@ -156,6 +156,22 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 maintenance_needs=("Chain inspection",),
                 maintenance_gaps=("  ",),
             )
+
+    def test_request_rejects_duplicate_maintenance_need(self):
+        with self.assertRaisesRegex(ValueError, "cannot be duplicated"):
+            CreateServiceRequest().execute(
+                order_id="order-1",
+                motorcycle=self.motorcycle,
+                actor_id="owner-1",
+                mechanic_id="mechanic-1",
+                maintenance_needs=("Chain inspection", "Chain inspection"),
+            )
+
+    def test_event_requires_name_and_actor(self):
+        with self.assertRaises(ValueError):
+            ServiceOrderEvent("", "owner-1")
+        with self.assertRaises(ValueError):
+            ServiceOrderEvent("service_requested", " ")
 
     def test_proposal_rejects_blank_part(self):
         with self.assertRaises(ValueError):
