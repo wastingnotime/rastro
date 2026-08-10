@@ -84,6 +84,11 @@ class ServiceOrderEvent:
             raise ValueError("service order event name is required")
         if not isinstance(self.actor_id, str) or not self.actor_id.strip():
             raise ValueError("service order event actor is required")
+        if any(
+            not isinstance(detail, tuple) or len(detail) != 2
+            for detail in self.details
+        ):
+            raise ValueError("service order event details must be key-value pairs")
         keys = [key for key, _ in self.details]
         if any(not isinstance(key, str) or not key.strip() for key in keys):
             raise ValueError("service order event detail keys are required")
