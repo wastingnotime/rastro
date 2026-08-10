@@ -174,6 +174,10 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
             ServiceOrderEvent("", "owner-1")
         with self.assertRaises(ValueError):
             ServiceOrderEvent("service_requested", " ")
+        with self.assertRaises(ValueError):
+            ServiceOrderEvent("service_requested", "owner-1", ((" ", "value"),))
+        with self.assertRaisesRegex(ValueError, "detail keys cannot be duplicated"):
+            ServiceOrderEvent("service_requested", "owner-1", (("id", 1), ("id", 2)))
 
     def test_proposal_rejects_blank_part(self):
         with self.assertRaises(ValueError):

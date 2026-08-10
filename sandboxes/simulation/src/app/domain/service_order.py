@@ -74,6 +74,11 @@ class ServiceOrderEvent:
             raise ValueError("service order event name is required")
         if not self.actor_id.strip():
             raise ValueError("service order event actor is required")
+        keys = [key for key, _ in self.details]
+        if any(not key.strip() for key in keys):
+            raise ValueError("service order event detail keys are required")
+        if len(set(keys)) != len(keys):
+            raise ValueError("service order event detail keys cannot be duplicated")
 
 
 @dataclass(frozen=True)
