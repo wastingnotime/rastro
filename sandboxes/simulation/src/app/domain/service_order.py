@@ -208,7 +208,11 @@ class ServiceOrder:
             status=ServiceOrderStatus.AWAITING_PAYMENT,
             invoice_cents=proposal.price_cents,
             events=self.events
-            + (ServiceOrderEvent("service_invoice_issued", actor_id, (("amount_cents", proposal.price_cents),)),),
+            + (ServiceOrderEvent(
+                "service_invoice_issued",
+                actor_id,
+                (("amount_cents", proposal.price_cents), ("proposal_version", proposal.version)),
+            ),),
         )
 
     def pay(self, *, actor_id: str, amount_cents: int, payment_reference: str) -> "ServiceOrder":
@@ -223,7 +227,11 @@ class ServiceOrder:
             status=ServiceOrderStatus.PAID,
             payment_reference=payment_reference,
             events=self.events
-            + (ServiceOrderEvent("service_payment_recorded", actor_id, (("amount_cents", amount_cents),)),),
+            + (ServiceOrderEvent(
+                "service_payment_recorded",
+                actor_id,
+                (("amount_cents", amount_cents), ("proposal_version", self.agreed_proposal_version), ("payment_reference", payment_reference)),
+            ),),
         )
 
     def _transition(self, status: ServiceOrderStatus, event: ServiceOrderEvent) -> "ServiceOrder":
