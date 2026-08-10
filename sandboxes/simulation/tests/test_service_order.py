@@ -13,6 +13,7 @@ from app.application.use_cases import (
     ReviewServiceRequest,
     StartServiceJob,
 )
+from app.application.use_cases import USE_CASE_CATALOG, index_use_case_catalog
 from app.domain.maintenance import MaintenanceItem
 from app.domain.service_order import ServiceOrderEvent, ServiceOrderStatus, ServiceProposal
 
@@ -156,6 +157,8 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
         )
         self.assertEqual(cancelled.status, ServiceOrderStatus.CANCELLED)
         self.assertEqual(cancelled.events[-1].name, "service_order_cancelled")
+        kinds, _ = index_use_case_catalog(USE_CASE_CATALOG)
+        self.assertEqual(kinds["CancelServiceOrder"].value, "command")
 
     def test_cancel_requires_reason_and_cannot_cancel_started_work(self):
         with self.assertRaises(ValueError):

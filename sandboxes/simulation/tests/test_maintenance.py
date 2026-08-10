@@ -316,6 +316,7 @@ class MaintenanceStatusTests(unittest.TestCase):
                 "RecordOdometerReading",
                 "IdentifyMotorcycle",
                 "CreateServiceRequest",
+                "CancelServiceOrder",
                 "ReviewServiceRequest",
                 "ProposeServiceWork",
                 "RespondToServiceProposal",

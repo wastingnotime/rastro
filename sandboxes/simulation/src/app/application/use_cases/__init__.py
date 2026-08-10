@@ -120,6 +120,12 @@ USE_CASE_CATALOG = (
         "Send maintenance needs and known information gaps to a mechanic.",
     ),
     UseCaseDefinition(
+        "cancel-service-order",
+        "CancelServiceOrder",
+        UseCaseKind.COMMAND,
+        "Cancel an order before work starts while preserving the reason.",
+    ),
+    UseCaseDefinition(
         "review-service-request",
         "ReviewServiceRequest",
         UseCaseKind.COMMAND,
