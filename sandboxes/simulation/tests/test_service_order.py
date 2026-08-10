@@ -175,6 +175,17 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 " ", self.motorcycle, "mechanic-1", ("Chain inspection",), (), ServiceOrderStatus.REQUESTED
             )
 
+    def test_motorcycle_rejects_blank_optional_registration(self):
+        with self.assertRaisesRegex(ValueError, "registration must not be blank"):
+            IdentifyMotorcycle().execute(
+                motorcycle_id="moto-1",
+                owner_id="owner-1",
+                manufacturer="Honda",
+                model="CB 500X",
+                model_year=2024,
+                registration="  ",
+            )
+
     def test_event_requires_name_and_actor(self):
         with self.assertRaises(ValueError):
             ServiceOrderEvent("", "owner-1")

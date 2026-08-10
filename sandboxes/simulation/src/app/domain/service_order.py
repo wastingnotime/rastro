@@ -39,6 +39,8 @@ class MotorcycleIdentity:
                 raise ValueError(message)
         if self.model_year < 1885:
             raise ValueError("motorcycle model year is invalid")
+        if self.registration is not None and not self.registration.strip():
+            raise ValueError("motorcycle registration must not be blank")
 
 
 @dataclass(frozen=True)
