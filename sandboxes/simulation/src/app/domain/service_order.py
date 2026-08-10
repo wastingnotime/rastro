@@ -262,7 +262,7 @@ class ServiceOrder:
         )
 
     def cancel(self, *, actor_id: str, reason: str) -> "ServiceOrder":
-        if actor_id not in {self.motorcycle.owner_id, self.mechanic_id}:
+        if not isinstance(actor_id, str) or actor_id not in {self.motorcycle.owner_id, self.mechanic_id}:
             raise PermissionError("only the owner or assigned mechanic may cancel")
         if self.status not in {
             ServiceOrderStatus.REQUESTED,
