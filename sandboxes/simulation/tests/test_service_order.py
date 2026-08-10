@@ -202,6 +202,19 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 payment_reference="payment-1",
             )
 
+    def test_completion_rejects_history_gap_before_transition(self):
+        order = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
+        with self.assertRaises(ValueError):
+            CompleteServiceJob().execute(
+                order,
+                [],
+                actor_id="mechanic-1",
+                completion_notes="Chain adjusted",
+                serviced_at=date(2026, 8, 2),
+                odometer_km=18510,
+            )
+        self.assertEqual(order.status, ServiceOrderStatus.IN_PROGRESS)
+
 
 if __name__ == "__main__":
     unittest.main()

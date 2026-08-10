@@ -47,7 +47,6 @@ class CompleteServiceJob:
         serviced_at: date,
         odometer_km: int,
     ) -> tuple[ServiceOrder, list[MaintenanceItem], ServiceRecorded]:
-        completed = order.complete(actor_id=actor_id, completion_notes=completion_notes)
         updated, service_event = record_service(
             items,
             list(order.maintenance_needs),
@@ -57,6 +56,7 @@ class CompleteServiceJob:
             notes=completion_notes,
             service_id=order.order_id,
         )
+        completed = order.complete(actor_id=actor_id, completion_notes=completion_notes)
         return completed, updated, service_event
 
 
