@@ -138,6 +138,7 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 "service_payment_recorded",
             ],
         )
+        self.assertEqual(order.event_names, tuple(event.name for event in order.events))
 
     def test_mechanic_can_reject_request_with_reason(self):
         order = ReviewServiceRequest().execute(

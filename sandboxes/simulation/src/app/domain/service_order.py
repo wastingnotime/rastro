@@ -157,6 +157,11 @@ class ServiceOrder:
     def current_proposal(self) -> ServiceProposal | None:
         return self.proposals[-1] if self.proposals else None
 
+    @property
+    def event_names(self) -> tuple[str, ...]:
+        """Return the ordered event contract without exposing event storage."""
+        return tuple(event.name for event in self.events)
+
     def review(self, *, actor_id: str, accept: bool, reason: str | None = None) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.REQUESTED)
