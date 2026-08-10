@@ -267,7 +267,7 @@ class ServiceOrder:
             ServiceOrderStatus.AGREED,
         }:
             raise ValueError(f"cannot cancel service while order is {self.status.value}")
-        if not reason.strip():
+        if not isinstance(reason, str) or not reason.strip():
             raise ValueError("cancellation reason is required")
         return self._transition(
             ServiceOrderStatus.CANCELLED,

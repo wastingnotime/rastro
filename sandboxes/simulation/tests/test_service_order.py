@@ -164,6 +164,8 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
     def test_cancel_requires_reason_and_cannot_cancel_started_work(self):
         with self.assertRaises(ValueError):
             CancelServiceOrder().execute(self.request(), actor_id="owner-1", reason=" ")
+        with self.assertRaises(ValueError):
+            CancelServiceOrder().execute(self.request(), actor_id="owner-1", reason=1)  # type: ignore[arg-type]
         started = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
         with self.assertRaises(ValueError):
             CancelServiceOrder().execute(started, actor_id="owner-1", reason="No longer needed")
