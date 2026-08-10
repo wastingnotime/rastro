@@ -260,6 +260,8 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
             ServiceProposal(1, ("Inspect chain",), (), True, date(2026, 8, 2))  # type: ignore[arg-type]
         with self.assertRaises(ValueError):
             ServiceProposal(1, ("Inspect chain",), (), 22000, "tomorrow")  # type: ignore[arg-type]
+        with self.assertRaisesRegex(ValueError, "proposal notes must not be blank"):
+            ServiceProposal(1, ("Inspect chain",), (), 22000, date(2026, 8, 2), " ")
 
     def request_reviewed(self):
         return ReviewServiceRequest().execute(

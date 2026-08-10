@@ -67,6 +67,10 @@ class ServiceProposal:
             raise ValueError("proposal price must be positive")
         if not isinstance(self.estimated_completion, date):
             raise ValueError("proposal completion date is invalid")
+        if self.notes is not None and (
+            not isinstance(self.notes, str) or not self.notes.strip()
+        ):
+            raise ValueError("proposal notes must not be blank")
 
 
 @dataclass(frozen=True)
