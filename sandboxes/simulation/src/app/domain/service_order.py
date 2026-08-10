@@ -168,6 +168,10 @@ class ServiceOrder:
         """Return the ordered event contract without exposing event storage."""
         return tuple(event.name for event in self.events)
 
+    @property
+    def latest_event(self) -> ServiceOrderEvent | None:
+        return self.events[-1] if self.events else None
+
     def review(self, *, actor_id: str, accept: bool, reason: str | None = None) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.REQUESTED)
