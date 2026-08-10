@@ -248,6 +248,24 @@ class ServiceOrder:
             ),
         )
 
+    def cancel(self, *, actor_id: str, reason: str) -> "ServiceOrder":
+        if actor_id not in {self.motorcycle.owner_id, self.mechanic_id}:
+            raise PermissionError("only the owner or assigned mechanic may cancel")
+        if self.status not in {
+            ServiceOrderStatus.REQUESTED,
+            ServiceOrderStatus.UNDER_REVIEW,
+            ServiceOrderStatus.PROPOSED,
+            ServiceOrderStatus.NEGOTIATING,
+            ServiceOrderStatus.AGREED,
+        }:
+            raise ValueError(f"cannot cancel service while order is {self.status.value}")
+        if not reason.strip():
+            raise ValueError("cancellation reason is required")
+        return self._transition(
+            ServiceOrderStatus.CANCELLED,
+            ServiceOrderEvent("service_order_cancelled", actor_id, (("reason", reason),)),
+        )
+
     def complete(self, *, actor_id: str, completion_notes: str) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.IN_PROGRESS)

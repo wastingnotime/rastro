@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from app.application.use_cases import (
+    CancelServiceOrder,
     CompleteServiceJob,
     CreateServiceRequest,
     IdentifyMotorcycle,
@@ -148,6 +149,20 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
             reason="Required equipment is unavailable",
         )
         self.assertEqual(order.status, ServiceOrderStatus.REJECTED)
+
+    def test_owner_can_cancel_before_work_starts(self):
+        cancelled = CancelServiceOrder().execute(
+            self.request(), actor_id="owner-1", reason="Found another mechanic"
+        )
+        self.assertEqual(cancelled.status, ServiceOrderStatus.CANCELLED)
+        self.assertEqual(cancelled.events[-1].name, "service_order_cancelled")
+
+    def test_cancel_requires_reason_and_cannot_cancel_started_work(self):
+        with self.assertRaises(ValueError):
+            CancelServiceOrder().execute(self.request(), actor_id="owner-1", reason=" ")
+        started = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
+        with self.assertRaises(ValueError):
+            CancelServiceOrder().execute(started, actor_id="owner-1", reason="No longer needed")
 
     def test_request_rejects_blank_maintenance_gap(self):
         with self.assertRaises(ValueError):

@@ -36,6 +36,11 @@ class StartServiceJob:
         return order.start(actor_id=actor_id)
 
 
+class CancelServiceOrder:
+    def execute(self, order: ServiceOrder, *, actor_id: str, reason: str) -> ServiceOrder:
+        return order.cancel(actor_id=actor_id, reason=reason)
+
+
 class CompleteServiceJob:
     def execute(
         self,

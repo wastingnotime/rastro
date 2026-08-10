@@ -11,6 +11,7 @@ from app.application.use_cases.restore_manufacturer_warning_thresholds import (
     RestoreManufacturerWarningThresholds,
 )
 from app.application.use_cases.service_order_workflow import (
+    CancelServiceOrder,
     CompleteServiceJob,
     CreateServiceRequest,
     IdentifyMotorcycle,
