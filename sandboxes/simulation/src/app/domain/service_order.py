@@ -221,7 +221,11 @@ class ServiceOrder:
             raise ValueError("completion notes are required")
         return self._transition(
             ServiceOrderStatus.COMPLETED,
-            ServiceOrderEvent("service_job_completed", actor_id, (("completion_notes", completion_notes),)),
+            ServiceOrderEvent(
+                "service_job_completed",
+                actor_id,
+                (("order_id", self.order_id), ("completion_notes", completion_notes)),
+            ),
         )
 
     def issue_invoice(self, *, actor_id: str) -> "ServiceOrder":
