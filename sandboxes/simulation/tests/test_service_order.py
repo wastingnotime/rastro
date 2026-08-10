@@ -257,6 +257,25 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
                 payment_reference="payment-1",
             )
 
+    def test_payment_rejects_non_positive_amount(self):
+        order = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
+        order, _, _ = CompleteServiceJob().execute(
+            order,
+            self.items,
+            actor_id="mechanic-1",
+            completion_notes="Chain adjusted",
+            serviced_at=date(2026, 8, 2),
+            odometer_km=18510,
+        )
+        order = IssueServiceInvoice().execute(order, actor_id="mechanic-1")
+        with self.assertRaisesRegex(ValueError, "payment amount must be positive"):
+            PayServiceJob().execute(
+                order,
+                actor_id="owner-1",
+                amount_cents=0,
+                payment_reference="payment-1",
+            )
+
     def test_completion_rejects_history_gap_before_transition(self):
         order = StartServiceJob().execute(self.agreed_order(), actor_id="mechanic-1")
         with self.assertRaises(ValueError):

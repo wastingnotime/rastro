@@ -274,6 +274,8 @@ class ServiceOrder:
     def pay(self, *, actor_id: str, amount_cents: int, payment_reference: str) -> "ServiceOrder":
         self._require_owner(actor_id)
         self._require_status(ServiceOrderStatus.AWAITING_PAYMENT)
+        if amount_cents <= 0:
+            raise ValueError("payment amount must be positive")
         if amount_cents != self.invoice_cents:
             raise ValueError("payment amount must match the invoice")
         if not payment_reference.strip():
