@@ -72,12 +72,12 @@ class ServiceOrderEvent:
     details: tuple[tuple[str, object], ...] = ()
 
     def __post_init__(self) -> None:
-        if not self.name.strip():
+        if not isinstance(self.name, str) or not self.name.strip():
             raise ValueError("service order event name is required")
-        if not self.actor_id.strip():
+        if not isinstance(self.actor_id, str) or not self.actor_id.strip():
             raise ValueError("service order event actor is required")
         keys = [key for key, _ in self.details]
-        if any(not key.strip() for key in keys):
+        if any(not isinstance(key, str) or not key.strip() for key in keys):
             raise ValueError("service order event detail keys are required")
         if len(set(keys)) != len(keys):
             raise ValueError("service order event detail keys cannot be duplicated")

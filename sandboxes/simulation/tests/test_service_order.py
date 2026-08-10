@@ -192,7 +192,13 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ServiceOrderEvent("service_requested", " ")
         with self.assertRaises(ValueError):
+            ServiceOrderEvent(1, "owner-1")  # type: ignore[arg-type]
+        with self.assertRaises(ValueError):
+            ServiceOrderEvent("service_requested", 1)  # type: ignore[arg-type]
+        with self.assertRaises(ValueError):
             ServiceOrderEvent("service_requested", "owner-1", ((" ", "value"),))
+        with self.assertRaises(ValueError):
+            ServiceOrderEvent("service_requested", "owner-1", ((1, "value"),))  # type: ignore[arg-type]
         with self.assertRaisesRegex(ValueError, "detail keys cannot be duplicated"):
             ServiceOrderEvent("service_requested", "owner-1", (("id", 1), ("id", 2)))
 
