@@ -113,6 +113,7 @@ class ServiceOrderWorkflowTests(unittest.TestCase):
         self.assertEqual(order.invoice_cents, 22000)
         self.assertEqual(updated_items[0].last_service_odometer_km, 18510)
         self.assertEqual(service_event.service_id, "order-1")
+        self.assertEqual(dict(order.events[-4].details), {"proposal_version": 2, "price_cents": 22000})
         self.assertEqual(
             dict(order.events[-2].details),
             {"amount_cents": 22000, "proposal_version": 2},

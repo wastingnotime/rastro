@@ -202,7 +202,17 @@ class ServiceOrder:
     def start(self, *, actor_id: str) -> "ServiceOrder":
         self._require_mechanic(actor_id)
         self._require_status(ServiceOrderStatus.AGREED)
-        return self._transition(ServiceOrderStatus.IN_PROGRESS, ServiceOrderEvent("service_job_started", actor_id))
+        proposal = self.current_proposal
+        if proposal is None or proposal.version != self.agreed_proposal_version:
+            raise ValueError("agreed proposal is required before starting work")
+        return self._transition(
+            ServiceOrderStatus.IN_PROGRESS,
+            ServiceOrderEvent(
+                "service_job_started",
+                actor_id,
+                (("proposal_version", proposal.version), ("price_cents", proposal.price_cents)),
+            ),
+        )
 
     def complete(self, *, actor_id: str, completion_notes: str) -> "ServiceOrder":
         self._require_mechanic(actor_id)
