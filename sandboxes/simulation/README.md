@@ -1,5 +1,8 @@
 # Motorcycle maintenance simulation
 
+Historical reference: Rastro was retired on 2026-10-13. See the
+[retirement record](https://github.com/wastingnotime/rastro/blob/main/docs/decommission.md).
+
 This is the repository-owned MRL simulation surface for exploring motorcycle
 ownership behavior over time. It is not production application code.
 
